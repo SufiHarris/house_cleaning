@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68453052702",
+    "project_id": "housecleaning-9286f",
+    "storage_bucket": "housecleaning-9286f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68453052702:android:46d033d1863784df32990f",
+        "android_client_info": {
+          "package_name": "com.housecleaning.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdJGf8ZuQDLDf8ISgcnEn6wQpVtgb-sIA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
