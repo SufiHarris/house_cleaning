@@ -8,6 +8,7 @@ class CustomTheme {
         seedColor: CustomColors.seedColor, primary: CustomColors.primaryColor),
     textTheme: const TextTheme(),
     inputDecorationTheme: InputDecorationTheme(
+      prefixIconColor: CustomColors.hintColor,
       filled: true,
       fillColor: CustomColors.textfieldBackgroundColor,
       hintStyle: TextStyle(color: CustomColors.hintColor),
@@ -20,7 +21,7 @@ class CustomTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderSide:
-            BorderSide(color: CustomColors.textfieldBorderColor, width: 1.5),
+            BorderSide(color: CustomColors.textfieldBorderColor, width: 1),
         borderRadius: const BorderRadius.all(
           Radius.circular(6.0),
         ),
