@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
-import 'package:house_cleaning/auth/screens/loginScreen.dart';
+import 'package:house_cleaning/auth/screens/log_in_screen.dart';
+import 'package:house_cleaning/auth/screens/register_screen.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -29,7 +30,7 @@ class AuthScreen extends StatelessWidget {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(Loginscreen());
+                      Get.to(LogInScreen());
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
@@ -53,7 +54,9 @@ class AuthScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.to(RegisterScreen());
+                      },
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 56),
                         backgroundColor: Colors.white,
