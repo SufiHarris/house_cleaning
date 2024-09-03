@@ -14,23 +14,35 @@ class AuthScreen extends StatelessWidget {
         children: [
           const Image(
             image: AssetImage("assets/images/auth_screen_bg.png"),
-            fit: BoxFit.cover,
+            fit: BoxFit.fill,
             width: double.infinity,
             height: double.infinity,
           ),
           Container(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Spacer(
-                    flex: 10,
+                    flex: 1,
+                  ),
+                  const Text(
+                    "Services\nthat feel clean",
+                    style: TextStyle(
+                      fontSize: 63,
+                      fontWeight: FontWeight.bold,
+                      height: 1.3,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const Spacer(
+                    flex: 8,
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Get.to(LogInScreen());
+                      Get.to(const LogInScreen());
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
@@ -55,10 +67,10 @@ class AuthScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.to(RegisterScreen());
+                        Get.to(const RegisterScreen());
                       },
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 56),
+                        minimumSize: const Size(double.infinity, 56),
                         backgroundColor: Colors.white,
                         elevation: 0,
 
@@ -68,13 +80,12 @@ class AuthScreen extends StatelessWidget {
                         // ),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(40),
-                            side: BorderSide(color: Colors.black)),
+                            side: const BorderSide(color: Colors.black)),
                       ),
                       child: const Text(
                         'Register',
                         style: TextStyle(
-                          color: Colors.black,
-                        ),
+                            color: Colors.black, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../theme/custom_colors.dart';
+import '../../user/screens/user_main.dart';
 import '../widgets/image_button.dart';
-import 'log_in_screen.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -83,7 +83,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Get.to(LogInScreen());
+                  Get.to(const UserMain());
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 56),

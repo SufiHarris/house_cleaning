@@ -1,6 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/screens/register_screen.dart';
 import 'package:house_cleaning/auth/widgets/image_button.dart';
+import 'package:house_cleaning/user/screens/user_main.dart';
 
 import '../../theme/custom_colors.dart';
 
@@ -62,7 +65,7 @@ class LogInScreen extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Get.to(LogInScreen());
+                  Get.to(const UserMain());
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 56),
@@ -136,6 +139,10 @@ class LogInScreen extends StatelessWidget {
                             fontWeight: FontWeight.w500),
                       ),
                       TextSpan(
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Get.to(const RegisterScreen());
+                          },
                         text: "Register Now",
                         style: TextStyle(
                           color: CustomColors
