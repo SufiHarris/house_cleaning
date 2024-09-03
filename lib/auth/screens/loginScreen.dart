@@ -9,7 +9,7 @@ class Loginscreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Padding(
+      body: const Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -18,15 +18,9 @@ class Loginscreen extends StatelessWidget {
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             TextField(
-              decoration: InputDecoration(
-                hintStyle: TextStyle(color: CustomColors.hintColor),
-                hintText: 'Enter your email',
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: CustomColors.textfieldBorderColor, width: 1),
-                ),
-              ),
-            ),
+                decoration: InputDecoration(
+              hintText: 'Enter your email',
+            )),
           ],
         ),
       ),

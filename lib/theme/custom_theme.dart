@@ -6,6 +6,24 @@ class CustomTheme {
     colorScheme: ColorScheme.fromSeed(
         seedColor: CustomColors.seedColor, primary: CustomColors.primaryColor),
     textTheme: const TextTheme(),
-    inputDecorationTheme: InputDecorationTheme(),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: CustomColors.textfieldBackgroundColor,
+      hintStyle: TextStyle(color: CustomColors.hintColor),
+      enabledBorder: OutlineInputBorder(
+        borderSide:
+            BorderSide(color: CustomColors.textfieldBorderColor, width: 1),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(6.0),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide:
+            BorderSide(color: CustomColors.textfieldBorderColor, width: 1.5),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(6.0),
+        ),
+      ),
+    ),
   );
 }
