@@ -134,12 +134,21 @@ class RegisterScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ImageButton(imageUrl: "assets/images/fb.svg"),
-                  ImageButton(imageUrl: "assets/images/google.svg"),
-                  ImageButton(imageUrl: "assets/images/apple.svg"),
+                  ImageButton(
+                    imageUrl: "assets/images/fb.svg",
+                    onPressed: () {},
+                  ),
+                  ImageButton(
+                    imageUrl: "assets/images/google.svg",
+                    onPressed: () {},
+                  ),
+                  ImageButton(
+                    imageUrl: "assets/images/apple.svg",
+                    onPressed: () {},
+                  ),
                 ],
               ),
               const SizedBox(

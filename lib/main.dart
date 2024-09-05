@@ -1,8 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:house_cleaning/user/screens/user_main.dart';
+
+import 'auth/screens/log_in_screen.dart';
 import 'firebase_options.dart';
 import 'theme/custom_theme.dart';
 
@@ -20,12 +23,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child:   GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: CustomTheme.themeData,
-      home: const AuthScreen(),
-    )
+    return SafeArea(
+      child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: CustomTheme.themeData,
+        home: Obx(() {
+          final authProvider = Get.find<AuthProvider>();
+          return authProvider.user.value != null
+              ? const UserMain()
+              : const AuthScreen();
+        }),
+      ),
     );
-
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:house_cleaning/user/models/product_model.dart';
-import 'package:house_cleaning/user/widgets/product_card.dart';
 
 import '../../theme/custom_colors.dart';
+import '../models/product_model.dart';
 import '../models/service_model.dart';
 import '../widgets/heading_text.dart';
+import '../widgets/product_card.dart';
 import '../widgets/service_card.dart';
 
 class UserHome extends StatelessWidget {

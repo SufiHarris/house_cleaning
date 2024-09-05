@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1003248471502-a5mhn8697qiqe3e2utlsbcq03g0sc74k.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1003248471502-a5mhn8697qiqe3e2utlsbcq03g0sc74k</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCcVZzzHrIIutWpURe1iEhXraW21y4WJrs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1003248471502</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.aseef.houseCleaning</string>
+	<key>PROJECT_ID</key>
+	<string>housecleaning-ed9da</string>
+	<key>STORAGE_BUCKET</key>
+	<string>housecleaning-ed9da.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1003248471502:ios:ebd0db93ec1cb0922e6f9f</string>
+</dict>
+</plist>

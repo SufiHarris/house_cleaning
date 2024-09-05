@@ -42,7 +42,7 @@ class ProductCard extends StatelessWidget {
                       },
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {
-                        return SizedBox(
+                        return const SizedBox(
                           height: 140,
                           width: 110,
                           child: Icon(Icons.error),
@@ -65,7 +65,7 @@ class ProductCard extends StatelessWidget {
                                   color: CustomColors.priceColor,
                                   fontWeight: FontWeight.bold),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             Text(
                               "\$${product.originalPrice}",
                               style: TextStyle(
@@ -79,7 +79,7 @@ class ProductCard extends StatelessWidget {
                       ),
                       Text(
                         product.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w400),
                       ),
                     ],
