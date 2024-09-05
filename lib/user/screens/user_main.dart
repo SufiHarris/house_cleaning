@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:house_cleaning/user/screens/user_bookings.dart';
-import 'package:house_cleaning/user/screens/user_settings.dart';
+
+import 'user_bookings.dart';
 import 'user_home.dart';
 import 'user_service_screen.dart';
 import 'user_product_screen.dart';
+import 'user_settings.dart';
 
 class UserMain extends StatefulWidget {
   const UserMain({super.key});

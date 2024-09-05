@@ -66,7 +66,7 @@ class MainCard extends StatelessWidget {
                       rating: rating,
                       size: 15,
                     ),
-                    Spacer()
+                    const Spacer()
                   ],
                 )
               ],

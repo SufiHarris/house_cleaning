@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:house_cleaning/user/models/product_model.dart';
-import 'package:house_cleaning/user/widgets/product_card.dart';
 
 import '../models/service_model.dart';
 import '../widgets/main_card.dart';
