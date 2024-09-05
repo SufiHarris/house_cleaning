@@ -12,7 +12,12 @@
           "package_name": "com.aseef.house_cleaning"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1003248471502-hdjduti5jcmr35i75vbrmbaact01vams.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAhTgApDD9WT_pNzLBwH1DR7-G0iWC-y1w"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1003248471502-hdjduti5jcmr35i75vbrmbaact01vams.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1003248471502-a5mhn8697qiqe3e2utlsbcq03g0sc74k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aseef.houseCleaning"
+              }
+            }
+          ]
         }
       }
     }

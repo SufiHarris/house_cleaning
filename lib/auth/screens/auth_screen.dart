@@ -12,97 +12,147 @@ class AuthScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          const Image(
-            image: AssetImage("assets/images/auth_screen_bg.png"),
-            fit: BoxFit.fill,
+          // Background Image
+          Image.asset(
+            "assets/images/auth_screen_bg.png", // Replace with your image path
             width: double.infinity,
             height: double.infinity,
+            fit: BoxFit.cover,
           ),
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+          Column(
+            children: [
+              // Top Section with Curved Container
+              Stack(
                 children: [
-                  const Spacer(
-                    flex: 1,
+                  ClipPath(
+                    clipper: BottomWaveClipper(), // Use the custom clipper here
+                    child: Container(
+                      height: 150,
+                      color: CustomColors.primaryColor,
+                    ),
                   ),
-                  const Text(
-                    "Services\nthat feel clean",
+                  // Positioned logo that overlaps the curved container
+                  Positioned(
+                    top:
+                        70, // Adjust this value to control how much the logo overlaps
+                    left: MediaQuery.of(context).size.width / 2 -
+                        50, // Center the logo horizontally
+                    child: Image.asset(
+                      "assets/images/logo.png", // Replace with your logo image path
+                      height: 100, // Adjust logo size as needed
+                    ),
+                  ),
+                ],
+              ),
+              // const SizedBox(
+              //     height: 50), // Add space between the logo and the text
+              Column(
+                children: [
+                  Text(
+                    "room services",
                     style: TextStyle(
-                      fontSize: 63,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      height: 1.3,
-                      letterSpacing: 1.5,
+                      color:
+                          CustomColors.primaryColor, // Adjust color as needed
                     ),
                   ),
-                  const Spacer(
-                    flex: 8,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.to(const LogInScreen());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 56),
-                      backgroundColor: CustomColors.primaryColor,
-                      elevation: 0,
-                      // padding: const EdgeInsets.symmetric(
-                      //   horizontal: 40,
-                      //   vertical: 15,
-                      // ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                    ),
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    child: ElevatedButton(
+                ],
+              ),
+              Text(
+                "Providing services that feel clean",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: CustomColors.primaryColor, // Adjust color as needed
+                ),
+              ),
+              const Spacer(flex: 10),
+              // Buttons Section
+              Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  children: [
+                    ElevatedButton(
                       onPressed: () {
-                        Get.to(const RegisterScreen());
+                        Get.to(const LogInScreen());
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 56),
-                        backgroundColor: Colors.white,
+                        backgroundColor: CustomColors.primaryColor,
                         elevation: 0,
-
-                        // padding: const EdgeInsets.symmetric(
-                        //   horizontal: 40,
-                        //   vertical: 15,
-                        // ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
-                            side: const BorderSide(color: Colors.black)),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
                       ),
                       child: const Text(
-                        'Register',
+                        'Login',
                         style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.w500),
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  Text("Continue as guest",
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.to(const RegisterScreen());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 56),
+                          backgroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(40),
+                            side: BorderSide(color: CustomColors.primaryColor),
+                          ),
+                        ),
+                        child: const Text(
+                          'Register',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // const SizedBox(height: 20),
+                    Text(
+                      "Continue as guest",
                       style: TextStyle(
                         color: CustomColors.primaryColor,
-                      )),
-                  const Spacer(),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
     );
+  }
+}
+
+// Custom Clipper Class for the Curve
+class BottomWaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0.0, size.height - 50);
+
+    var firstControlPoint = Offset(size.width / 2, size.height);
+    var firstEndPoint = Offset(size.width, size.height - 50);
+
+    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
+        firstEndPoint.dx, firstEndPoint.dy);
+
+    path.lineTo(size.width, 0.0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

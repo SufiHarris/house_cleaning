@@ -5,12 +5,18 @@ import '../../theme/custom_colors.dart';
 
 class ImageButton extends StatelessWidget {
   final String imageUrl;
-  const ImageButton({super.key, required this.imageUrl});
+  final VoidCallback onPressed;
+
+  const ImageButton({
+    super.key,
+    required this.imageUrl,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         elevation: 0,
