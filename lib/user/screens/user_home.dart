@@ -26,7 +26,7 @@ class UserHome extends StatelessWidget {
                     children: [
                       SizedBox(
                         child: SvgPicture.asset(
-                          "assets/images/profile_icon.svg",
+                          "assets/images/logo.svg",
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -58,18 +58,48 @@ class UserHome extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
-              const TextField(
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search for products and services',
-                ),
-              ),
+              // const TextField(
+              //   decoration: InputDecoration(
+              //     prefixIcon: Icon(Icons.search),
+              //     hintText: 'Search for products and services',
+              //   ),
+              // ),
               const SizedBox(height: 20),
               const Image(
                 width: double.infinity,
                 fit: BoxFit.fitWidth,
                 image: AssetImage(
                   "assets/images/cover_pic.png",
+                ),
+              ),
+              const HeadingText(headingText: "My Bookings"),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        "No bookings",
+                        style: TextStyle(
+                            color: CustomColors.primaryColor,
+                            fontWeight: FontWeight.w300),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const HeadingText(headingText: "Services"),

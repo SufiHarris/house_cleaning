@@ -28,8 +28,8 @@ class ServiceCard extends StatelessWidget {
         children: [
           Icon(
             service.icon,
-            size: 40,
-            color: service.color,
+            size: 29,
+            color: CustomColors.textColorTwo,
           ),
           const SizedBox(height: 10),
           Text(
@@ -38,7 +38,7 @@ class ServiceCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w300,
-              color: CustomColors.textColorOne,
+              color: CustomColors.textColorTwo,
               height: 1.2,
             ),
             softWrap: true,
