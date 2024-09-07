@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:house_cleaning/user/screens/user_main.dart';
+import '../../user/screens/user_main.dart';
+import '../screens/auth_screen.dart';
 import '../screens/log_in_screen.dart';
 import 'database_methods.dart';
 
@@ -93,7 +94,7 @@ class AuthProvider extends GetxController {
   Future<void> signOut() async {
     try {
       await _auth.signOut();
-      Get.offAll(() => const LogInScreen());
+      Get.offAll(() => const AuthScreen());
       _showSnackBar('Logged out successfully', false);
     } catch (e) {
       _showSnackBar('Failed to log out. Please try again.', true);
@@ -149,20 +150,24 @@ class AuthProvider extends GetxController {
 
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
 
-    User? userdetails = result.user;
+    User? userDetails = result.user;
 
     if (result != null) {
       Map<String, dynamic> userInfoMap = {
-        "email": userdetails!.email,
-        "name": userdetails.displayName,
-        "imgUrl": userdetails.photoURL,
-        "id": userdetails.uid,
+        "email": userDetails!.email,
+        "name": userDetails.displayName,
+        "imgUrl": userDetails.photoURL,
+        "id": userDetails.uid,
       };
       await DatabaseMethods()
-          .addUser(userdetails.uid, userInfoMap)
+          .addUser(userDetails.uid, userInfoMap)
           .then((value) {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => UserMain()));
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserMain(),
+          ),
+        );
       });
     }
   }

@@ -10,7 +10,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.only(right: 12.0),
       child: Container(
         width: 150,
         child: Stack(
@@ -19,13 +19,22 @@ class ProductCard extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                      color: CustomColors.productBackground,
-                      borderRadius: BorderRadius.circular(20)),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     child: Image.network(
-                      height: 140,
+                      height: 80,
                       fit: BoxFit.fitHeight,
                       product.imageUrl,
                       loadingBuilder: (BuildContext context, Widget child,
@@ -43,7 +52,7 @@ class ProductCard extends StatelessWidget {
                       errorBuilder: (BuildContext context, Object exception,
                           StackTrace? stackTrace) {
                         return const SizedBox(
-                          height: 140,
+                          height: 80,
                           width: 110,
                           child: Icon(Icons.error),
                         );
@@ -51,56 +60,69 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Row(
-                          children: [
-                            Text(
-                              "\$${product.currentPrice}",
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              product.name,
                               style: TextStyle(
-                                  color: CustomColors.priceColor,
-                                  fontWeight: FontWeight.bold),
+                                  color: CustomColors.textColorTwo,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w200),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1, // Ensure truncation
                             ),
-                            const Spacer(),
-                            Text(
-                              "\$${product.originalPrice}",
-                              style: TextStyle(
-                                  color: CustomColors.slashePriceColor,
-                                  decoration: TextDecoration.lineThrough,
-                                  decorationColor:
-                                      CustomColors.slashePriceColor),
-                            ),
-                          ],
+                          ),
+                          //   const Spacer(),
+
+                          const Image(
+                            image: AssetImage("assets/images/star.png"),
+                          ),
+                          Text(
+                            product.rating.toString(),
+                            style: TextStyle(
+                                color: CustomColors.textColorTwo,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "\$${product.currentPrice.toString()}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1, // Ensure truncation here as well
                         ),
-                      ),
-                      Text(
-                        product.name,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w400),
-                      ),
-                    ],
-                  ),
+                        const Spacer()
+                      ],
+                    )
+                  ],
                 ),
               ],
             ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                width: 30,
-                height: 30,
-                padding: EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                child: Icon(Icons.favorite_border, size: 20),
-              ),
-            ),
+            // Positioned(
+            //   top: 8,
+            //   right: 8,
+            //   child: Container(
+            //     width: 30,
+            //     height: 30,
+            //     padding: EdgeInsets.all(0),
+            //     decoration: BoxDecoration(
+            //       color: Colors.white,
+            //       borderRadius: BorderRadius.circular(50),
+            //     ),
+            //     child: Icon(Icons.favorite_border, size: 20),
+            //   ),
+            // ),
           ],
         ),
       ),

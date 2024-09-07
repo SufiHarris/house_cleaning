@@ -27,5 +27,11 @@ class CustomTheme {
         ),
       ),
     ),
+    appBarTheme: AppBarTheme(
+      titleTextStyle: TextStyle(
+          color: CustomColors.primaryColor,
+          fontSize: 20,
+          fontWeight: FontWeight.w600),
+    ),
   );
 }

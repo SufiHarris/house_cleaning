@@ -11,4 +11,6 @@ class CustomColors {
   static Color productBackground = const Color.fromRGBO(235, 239, 252, 1);
   static Color priceColor = Color.fromRGBO(250, 37, 76, 1);
   static Color slashePriceColor = Color.fromRGBO(176, 181, 185, 1);
+  static Color textColorTwo = Color.fromRGBO(27, 27, 27, 1);
+  static Color textColorThree = Color.fromRGBO(82, 53, 61, 1);
 }
