@@ -3,10 +3,13 @@ import 'package:house_cleaning/theme/custom_colors.dart';
 
 class CustomTheme {
   static ThemeData themeData = ThemeData(
+    fontFamily: 'Montserrat',
     scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
         seedColor: CustomColors.seedColor, primary: CustomColors.primaryColor),
-    textTheme: const TextTheme(),
+    textTheme: const TextTheme(
+        titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        bodyMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
     inputDecorationTheme: InputDecorationTheme(
       prefixIconColor: CustomColors.hintColor,
       filled: true,

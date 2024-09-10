@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
+import '../models/product_model.dart';
 import '../models/service_model.dart';
-import '../widgets/main_card.dart';
-import '../widgets/service_card.dart';
+import '../widgets/product_card.dart';
 
 class UserProductScreen extends StatelessWidget {
   const UserProductScreen({super.key});
@@ -12,22 +11,22 @@ class UserProductScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text("Products"),
+        title: const Text("Products"),
       ),
       body: CustomScrollView(
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(16.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: 'Search for products and services',
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: 'Search for products and services',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                //    const SizedBox(height: 20),
-              ]),
+              ),
             ),
           ),
           SliverPadding(
@@ -37,22 +36,21 @@ class UserProductScreen extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 1,
+                childAspectRatio:
+                    0.9, // Adjust this value to change the card height
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final service = services[index];
-                  return MainCard(
-                    icon: service.icon,
-                    name: service.name,
-                    price: service.price,
-                    rating: service.rating,
-                    iconColor: service.color,
-                  );
+                  final product = products[index];
+                  return ProductCard(product: product);
                 },
-                childCount: services.length,
+                childCount: products
+                    .length, // Use products.length instead of services.length
               ),
             ),
+          ),
+          const SliverPadding(
+            padding: const EdgeInsets.only(bottom: 16.0),
           ),
         ],
       ),

@@ -13,4 +13,6 @@ class CustomColors {
   static Color slashePriceColor = Color.fromRGBO(176, 181, 185, 1);
   static Color textColorTwo = Color.fromRGBO(27, 27, 27, 1);
   static Color textColorThree = Color.fromRGBO(82, 53, 61, 1);
+  static Color textColorFour = Color.fromRGBO(78, 78, 78, 1);
+  static Color boneColor = Color.fromRGBO(211, 200, 176, 1);
 }

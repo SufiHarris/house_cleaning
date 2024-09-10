@@ -41,14 +41,10 @@ class UserServiceScreen extends StatelessWidget {
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  final service = services[index];
-                  return MainCard(
-                    icon: service.icon,
-                    name: service.name,
-                    price: service.price,
-                    rating: service.rating,
-                    iconColor: service.color,
-                  );
+                  if (services[index].name != "View all") {
+                    final service = services[index];
+                    return ServiceCard(service: service);
+                  }
                 },
                 childCount: services.length,
               ),

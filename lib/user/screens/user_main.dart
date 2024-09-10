@@ -8,7 +8,6 @@ import 'user_settings.dart';
 
 class UserMain extends StatefulWidget {
   const UserMain({super.key});
-
   @override
   State<UserMain> createState() => _UserMainState();
 }
