@@ -9,6 +9,7 @@ import 'database_methods.dart';
 
 class AuthProvider extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
