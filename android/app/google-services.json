@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1003248471502:android:995c34f2deedc2c02e6f9f",
+        "mobilesdk_app_id": "1:1003248471502:android:0700643ab1e065fb2e6f9f",
         "android_client_info": {
           "package_name": "com.aseef.house_cleaning"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1003248471502-lcft2dgholj0veh0kqno3d0gv6ki9t2c.apps.googleusercontent.com",
+          "client_id": "1003248471502-ltak4cgbadm71p1sfka24mfpskk9cdre.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aseef.ho",
+            "package_name": "com.aseef.house_cleaning",
             "certificate_hash": "adff34e157286b17c48848ad623b6c45ef8dee1c"
           }
         },
