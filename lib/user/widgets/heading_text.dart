@@ -21,7 +21,7 @@ class HeadingText extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodyLarge
-                ?.copyWith(color: CustomColors.textColorOne, fontSize: 18),
+                ?.copyWith(color: CustomColors.textColorTwo, fontSize: 18),
           )
         ],
       ),
