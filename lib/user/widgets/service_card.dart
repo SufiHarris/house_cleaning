@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/screens/user_service_detail_screen.dart';
 
@@ -14,49 +15,61 @@ class ServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
       return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GestureDetector(
+        padding: const EdgeInsets.only(bottom: 22),
+        child: InkWell(
           onTap: () {
-            Get.to(UserServiceDetailPage(service: service));
+            Get.to(() => UserServiceDetailPage(service: service));
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: service.name == 'View all'
-                  ? Colors.blue.shade50
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  service.icon,
-                  size: 29,
-                  color: CustomColors.textColorTwo,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  service.name,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                    color: CustomColors.textColorTwo,
-                    height: 1.2,
+          child: Row(
+            children: [
+              Image(
+                height: 50,
+                width: 49,
+                image: AssetImage(service.imageUrl),
+              ),
+              const Spacer(flex: 1),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: CustomColors.primaryColor),
                   ),
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                ),
-              ],
-            ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                      ),
+                      Text(
+                        service.rating.toString(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(color: CustomColors.textColorFour),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        "${service.reviews.length} reviews",
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge
+                            ?.copyWith(color: CustomColors.textColorFour),
+                      )
+                    ],
+                  )
+                ],
+              ),
+              const Spacer(
+                flex: 5,
+              ),
+              SvgPicture.asset("assets/images/right_chevron.svg")
+            ],
           ),
         ),
       );

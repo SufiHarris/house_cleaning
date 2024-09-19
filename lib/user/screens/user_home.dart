@@ -33,91 +33,148 @@ class UserHome extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Welcome",
-                            style: TextStyle(
-                                fontSize: 12, color: CustomColors.textColorOne),
-                          ),
+                          Text("Welcome",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelLarge
+                                  ?.copyWith(
+                                      color: CustomColors.textColorFour)),
                           Text(
                             "Faezan Dar",
-                            style: TextStyle(
-                                fontSize: 18, color: CustomColors.textColorOne),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(color: CustomColors.textColorTwo),
                           ),
                         ],
                       ),
                     ],
                   ),
                   const Spacer(),
-                  SizedBox(
-                    width: 26,
-                    height: 26,
-                    child: SvgPicture.asset(
-                      "assets/images/bell.svg",
+                  Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SvgPicture.asset("assets/images/icon_bell.svg"),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              // const TextField(
-              //   decoration: InputDecoration(
-              //     prefixIcon: Icon(Icons.search),
-              //     hintText: 'Search for products and services',
-              //   ),
-              // ),
-              const SizedBox(height: 20),
-              const Image(
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-                image: AssetImage(
-                  "assets/images/cover_pic.png",
-                ),
-              ),
-              const HeadingText(headingText: "My Bookings"),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(20),
+              Stack(
+                children: [
+                  const Image(
+                    width: double.infinity,
+                    fit: BoxFit.fitWidth,
+                    image: AssetImage(
+                      "assets/images/sub_bg.png",
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 1,
-                        blurRadius: 3,
-                        offset: const Offset(1, 1),
-                      ),
-                    ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "No bookings",
-                          style: TextStyle(
-                              color: CustomColors.primaryColor,
-                              fontWeight: FontWeight.w300),
+                          "You’re missing out!!!",
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(color: Colors.white),
                         ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Text(
+                          "Subscribe and save.",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        SizedBox(
+                          width: 200,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                  CustomColors.boneColor),
+                            ),
+                            onPressed: () {
+                              // Handle button press
+                            },
+                            child: Row(
+                              children: [
+                                const Image(
+                                  width: 15,
+                                  height: 15,
+                                  image: AssetImage(
+                                      "assets/images/sub_button_icon.png"),
+                                  fit: BoxFit.cover,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Subscription Plans",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                       ],
                     ),
-                  ),
-                ),
+                  )
+                ],
               ),
+
+              // const HeadingText(headingText: "My Bookings"),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       color: Colors.white,
+              //       borderRadius: const BorderRadius.all(
+              //         Radius.circular(20),
+              //       ),
+              //       boxShadow: [
+              //         BoxShadow(
+              //           color: Colors.grey.withOpacity(0.2),
+              //           spreadRadius: 1,
+              //           blurRadius: 3,
+              //           offset: const Offset(1, 1),
+              //         ),
+              //       ],
+              //     ),
+              //     child: Padding(
+              //       padding: const EdgeInsets.all(16.0),
+              //       child: Row(
+              //         children: [
+              //           Text(
+              //             "No bookings",
+              //             style: TextStyle(
+              //                 color: CustomColors.primaryColor,
+              //                 fontWeight: FontWeight.w300),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
               const HeadingText(headingText: "Services"),
-              GridView.builder(
-                physics: const NeverScrollableScrollPhysics(),
+              ListView.builder(
                 shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 itemCount: services.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
                 itemBuilder: (context, index) {
-                  return ServiceCard(service: services[index]);
+                  final service = services[index];
+                  return ServiceCard(service: service);
                 },
               ),
               const HeadingText(headingText: "Products"),

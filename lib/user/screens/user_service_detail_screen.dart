@@ -52,7 +52,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
             width: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(widget.service.imageUrl),
+                image: NetworkImage(widget.service.detailImageUrl),
                 fit: BoxFit.fill,
               ),
             ),
