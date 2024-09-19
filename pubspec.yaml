@@ -42,6 +42,7 @@ dependencies:
   google_sign_in: ^6.2.1
   cloud_firestore: ^4.14.0
   flutter_rating_bar: ^4.0.1
+  the_apple_sign_in: ^1.1.1
 
 dev_dependencies:
   flutter_test:

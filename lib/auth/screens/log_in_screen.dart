@@ -121,7 +121,9 @@ class LogInScreen extends StatelessWidget {
                   ),
                   ImageButton(
                     imageUrl: "assets/images/apple.svg",
-                    onPressed: () {},
+                    onPressed: () {
+                      authProvider.signInWithApple();
+                    },
                   ),
                 ],
               ),

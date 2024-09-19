@@ -8,8 +8,14 @@ class CustomTheme {
     colorScheme: ColorScheme.fromSeed(
         seedColor: CustomColors.seedColor, primary: CustomColors.primaryColor),
     textTheme: const TextTheme(
-        titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        bodyMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400)),
+      titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      bodySmall: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+      labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       prefixIconColor: CustomColors.hintColor,
       filled: true,

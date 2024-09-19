@@ -18,7 +18,10 @@ class HeadingText extends StatelessWidget {
         children: [
           Text(
             headingText,
-            style: TextStyle(color: CustomColors.textColorOne, fontSize: 18),
+            style: Theme.of(context)
+                .textTheme
+                .bodyLarge
+                ?.copyWith(color: CustomColors.textColorOne, fontSize: 18),
           )
         ],
       ),
