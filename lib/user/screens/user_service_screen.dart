@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/service_model.dart';
-import '../widgets/main_card.dart';
+// import '../widgets/main_card.dart';
 import '../widgets/service_card.dart';
 
 class UserServiceScreen extends StatelessWidget {
