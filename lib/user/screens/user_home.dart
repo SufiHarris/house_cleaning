@@ -73,38 +73,41 @@ class UserHome extends StatelessWidget {
                 ),
               ),
               const HeadingText(headingText: "My Bookings"),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(20),
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Text(
-                        "No bookings",
-                        style: TextStyle(
-                            color: CustomColors.primaryColor,
-                            fontWeight: FontWeight.w300),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 3,
+                        offset: const Offset(1, 1),
                       ),
                     ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Text(
+                          "No bookings",
+                          style: TextStyle(
+                              color: CustomColors.primaryColor,
+                              fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
               const HeadingText(headingText: "Services"),
               GridView.builder(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: services.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

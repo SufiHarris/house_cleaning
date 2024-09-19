@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
 import '../../theme/custom_colors.dart';
+import '../widgets/review_tab.dart';
 
 class UserServiceDetailPage extends StatefulWidget {
   final Service service;
 
-  const UserServiceDetailPage({Key? key, required this.service})
-      : super(key: key);
+  const UserServiceDetailPage({super.key, required this.service});
 
   @override
   State<UserServiceDetailPage> createState() => _UserServiceDetailPageState();
 }
 
-class _UserServiceDetailPageState extends State<UserServiceDetailPage> {
+class _UserServiceDetailPageState extends State<UserServiceDetailPage>
+    with SingleTickerProviderStateMixin {
   final Map<String, int> rooms = {
     'Living Room': 0,
     'Bedroom': 0,
@@ -25,6 +26,19 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage> {
 
   double totalPrice = 57.00;
   bool showDateTimeSelection = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +103,55 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage> {
                     topRight: Radius.circular(20),
                   ),
                 ),
-                child: showDateTimeSelection
-                    ? _buildDateTimeSelectionScreen()
-                    : _buildLayoutSelectionScreen(scrollController),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Row(
+                        children: [
+                          Text(
+                            widget.service.name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: CustomColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: -1,
+                                  height: 1,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TabBar(
+                      controller: _tabController,
+                      tabs: const [
+                        Tab(text: 'Service'),
+                        Tab(text: 'Reviews'),
+                      ],
+                      labelColor: CustomColors.primaryColor,
+                      unselectedLabelColor: CustomColors.textColorFour,
+                      indicatorColor: CustomColors.primaryColor,
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          showDateTimeSelection
+                              ? _buildDateTimeSelectionScreen()
+                              : _buildLayoutSelectionScreen(scrollController),
+                          ReviewsTab(service: widget.service),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 100,
+                    )
+                  ],
+                ),
               );
             },
           ),
@@ -173,17 +233,6 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage> {
       controller: scrollController,
       padding: const EdgeInsets.all(16.0),
       children: [
-        const SizedBox(height: 30),
-        Text(
-          widget.service.name,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: CustomColors.primaryColor,
-                fontWeight: FontWeight.w500,
-                letterSpacing: -1,
-                height: 1,
-              ),
-        ),
-        const SizedBox(height: 20),
         Text(
           "Experience top-notch home cleaning with our expert team. Quick, reliable, and thorough—making your home sparkle effortlessly!",
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -318,7 +367,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage> {
 
   Widget _buildDateButton(String day) {
     return Padding(
-      padding: EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 8),
       child: ElevatedButton(
         onPressed: () {
           // Handle date selection

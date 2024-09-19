@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import '../../user/screens/user_main.dart';
 import '../screens/auth_screen.dart';
 import '../screens/log_in_screen.dart';
@@ -170,6 +172,40 @@ class AuthProvider extends GetxController {
           ),
         );
       });
+    }
+  }
+
+  Future<User> signInWithApple({List<Scope> scopes = const []}) async {
+    final result = await TheAppleSignIn.performRequests(
+        [AppleIdRequest(requestedScopes: scopes)]);
+    switch (result.status) {
+      case AuthorizationStatus.authorized:
+        final AppleIdCredential = result.credential!;
+        final oAuthCredential = OAuthProvider('apple.com');
+        final credential = oAuthCredential.credential(
+            idToken: String.fromCharCodes(AppleIdCredential.identityToken!));
+        final UserCredential = await _auth.signInWithCredential(credential);
+        final firebaseUser = UserCredential.user!;
+        if (scopes.contains(Scope.fullName)) {
+          final fullName = AppleIdCredential.fullName;
+          if (fullName != null &&
+              fullName.givenName != null &&
+              fullName.familyName != null) {
+            final displayName = '${fullName.givenName}${fullName.familyName}';
+            await firebaseUser.updateDisplayName(displayName);
+          }
+        }
+        return firebaseUser;
+      case AuthorizationStatus.error:
+        throw PlatformException(
+            code: 'ERROR_AUTHORIZATION_DENIED',
+            message: result.error.toString());
+
+      case AuthorizationStatus.cancelled:
+        throw PlatformException(
+            code: 'ERROR_ABORTED_BY_USER', message: 'Sign in aborted by user');
+      default:
+        throw UnimplementedError();
     }
   }
 }
