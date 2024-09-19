@@ -32,9 +32,9 @@ class ProductCard extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                            spreadRadius: 1,
+                            blurRadius: 1,
+                            offset: const Offset(0, 1),
                           ),
                         ],
                       ),
@@ -78,24 +78,34 @@ class ProductCard extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   product.name,
-                                  style: TextStyle(
-                                      color: CustomColors.textColorTwo,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w200),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelLarge
+                                      ?.copyWith(
+                                        color: CustomColors.textColorTwo,
+                                      ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1, // Ensure truncation
                                 ),
                               ),
                               //   const Spacer(),
+                              const SizedBox(
+                                width: 10,
+                              ),
 
                               const Image(
+                                width: 16,
+                                height: 16,
                                 image: AssetImage("assets/images/star.png"),
                               ),
                               Text(
                                 product.rating.toString(),
-                                style: TextStyle(
-                                    color: CustomColors.textColorTwo,
-                                    fontWeight: FontWeight.w500),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(
+                                      color: CustomColors.textColorTwo,
+                                    ),
                               ),
                             ],
                           ),

@@ -35,7 +35,7 @@ class ServiceCard extends StatelessWidget {
                     service.name,
                     style: Theme.of(context)
                         .textTheme
-                        .bodyLarge
+                        .labelLarge
                         ?.copyWith(color: CustomColors.primaryColor),
                   ),
                   Row(

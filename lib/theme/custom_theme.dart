@@ -37,10 +37,11 @@ class CustomTheme {
       ),
     ),
     appBarTheme: AppBarTheme(
-      titleTextStyle: TextStyle(
-          color: CustomColors.primaryColor,
-          fontSize: 20,
-          fontWeight: FontWeight.w600),
-    ),
+        titleTextStyle: TextStyle(
+            color: CustomColors.primaryColor,
+            fontSize: 20,
+            fontWeight: FontWeight.w600),
+        centerTitle: true,
+        backgroundColor: CustomColors.eggPlant),
   );
 }
