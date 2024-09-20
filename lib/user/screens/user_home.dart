@@ -83,7 +83,7 @@ class UserHome extends StatelessWidget {
                               ?.copyWith(color: Colors.white),
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 5,
                         ),
                         Text(
                           "Subscribe and save.",
@@ -93,7 +93,7 @@ class UserHome extends StatelessWidget {
                               ?.copyWith(color: Colors.white),
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 25,
                         ),
                         SizedBox(
                           width: 200,
@@ -167,17 +167,17 @@ class UserHome extends StatelessWidget {
               //     ),
               //   ),
               // ),
-              const HeadingText(headingText: "Services"),
+              const HeadingText(headingText: "Our Services"),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: services.length,
                 itemBuilder: (context, index) {
                   final service = services[index];
                   return ServiceCard(service: service);
                 },
               ),
-              const HeadingText(headingText: "Products"),
+              const HeadingText(headingText: "Recommended Products"),
               SizedBox(
                 height: 300,
                 child: ListView.builder(

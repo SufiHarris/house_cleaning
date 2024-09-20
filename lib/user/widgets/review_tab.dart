@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
+import 'package:house_cleaning/user/widgets/heading_text.dart';
 
 import '../models/service_model.dart';
 
@@ -15,7 +16,6 @@ class ReviewsTab extends StatelessWidget {
       children: [
         _buildRatingOverview(context),
         const SizedBox(height: 24),
-        _buildReviewsList(),
       ],
     );
   }
@@ -36,98 +36,96 @@ class ReviewsTab extends StatelessWidget {
           children: [
             Row(
               children: List.generate(
-                  5,
-                  (index) => Icon(
-                        index < service.rating.floor()
-                            ? Icons.star
-                            : Icons.star_border,
-                        color: Colors.amber,
-                        size: 24,
-                      )),
+                5,
+                (index) => Icon(
+                  index < service.rating.floor()
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: Colors.amber,
+                  size: 20,
+                ),
+              ),
             ),
-          ],
-        ),
-        Row(
-          children: [
             Text(
-              service.rating.toStringAsFixed(1),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(),
-            ),
-            const SizedBox(width: 16),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [],
+              "  ${service.rating.toStringAsFixed(1)} out of 5.0 ",
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        HeadingText(headingText: "What customers are saying"),
         ElevatedButton(
           onPressed: () {
             // Implement add review functionality
           },
           child: Text('+ Add Review'),
           style: ElevatedButton.styleFrom(
-            // primary: Colors.white,
-            // onPrimary: Colors.black,
+            minimumSize: Size(double.infinity, 40),
+            backgroundColor: Colors.white,
             side: BorderSide(color: Colors.grey),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildReviewsList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'What customers are saying',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        ...service.reviews.map((review) => _buildReviewItem(review)),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ...service.reviews.map((review) => _buildReviewItem(review)),
+          ],
+        )
       ],
     );
   }
 
   Widget _buildReviewItem(Review review) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            backgroundImage: AssetImage(review.userImage),
-            radius: 20,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(review.userName,
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Row(
-                  children: [
-                    ...List.generate(
-                        5,
-                        (index) => Icon(
-                              index < review.rating
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 16,
-                            )),
-                    const SizedBox(width: 8),
-                    Text(review.rating.toStringAsFixed(1)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(review.comment),
-              ],
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 1,
+              offset: const Offset(0, 1),
             ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage(review.userImage),
+                    radius: 10,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Text(review.userName,
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Spacer(),
+                  Row(
+                    children: [
+                      Icon(Icons.star),
+                      Text(review.rating.toString())
+                    ],
+                  )
+                ],
+              ),
+              const SizedBox(width: 12),
+              Text(review.comment),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
