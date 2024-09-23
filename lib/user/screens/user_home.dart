@@ -52,7 +52,7 @@ class UserHome extends StatelessWidget {
                   ),
                   const Spacer(),
                   Container(
-                    decoration: BoxDecoration(color: Colors.white),
+                    decoration: const BoxDecoration(color: Colors.white),
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: SvgPicture.asset("assets/images/icon_bell.svg"),
@@ -96,7 +96,7 @@ class UserHome extends StatelessWidget {
                           height: 25,
                         ),
                         SizedBox(
-                          width: 200,
+                          width: 250,
                           child: ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor: WidgetStateProperty.all(

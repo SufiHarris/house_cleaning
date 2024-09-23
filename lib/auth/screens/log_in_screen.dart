@@ -116,13 +116,13 @@ class LogInScreen extends StatelessWidget {
                   ImageButton(
                     imageUrl: "assets/images/google.svg",
                     onPressed: () {
-                      authProvider.signInWithGoogle(context);
+                      authProvider.signInWithGoogle();
                     },
                   ),
                   ImageButton(
                     imageUrl: "assets/images/apple.svg",
                     onPressed: () {
-                      authProvider.signInWithApple();
+                      // authProvider.signInWithApple();
                     },
                   ),
                 ],

@@ -19,7 +19,6 @@ class UserSettings extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text("Profile"),
       ),
       body: Column(
@@ -93,6 +92,16 @@ class UserSettings extends StatelessWidget {
               Get.to(() => PrivacyPolicyPage());
             },
           ),
+          const Spacer(),
+          ElevatedButton(
+              style: ButtonStyle(
+                fixedSize: WidgetStateProperty.all(Size(double.infinity, 30)),
+                backgroundColor: WidgetStateProperty.all(Colors.white),
+              ),
+              onPressed: () {
+                authProvider.signOut();
+              },
+              child: const Text("Log out"))
         ],
       ),
     );
