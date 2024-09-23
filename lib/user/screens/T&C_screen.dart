@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../theme/custom_colors.dart';
 
 class TermsAndConditionsPage extends StatelessWidget {
+  const TermsAndConditionsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

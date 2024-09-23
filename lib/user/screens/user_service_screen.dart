@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../models/service_model.dart';
+import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
 
 class UserServiceScreen extends StatelessWidget {
@@ -7,6 +9,8 @@ class UserServiceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Get.find<UserProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Services"),
@@ -23,17 +27,25 @@ class UserServiceScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: services.length,
-                itemBuilder: (context, index) {
-                  final service = services[index];
-                  if (service.name != "View all") {
-                    return ServiceCard(service: service);
-                  }
-                  return const SizedBox
-                      .shrink(); // Returns an empty widget for "View all"
-                },
-              ),
+              child: Obx(() {
+                if (userProvider.categoryList.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: userProvider.categoryList.length,
+                  itemBuilder: (context, index) {
+                    final category = userProvider.categoryList[index];
+                    return ServiceCard(
+                      category: category,
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),

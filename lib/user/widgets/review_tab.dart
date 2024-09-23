@@ -5,9 +5,12 @@ import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../models/service_model.dart';
 
 class ReviewsTab extends StatelessWidget {
-  final Service service;
+  final List<Review> review;
 
-  const ReviewsTab({super.key, required this.service});
+  const ReviewsTab({
+    super.key,
+    required this.review,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,16 +41,14 @@ class ReviewsTab extends StatelessWidget {
               children: List.generate(
                 5,
                 (index) => Icon(
-                  index < service.rating.floor()
-                      ? Icons.star
-                      : Icons.star_border,
+                  index < 5 ? Icons.star : Icons.star_border,
                   color: Colors.amber,
                   size: 20,
                 ),
               ),
             ),
             Text(
-              "  ${service.rating.toStringAsFixed(1)} out of 5.0 ",
+              "  ${5} out of 5.0 ",
               style: Theme.of(context).textTheme.labelLarge?.copyWith(),
             ),
           ],
@@ -72,7 +73,7 @@ class ReviewsTab extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            ...service.reviews.map((review) => _buildReviewItem(review)),
+            ...review.map((review) => _buildReviewItem(review)),
           ],
         )
       ],
