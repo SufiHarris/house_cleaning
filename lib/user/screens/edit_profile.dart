@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/user/screens/edit_profile.dart';
+import 'package:house_cleaning/theme/custom_colors.dart';
 // import 'package:house_cleaning/user/widgets/profile_widgets.dart';
 
 import '../../auth/provider/auth_provider.dart';
 import '../widgets/Profile_widgets.dart'; // Import the combined widget file
 
-class UserProfile extends StatelessWidget {
-  const UserProfile({Key? key}) : super(key: key);
-
+class EditProfile extends StatelessWidget {
+  const EditProfile({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     final AuthProvider authProvider = Get.find<AuthProvider>();
@@ -23,8 +22,8 @@ class UserProfile extends StatelessWidget {
           },
         ),
         title: Text(
-          'Profile',
-          style: TextStyle(color: Color(0xFF6B3F3A)),
+          'Edit Profile',
+          style: TextStyle(color: CustomColors.textColorThree),
         ),
         centerTitle: true,
       ),
@@ -80,10 +79,11 @@ class UserProfile extends StatelessWidget {
             SizedBox(height: 100),
             ProfileButton(
               onPressed: () {
-                // Navigate to Edit Profile Page
-                Get.to(() => EditProfile());
+                // Handle profile update logic here
+                // For example: validate form, send data to server, etc.
               },
-              buttonText: "Edit Profile", // Text for the button
+              buttonText: "Update Profile",
+              buttonColor: CustomColors.textColorThree,
             ),
           ],
         ),

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
-import 'package:house_cleaning/user/screens/user_settings.dart';
 
 import 'firebase_options.dart';
 import 'theme/custom_theme.dart';
