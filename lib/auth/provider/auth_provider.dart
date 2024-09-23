@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:the_apple_sign_in/the_apple_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // <-- Add this
+import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../user/screens/user_main.dart';
 import '../screens/auth_screen.dart';
-import '../screens/log_in_screen.dart';
-import 'database_methods.dart';
 
 class AuthProvider extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -23,88 +22,167 @@ class AuthProvider extends GetxController {
     user.bindStream(_auth.authStateChanges());
   }
 
-  void _showSnackBar(String message, bool isError) {
-    ScaffoldMessenger.of(Get.context!).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? Colors.red : Colors.green,
-        behavior: SnackBarBehavior.fixed,
-        // margin: EdgeInsets.only(
-        //   bottom: Get.height - 100,
-        //   right: 20,
-        //   left: 20,
-        // ),
-      ),
-    );
+  Future<bool> userExists(String email) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('users_table')
+          .where('email', isEqualTo: email)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking user existence: $e');
+      return false;
+    }
   }
 
   Future<void> signIn() async {
-    // Check for empty fields
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty) {
       _showSnackBar('Please fill in all fields', true);
       return;
     }
 
-    // Basic email format validation
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-        .hasMatch(emailController.text.trim())) {
-      _showSnackBar('Please enter a valid email address', true);
+    bool exists = await userExists(emailController.text.trim());
+    if (!exists) {
+      _showSnackBar('User does not exist. Please sign up.', true);
       return;
     }
 
     try {
-      await _auth.signInWithEmailAndPassword(
+      UserCredential result = await _auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      Get.offAll(() => const UserMain());
-      _showSnackBar('Logged in successfully', false);
-    } on FirebaseAuthException catch (e) {
-      String message;
-      switch (e.code) {
-        case 'user-not-found':
-          message = 'No user found for that email.';
-          break;
-        case 'wrong-password':
-          message = 'Wrong password provided for that user.';
-          break;
-        case 'invalid-email':
-          message = 'The email address is badly formatted.';
-          break;
-        case 'user-disabled':
-          message = 'This user account has been disabled.';
-          break;
-        case 'too-many-requests':
-          message =
-              'Too many unsuccessful login attempts. Please try again later.';
-          break;
-        case 'operation-not-allowed':
-          message = 'Email & Password accounts are not enabled.';
-          break;
-        case 'network-request-failed':
-          message = 'A network error occurred. Please check your connection.';
-          break;
-        default:
-          message = 'An undefined error happened. Please try again.';
+      User? userDetails = result.user;
+
+      if (userDetails != null) {
+        DocumentSnapshot userDoc = await _firestore
+            .collection('users_table')
+            .doc(userDetails.uid)
+            .get();
+
+        if (userDoc.exists) {
+          Map<String, dynamic> userData =
+              userDoc.data() as Map<String, dynamic>;
+          await _saveUserData(userData);
+
+          Get.offAll(() => const UserMain());
+          _showSnackBar('Logged in successfully', false);
+        }
       }
+    } on FirebaseAuthException catch (e) {
+      String message = _getFirebaseErrorMessage(e.code);
       _showSnackBar(message, true);
-    } catch (e) {
-      _showSnackBar('An unexpected error occurred. Please try again.', true);
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleSignInAuthentication =
+          await googleSignInAccount?.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication?.idToken,
+        accessToken: googleSignInAuthentication?.accessToken,
+      );
+
+      UserCredential result = await _auth.signInWithCredential(credential);
+      User? userDetails = result.user;
+
+      if (userDetails != null) {
+        bool exists = await userExists(userDetails.email!);
+
+        if (exists) {
+          // User exists, fetch data and proceed to home screen
+          DocumentSnapshot userDoc = await _firestore
+              .collection('users_table')
+              .doc(userDetails.uid)
+              .get();
+
+          if (userDoc.exists) {
+            Map<String, dynamic> userData =
+                userDoc.data() as Map<String, dynamic>;
+            await _saveUserData(userData);
+
+            Get.offAll(() => const UserMain());
+            _showSnackBar('Logged in successfully', false);
+          }
+        } else {
+          // User does not exist, navigate to additional info screen
+          // Get.to(() => AdditionalInfoScreen(
+          //       onSubmit: (String phone, String address) async {
+          //         Map<String, dynamic> userInfoMap = {
+          //           "email": userDetails.email,
+          //           "name": userDetails.displayName,
+          //           "imgUrl": userDetails.photoURL,
+          //           "id": userDetails.uid,
+          //           "phone": phone,
+          //           "address": address,
+          //         };
+
+          //         // Save to Firestore
+          //         await _firestore
+          //             .collection('users_table')
+          //             .doc(userDetails.uid)
+          //             .set(userInfoMap);
+
+          //         // Save locally
+          //         await _saveUserData(userInfoMap);
+
+          //         Get.offAll(() => const UserMain());
+          //         _showSnackBar('New user registered successfully', false);
+          //       },
+          //     ));
+        }
+      }
+    } catch (e) {
+      _showSnackBar('Google Sign-In failed. Please try again.', true);
+    }
+  }
+
+  // Save user data in SharedPreferences
+  Future<void> _saveUserData(Map<String, dynamic> userData) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_email', userData['email']);
+    await prefs.setString('user_name', userData['name']);
+    await prefs.setString('user_imgUrl', userData['imgUrl']);
+    await prefs.setString('user_id', userData['id']);
+    await prefs.setString('phone', userData['phone']);
+    await prefs.setString('address', userData['address']);
+  }
+
+  // Helper function to show snack bars
+  void _showSnackBar(String message, bool isError) {
+    ScaffoldMessenger.of(Get.context!).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+      ),
+    );
+  }
+
+  // Function to sign out and clear local data
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
+      await _auth.signOut(); // Firebase sign out
+      await GoogleSignIn().signOut(); // Google sign out
+
+      // Clear SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear(); // Clear all saved data
+
+      // Clear the user instance and navigate to AuthScreen
+      user.value = null;
       Get.offAll(() => const AuthScreen());
+
       _showSnackBar('Logged out successfully', false);
     } catch (e) {
       _showSnackBar('Failed to log out. Please try again.', true);
     }
   }
 
-  // Additional method for password reset
   Future<void> resetPassword(String email) async {
     if (email.isEmpty) {
       _showSnackBar('Please enter your email address', true);
@@ -132,80 +210,16 @@ class AuthProvider extends GetxController {
     }
   }
 
-  getCurrentUser() async {
-    return await _auth.currentUser;
-  }
-
-  signInWithGoogle(BuildContext context) async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
-    final GoogleSignInAccount? googleSignInAccount =
-        await googleSignIn.signIn();
-
-    final GoogleSignInAuthentication? googleSignInAuthentication =
-        await googleSignInAccount?.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleSignInAuthentication?.idToken,
-      accessToken: googleSignInAuthentication?.accessToken,
-    );
-
-    UserCredential result = await firebaseAuth.signInWithCredential(credential);
-
-    User? userDetails = result.user;
-
-    if (result != null) {
-      Map<String, dynamic> userInfoMap = {
-        "email": userDetails!.email,
-        "name": userDetails.displayName,
-        "imgUrl": userDetails.photoURL,
-        "id": userDetails.uid,
-      };
-      await DatabaseMethods()
-          .addUser(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UserMain(),
-          ),
-        );
-      });
-    }
-  }
-
-  Future<User> signInWithApple({List<Scope> scopes = const []}) async {
-    final result = await TheAppleSignIn.performRequests(
-        [AppleIdRequest(requestedScopes: scopes)]);
-    switch (result.status) {
-      case AuthorizationStatus.authorized:
-        final AppleIdCredential = result.credential!;
-        final oAuthCredential = OAuthProvider('apple.com');
-        final credential = oAuthCredential.credential(
-            idToken: String.fromCharCodes(AppleIdCredential.identityToken!));
-        final UserCredential = await _auth.signInWithCredential(credential);
-        final firebaseUser = UserCredential.user!;
-        if (scopes.contains(Scope.fullName)) {
-          final fullName = AppleIdCredential.fullName;
-          if (fullName != null &&
-              fullName.givenName != null &&
-              fullName.familyName != null) {
-            final displayName = '${fullName.givenName}${fullName.familyName}';
-            await firebaseUser.updateDisplayName(displayName);
-          }
-        }
-        return firebaseUser;
-      case AuthorizationStatus.error:
-        throw PlatformException(
-            code: 'ERROR_AUTHORIZATION_DENIED',
-            message: result.error.toString());
-
-      case AuthorizationStatus.cancelled:
-        throw PlatformException(
-            code: 'ERROR_ABORTED_BY_USER', message: 'Sign in aborted by user');
+  String _getFirebaseErrorMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No user found for that email.';
+      case 'wrong-password':
+        return 'Wrong password provided.';
+      case 'invalid-email':
+        return 'The email address is badly formatted.';
       default:
-        throw UnimplementedError();
+        return 'An undefined error happened. Please try again.';
     }
   }
 }
