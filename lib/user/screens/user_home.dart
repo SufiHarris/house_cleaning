@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 import '../../theme/custom_colors.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
+import '../providers/user_provider.dart';
 import '../widgets/heading_text.dart';
 import '../widgets/product_card.dart';
 import '../widgets/service_card.dart';
@@ -13,6 +15,9 @@ class UserHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Get.find<UserProvider>();
+    userProvider.fetchCategories();
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -168,15 +173,26 @@ class UserHome extends StatelessWidget {
               //   ),
               // ),
               const HeadingText(headingText: "Our Services"),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: services.length,
-                itemBuilder: (context, index) {
-                  final service = services[index];
-                  return ServiceCard(service: service);
-                },
-              ),
+              Obx(() {
+                if (userProvider.categoryList.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: userProvider.categoryList.length,
+                  itemBuilder: (context, index) {
+                    final category = userProvider.categoryList[index];
+                    return ServiceCard(
+                      category: category,
+                    );
+                  },
+                );
+              }),
+
               const HeadingText(headingText: "Recommended Products"),
               SizedBox(
                 height: 300,

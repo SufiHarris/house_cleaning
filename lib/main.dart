@@ -7,6 +7,7 @@ import 'package:house_cleaning/user/screens/user_main.dart';
 
 import 'firebase_options.dart';
 import 'theme/custom_theme.dart';
+import 'user/providers/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,9 @@ void main() async {
   );
   Get.put(
     AuthProvider(),
+  );
+  Get.put(
+    UserProvider(),
   );
   runApp(
     const MyApp(),

@@ -7,7 +7,7 @@ import '../../auth/provider/auth_provider.dart';
 import '../widgets/Profile_widgets.dart'; // Import the combined widget file
 
 class UserProfile extends StatelessWidget {
-  const UserProfile({Key? key}) : super(key: key);
+  const UserProfile({super.key});
 
   @override
   Widget build(BuildContext context) {

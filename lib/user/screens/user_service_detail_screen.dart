@@ -143,7 +143,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
                           showDateTimeSelection
                               ? _buildDateTimeSelectionScreen()
                               : _buildLayoutSelectionScreen(scrollController),
-                          ReviewsTab(service: widget.service),
+                          ReviewsTab(review: reviews),
                         ],
                       ),
                     ),
