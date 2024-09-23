@@ -16,4 +16,5 @@ class CustomColors {
   static Color textColorFour = Color.fromRGBO(78, 78, 78, 1);
   static Color boneColor = const Color.fromRGBO(211, 200, 176, 1);
   static Color eggPlant = const Color.fromRGBO(252, 251, 251, 1);
+  static Color Eggplant = const Color.fromRGBO(220, 215, 216, 1);
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-// import 'package:get/get.dart';
+
 import 'package:house_cleaning/theme/custom_colors.dart';
 
 class ProfileMenuItem extends StatelessWidget {
@@ -35,7 +35,8 @@ class ProfileMenuItem extends StatelessWidget {
                           color: CustomColors.textColorFour,
                         )),
               ),
-              Icon(Icons.arrow_forward_ios, color: Color(0xFF6B3F3A), size: 16),
+              Icon(Icons.north_east,
+                  color: CustomColors.textColorFour, size: 16),
             ],
           ),
         ));
