@@ -4,9 +4,10 @@ import 'package:house_cleaning/user/models/product_model.dart';
 import '../../theme/custom_colors.dart';
 
 class UserProductDetailPage extends StatefulWidget {
-  final Product product;
+  final UserProductModel product;
 
-  const UserProductDetailPage({super.key, required this.product});
+  const UserProductDetailPage({Key? key, required this.product})
+      : super(key: key);
 
   @override
   State<UserProductDetailPage> createState() => _UserProductDetailPageState();
@@ -34,7 +35,7 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(widget.product.imageUrl),
+                    image: NetworkImage(widget.product.image),
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -130,22 +131,22 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        ...List.generate(
-                          5,
-                          (index) => Icon(
-                            index < widget.product.rating.floor()
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: CustomColors.primaryColor,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text('${widget.product.rating} out of 5'),
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     ...List.generate(
+                    //       5,
+                    //       (index) => Icon(
+                    //         index < widget.product.rating.floor()
+                    //             ? Icons.star
+                    //             : Icons.star_border,
+                    //         color: CustomColors.primaryColor,
+                    //         size: 20,
+                    //       ),
+                    //     ),
+                    //     const SizedBox(width: 8),
+                    //     Text('${widget.product.rating} out of 5'),
+                    //   ],
+                    // ),
                     const SizedBox(height: 20), // Add extra space at the bottom
                   ],
                 ),
@@ -169,14 +170,14 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "${widget.product.rating}% Off",
-                  style: TextStyle(
-                    color: CustomColors.textColorFour,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                // Text(
+                //   "${widget.product.rating}% Off",
+                //   style: TextStyle(
+                //     color: CustomColors.textColorFour,
+                //     fontSize: 14,
+                //     fontWeight: FontWeight.w500,
+                //   ),
+                // ),
                 const SizedBox(height: 4),
                 Text(
                   '\$${widget.product.price.toStringAsFixed(2)}',

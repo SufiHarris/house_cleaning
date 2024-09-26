@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/review_tab.dart';
 
 class UserServiceDetailPage extends StatefulWidget {
-  final Service service;
+  // final Service service;
+  final CategoryModel category; // Add this
 
-  const UserServiceDetailPage({super.key, required this.service});
-
+  const UserServiceDetailPage({
+    super.key,
+    // required this.service,
+    required this.category, // Add this
+  });
   @override
   State<UserServiceDetailPage> createState() => _UserServiceDetailPageState();
 }
@@ -42,6 +47,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    final category = widget.category;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -52,7 +58,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
             width: double.infinity,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: NetworkImage(widget.service.detailImageUrl),
+                image: NetworkImage(category.categoryImage),
                 fit: BoxFit.fill,
               ),
             ),
@@ -111,7 +117,7 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
                       child: Row(
                         children: [
                           Text(
-                            widget.service.name,
+                            category.categoryType,
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge
@@ -264,7 +270,8 @@ class _UserServiceDetailPageState extends State<UserServiceDetailPage>
       children: [
         const SizedBox(height: 30),
         Text(
-          widget.service.name,
+          "",
+          // widget.service.name,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: CustomColors.primaryColor,
                 fontWeight: FontWeight.w500,

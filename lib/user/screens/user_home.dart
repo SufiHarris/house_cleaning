@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
-import '../../theme/custom_colors.dart';
-import '../models/product_model.dart';
-import '../models/service_model.dart';
 import '../providers/user_provider.dart';
-import '../widgets/heading_text.dart';
-import '../widgets/product_card.dart';
 import '../widgets/service_card.dart';
+import '../widgets/heading_text.dart';
+// import '../models/product_model.dart';
+import '../widgets/product_card.dart';
+import '../../theme/custom_colors.dart';
 
 class UserHome extends StatelessWidget {
   const UserHome({super.key});
@@ -16,7 +14,8 @@ class UserHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Get.find<UserProvider>();
-    userProvider.fetchCategories();
+    userProvider.fetchCategories(); // Ensure categories are fetched
+    userProvider.fetchProducts(); // Ensure categories are fetched
 
     return Scaffold(
       body: Padding(
@@ -30,9 +29,7 @@ class UserHome extends StatelessWidget {
                   Row(
                     children: [
                       SizedBox(
-                        child: SvgPicture.asset(
-                          "assets/images/logo.svg",
-                        ),
+                        child: SvgPicture.asset("assets/images/logo.svg"),
                       ),
                       const SizedBox(width: 10),
                       Column(
@@ -71,9 +68,7 @@ class UserHome extends StatelessWidget {
                   const Image(
                     width: double.infinity,
                     fit: BoxFit.fitWidth,
-                    image: AssetImage(
-                      "assets/images/sub_bg.png",
-                    ),
+                    image: AssetImage("assets/images/sub_bg.png"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -87,9 +82,7 @@ class UserHome extends StatelessWidget {
                               .labelLarge
                               ?.copyWith(color: Colors.white),
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
+                        const SizedBox(height: 5),
                         Text(
                           "Subscribe and save.",
                           style: Theme.of(context)
@@ -97,14 +90,12 @@ class UserHome extends StatelessWidget {
                               .titleLarge
                               ?.copyWith(color: Colors.white),
                         ),
-                        const SizedBox(
-                          height: 25,
-                        ),
+                        const SizedBox(height: 25),
                         SizedBox(
                           width: 250,
                           child: ElevatedButton(
                             style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
+                              backgroundColor: MaterialStateProperty.all(
                                   CustomColors.boneColor),
                             ),
                             onPressed: () {
@@ -119,9 +110,7 @@ class UserHome extends StatelessWidget {
                                       "assets/images/sub_button_icon.png"),
                                   fit: BoxFit.cover,
                                 ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
+                                const SizedBox(width: 10),
                                 Text(
                                   "Subscription Plans",
                                   style: Theme.of(context)
@@ -138,46 +127,10 @@ class UserHome extends StatelessWidget {
                   )
                 ],
               ),
-
-              // const HeadingText(headingText: "My Bookings"),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Container(
-              //     decoration: BoxDecoration(
-              //       color: Colors.white,
-              //       borderRadius: const BorderRadius.all(
-              //         Radius.circular(20),
-              //       ),
-              //       boxShadow: [
-              //         BoxShadow(
-              //           color: Colors.grey.withOpacity(0.2),
-              //           spreadRadius: 1,
-              //           blurRadius: 3,
-              //           offset: const Offset(1, 1),
-              //         ),
-              //       ],
-              //     ),
-              //     child: Padding(
-              //       padding: const EdgeInsets.all(16.0),
-              //       child: Row(
-              //         children: [
-              //           Text(
-              //             "No bookings",
-              //             style: TextStyle(
-              //                 color: CustomColors.primaryColor,
-              //                 fontWeight: FontWeight.w300),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
               const HeadingText(headingText: "Our Services"),
               Obx(() {
                 if (userProvider.categoryList.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 return ListView.builder(
@@ -186,25 +139,31 @@ class UserHome extends StatelessWidget {
                   itemCount: userProvider.categoryList.length,
                   itemBuilder: (context, index) {
                     final category = userProvider.categoryList[index];
-                    return ServiceCard(
-                      category: category,
-                    );
+                    return ServiceCard(category: category);
                   },
                 );
               }),
-
               const HeadingText(headingText: "Recommended Products"),
-              SizedBox(
-                height: 300,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return ProductCard(product: product);
-                  },
-                ),
-              )
+              Obx(() {
+                // Use Obx to reactively display products
+                if (userProvider.products.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return SizedBox(
+                  height: 300,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: userProvider
+                        .products.length, // Use productList from provider
+                    itemBuilder: (context, index) {
+                      final product = userProvider
+                          .products[index]; // Get product from provider
+                      return ProductCard(product: product);
+                    },
+                  ),
+                );
+              }),
             ],
           ),
         ),

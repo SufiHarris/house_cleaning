@@ -6,6 +6,7 @@ import 'package:house_cleaning/auth/widgets/image_button.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 
 import '../../theme/custom_colors.dart';
+import '../../user/screens/user_home.dart';
 
 class LogInScreen extends StatelessWidget {
   const LogInScreen({super.key});
@@ -60,7 +61,12 @@ class LogInScreen extends StatelessWidget {
               ]),
               const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: authProvider.signIn,
+                // onPressed: authProvider.signIn,
+                onPressed: () async {
+                  await authProvider
+                      .signIn(); // Assuming this method handles navigation on success
+                  // Get.to(() => UserHome());
+                },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 56),
                   backgroundColor: CustomColors.primaryColor,
