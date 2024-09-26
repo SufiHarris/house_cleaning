@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../models/service_model.dart';
+// import '../models/service_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
 
@@ -40,9 +40,7 @@ class UserServiceScreen extends StatelessWidget {
                   itemCount: userProvider.categoryList.length,
                   itemBuilder: (context, index) {
                     final category = userProvider.categoryList[index];
-                    return ServiceCard(
-                      category: category,
-                    );
+                    return ServiceCard(category: category);
                   },
                 );
               }),

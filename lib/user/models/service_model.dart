@@ -1,4 +1,40 @@
-import 'package:flutter/material.dart';
+class ServiceModel {
+  final String id; // Unique identifier for the service
+  final String name; // Name of the service
+  final String category; // Category of the service
+  final String image; // Image URL for the service
+  final double price; // Price for the service
+
+  ServiceModel({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.image,
+    required this.price,
+  });
+
+  // Factory constructor to create a Service object from JSON
+  factory ServiceModel.fromJson(Map<String, dynamic> json) {
+    return ServiceModel(
+      id: json['service_id'],
+      name: json['service_name'],
+      category: json['category'],
+      image: json['image'],
+      price: json['price'].toDouble(),
+    );
+  }
+
+  // Method to convert a Service object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'service_id': id,
+      'service_name': name,
+      'category': category,
+      'image': image,
+      'price': price,
+    };
+  }
+}
 
 class Review {
   final String userName;
@@ -9,20 +45,20 @@ class Review {
   Review(this.userName, this.userImage, this.rating, this.comment);
 }
 
-class Service {
-  final String name;
-  final IconData icon;
-  final Color color;
-  final double price;
-  final double rating;
-  final detailImageUrl;
-  final String imageUrl;
+// class Service {
+//   final String name;
+//   final IconData icon;
+//   final Color color;
+//   final double price;
+//   final double rating;
+//   final detailImageUrl;
+//   final String imageUrl;
 
-  // final List<Review> reviews;
+//   // final List<Review> reviews;
 
-  Service(this.name, this.icon, this.color, this.price, this.rating,
-      this.imageUrl, this.detailImageUrl);
-}
+//   Service(this.name, this.icon, this.color, this.price, this.rating,
+//       this.imageUrl, this.detailImageUrl);
+// }
 
 final List<Review> reviews = [
   Review('Saad Falah Abdullah', 'assets/images/user1.jpg', 4.2,
@@ -33,30 +69,30 @@ final List<Review> reviews = [
       'Good service overall, but theres room for improvement.'),
 ];
 
-final List<Service> services = [
-  Service(
-      'Home Cleaning',
-      Icons.home,
-      Colors.orange,
-      100.0,
-      4.2,
-      'assets/images/apartment_service.png',
-      'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-  Service(
-      'Home Cleaning',
-      Icons.home,
-      Colors.orange,
-      100.0,
-      4.2,
-      'assets/images/furniture_service.png',
-      'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-  Service(
-      'Home Cleaning',
-      Icons.home,
-      Colors.orange,
-      100.0,
-      4.2,
-      'assets/images/car_service.png',
-      'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-  // Add more services with reviews...
-];
+// final List<Service> services = [
+//   Service(
+//       'Home Cleaning',
+//       Icons.home,
+//       Colors.orange,
+//       100.0,
+//       4.2,
+//       'assets/images/apartment_service.png',
+//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
+//   Service(
+//       'Home Cleaning',
+//       Icons.home,
+//       Colors.orange,
+//       100.0,
+//       4.2,
+//       'assets/images/furniture_service.png',
+//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
+//   Service(
+//       'Home Cleaning',
+//       Icons.home,
+//       Colors.orange,
+//       100.0,
+//       4.2,
+//       'assets/images/car_service.png',
+//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
+//   // Add more services with reviews...
+// ];

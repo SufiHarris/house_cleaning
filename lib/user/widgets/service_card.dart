@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-
-import '../../theme/custom_colors.dart';
-import '../models/category_model.dart'; // Make sure this is the correct import path for your Category model
+import 'package:house_cleaning/user/screens/user_service_detail_screen.dart';
+import '../models/category_model.dart';
+import '../screens/villa_services.dart';
+import '../screens/vehicle_services.dart';
 
 class ServiceCard extends StatelessWidget {
   final CategoryModel category;
@@ -12,84 +12,91 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 22),
-        child: InkWell(
-          onTap: () {
-            // You can navigate to the detailed service page if needed
-            // Get.to(() => UserServiceDetailPage(service: service));
-          },
-          child: Row(
-            children: [
-              // Static image for now
-              Image.network(
-                height: 40,
-                fit: BoxFit.fill,
-                category.imageUrl,
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-              ),
-              const Spacer(
-                flex: 1,
-              ),
-              // Display the category name from Firestore
-              Column(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 22),
+      child: InkWell(
+        onTap: () {
+          switch (category.categoryType) {
+            case 'Villa':
+              Get.to(() => VillaServices(category: category));
+              break;
+            case 'Apartment':
+              Get.to(() => UserServiceDetailPage(category: category));
+              break;
+            case 'Vehicle':
+              Get.to(() => VehicleServices(category: category));
+              break;
+            case 'Facades':
+              Get.to(() => VillaServices(category: category));
+              break;
+            case 'Furniture':
+              Get.to(() => VillaServices(category: category));
+              break;
+            default:
+              Get.snackbar(
+                'Service not available',
+                'No page for this category type.',
+                snackPosition: SnackPosition.BOTTOM,
+              );
+          }
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Image widget
+            Image.network(
+              category.imageUrl,
+              height: 40,
+              fit: BoxFit.fill,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error, color: Colors.red); // Image load error
+              },
+            ),
+            const SizedBox(width: 10), // Add some spacing
+
+            // Expanded to avoid text overflow
+            Expanded(
+              flex: 4, // Adjust flex as needed
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    category.categoryName, // This comes from Firestore data
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelLarge
-                        ?.copyWith(color: CustomColors.primaryColor),
+                    category.categoryName,
+                    style: Theme.of(context).textTheme.labelLarge,
+                    maxLines: 1, // Limit the text to one line
+                    overflow:
+                        TextOverflow.ellipsis, // Ellipsis if text overflows
                   ),
                   Row(
                     children: [
-                      // Static rating for now
-                      const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                      ),
-                      Text(
-                        "4.5", // Static rating
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: CustomColors.textColorFour),
-                      ),
+                      const Icon(Icons.star, color: Colors.amber, size: 16),
+                      Text("4.5",
+                          style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "50 reviews", // Static number of reviews
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge
-                            ?.copyWith(color: CustomColors.textColorFour),
-                      ),
+                          width: 5), // Reduced size for better fitting
+                      Text("50 reviews",
+                          style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ],
               ),
-              const Spacer(flex: 5),
-
-              // Static chevron icon for now
-              SvgPicture.asset("assets/images/right_chevron.svg"),
-            ],
-          ),
+            ),
+            // The arrow icon at the end
+            Icon(Icons.chevron_right, color: Colors.grey),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
