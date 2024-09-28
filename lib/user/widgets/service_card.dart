@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/screens/apartment_service_detail.dart';
+import 'package:house_cleaning/user/screens/user_vehicle_cleaning_service_screen.dart';
 import '../models/category_model.dart';
 import '../providers/user_provider.dart';
 import '../screens/call_service_screen.dart';
@@ -27,7 +28,8 @@ class ServiceCard extends StatelessWidget {
               break;
             case 'Vehicle':
               userProvider.fetchServicesByCategory(category.categoryType);
-              Get.to(() => ApartmentServiceDetail(category: category));
+              Get.to(
+                  () => UserVehicleCleaningServiceScreen(category: category));
               break;
             case 'Facades':
             case 'Furniture':
