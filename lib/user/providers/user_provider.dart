@@ -11,20 +11,25 @@ class UserProvider extends GetxController {
   var services = <ServiceModel>[].obs;
   var isLoading = true.obs;
 
-  Future<void> fetchServices() async {
+  Future<void> fetchServicesByCategory(String category) async {
     try {
-      isLoading.value = true; // Start loading
-      var snapshot =
-          await FirebaseFirestore.instance.collection('services_table').get();
+      isLoading.value = true; // Start loading indicator
+      var snapshot = await FirebaseFirestore.instance
+          .collection('services_table')
+          .where('category',
+              isEqualTo: category) // Firestore query to filter by category
+          .get();
 
       // Map the Firestore documents to ServiceModel and update the services list
       services.value = snapshot.docs
           .map((doc) => ServiceModel.fromJson(doc.data()))
           .toList();
+      print(services.value);
     } catch (e) {
-      print("Error fetching services: $e");
+      print("Error fetching services by category: $e");
     } finally {
-      isLoading.value = false; // Stop loading
+      print("data fethced");
+      isLoading.value = false; // Stop loading indicator
     }
   }
 
@@ -56,38 +61,3 @@ class UserProvider extends GetxController {
     }
   }
 }
-
-
-
-
-
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:get/get.dart';
-// import '../models/category_model.dart'; // Import the model
-
-// class UserProvider extends GetxController {
-//   // Observable list to hold categories data
-//   var categoryList = <CategoryModel>[].obs;
-
-//   // Method to fetch category data from Firestore
-//   Future<void> fetchCategories() async {
-//     try {
-//       // Reference to the Firestore collection
-//       QuerySnapshot snapshot =
-//           await FirebaseFirestore.instance.collection('category_table').get();
-
-//       // Clear the existing list
-//       categoryList.clear();
-
-//       // Loop through the documents and add them to the categoryList
-//       for (var doc in snapshot.docs) {
-//         categoryList
-//             .add(CategoryModel.fromJson(doc.data() as Map<String, dynamic>));
-//       }
-//     } catch (e) {
-//       print("Error fetching categories: $e");
-//     }
-
-//   }
-// }

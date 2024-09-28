@@ -65,6 +65,9 @@ class UserHome extends StatelessWidget {
               const SizedBox(height: 20),
               Stack(
                 children: [
+                  // const SizedBox(
+                  //   height: 30,
+                  // ),
                   const Image(
                     width: double.infinity,
                     fit: BoxFit.fitWidth,

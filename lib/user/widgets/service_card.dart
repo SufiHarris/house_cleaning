@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/user/screens/user_service_detail_screen.dart';
+import 'package:house_cleaning/user/screens/apartment_service_detail.dart';
 import '../models/category_model.dart';
-import '../screens/villa_services.dart';
-import '../screens/vehicle_services.dart';
+import '../providers/user_provider.dart';
+import '../screens/call_service_screen.dart';
 
 class ServiceCard extends StatelessWidget {
   final CategoryModel category;
@@ -12,25 +12,26 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Get.find<UserProvider>();
     return Padding(
       padding: const EdgeInsets.only(bottom: 22),
       child: InkWell(
         onTap: () {
           switch (category.categoryType) {
             case 'Villa':
-              Get.to(() => VillaServices(category: category));
+              Get.to(() => CallServiceScreen(category: category));
               break;
             case 'Apartment':
-              Get.to(() => UserServiceDetailPage(category: category));
+              userProvider.fetchServicesByCategory(category.categoryType);
+              Get.to(() => ApartmentServiceDetail(category: category));
               break;
             case 'Vehicle':
-              Get.to(() => VehicleServices(category: category));
+              userProvider.fetchServicesByCategory(category.categoryType);
+              Get.to(() => ApartmentServiceDetail(category: category));
               break;
             case 'Facades':
-              Get.to(() => VillaServices(category: category));
-              break;
             case 'Furniture':
-              Get.to(() => VillaServices(category: category));
+              Get.to(() => CallServiceScreen(category: category));
               break;
             default:
               Get.snackbar(
@@ -60,31 +61,29 @@ class ServiceCard extends StatelessWidget {
                 );
               },
               errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.error, color: Colors.red); // Image load error
+                return Icon(Icons.error, color: Colors.red);
               },
             ),
-            const SizedBox(width: 10), // Add some spacing
+            const SizedBox(width: 10),
 
             // Expanded to avoid text overflow
             Expanded(
-              flex: 4, // Adjust flex as needed
+              flex: 4,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     category.categoryName,
                     style: Theme.of(context).textTheme.labelLarge,
-                    maxLines: 1, // Limit the text to one line
-                    overflow:
-                        TextOverflow.ellipsis, // Ellipsis if text overflows
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Row(
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 16),
                       Text("4.5",
                           style: Theme.of(context).textTheme.labelLarge),
-                      const SizedBox(
-                          width: 5), // Reduced size for better fitting
+                      const SizedBox(width: 5),
                       Text("50 reviews",
                           style: Theme.of(context).textTheme.bodySmall),
                     ],
