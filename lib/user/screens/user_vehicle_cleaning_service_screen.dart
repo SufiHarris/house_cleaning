@@ -7,19 +7,21 @@ import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
 
-class ApartmentServiceDetail extends StatefulWidget {
+class UserVehicleCleaningServiceScreen extends StatefulWidget {
   final CategoryModel category;
 
-  const ApartmentServiceDetail({
+  const UserVehicleCleaningServiceScreen({
     Key? key,
     required this.category,
   }) : super(key: key);
 
   @override
-  State<ApartmentServiceDetail> createState() => _ApartmentServiceDetailState();
+  State<UserVehicleCleaningServiceScreen> createState() =>
+      _UserVehicleCleaningServiceScreenState();
 }
 
-class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
+class _UserVehicleCleaningServiceScreenState
+    extends State<UserVehicleCleaningServiceScreen>
     with SingleTickerProviderStateMixin {
   final userProvider = Get.find<UserProvider>();
 
@@ -130,9 +132,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   ],
                 ),
               ),
-              SizedBox(
-                height: 100,
-              )
+              SizedBox(height: 100),
             ],
           ),
         );
@@ -167,34 +167,31 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       indicatorSize: TabBarIndicatorSize.tab,
       indicator: UnderlineTabIndicator(
         borderSide: BorderSide(width: 2.0, color: CustomColors.primaryColor),
-        // insets: EdgeInsets.symmetric(horizontal: 40.0),
       ),
       controller: _tabController,
       tabs: [
         Tab(
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centering the content
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 "assets/images/broom.svg",
-                height: 20, // Adjust icon size if necessary
+                height: 20,
               ),
-              const SizedBox(width: 8), // Adding space between icon and text
+              const SizedBox(width: 8),
               Text("Service"),
             ],
           ),
         ),
         Tab(
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centering the content
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 "assets/images/star.svg",
-                height: 20, // Adjust icon size if necessary
+                height: 20,
               ),
-              const SizedBox(width: 8), // Adding space between icon and text
+              const SizedBox(width: 8),
               Text("Reviews"),
             ],
           ),
@@ -215,7 +212,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
           padding: const EdgeInsets.all(16.0),
           children: [
             Text(
-              "Experience top-notch home cleaning with our expert team. Quick, reliable, and thorough—making your home sparkle effortlessly!",
+              "Experience top-notch vehicle cleaning with our expert team. Quick, reliable, and thorough—making your vehicle sparkle effortlessly!",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: CustomColors.textColorFour,
                     letterSpacing: 0.5,
@@ -224,7 +221,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
             ),
             const SizedBox(height: 32),
             Text(
-              "Add Rooms & Size",
+              "Add Vehicles",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
@@ -242,58 +239,35 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   }
 
   Widget _buildServiceItem(ServiceModel service) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: CustomColors.boneColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.network(service.image),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(service.serviceName, style: const TextStyle(fontSize: 16)),
-            const Spacer(),
-            Row(
-              children: [
-                IconButton(
-                  icon: Row(
-                    children: [
-                      SvgPicture.asset("assets/images/add.svg"),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      const Text("ADD")
-                    ],
-                  ),
-                  onPressed: () => _addService(service),
-                ),
-              ],
-            ),
-          ],
-        ),
-        ...selectedServices[service.serviceId]?.map((item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: _buildSelectedServiceItem(service, item),
-                )) ??
-            [],
-      ],
-    );
-  }
+    bool isSelected = selectedServices.containsKey(service.serviceId);
+    int quantity =
+        isSelected ? selectedServices[service.serviceId]![0].quantity : 0;
 
-  Widget _buildSelectedServiceItem(ServiceModel service, ServiceItem item) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
+    return Container(
+      margin: EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: CustomColors.boneColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.network(service.image),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(service.serviceName, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
@@ -310,49 +284,54 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  // Currency and amount
                   Container(
                     padding: EdgeInsets.all(8),
+                    // decoration: BoxDecoration(
+                    //   color: Colors.grey[200],
+                    //   shape: BoxShape.circle,
+                    // ),
                     child: Text(
-                      '50 SAR',
+                      '${service.price} SAR',
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
-                  Spacer(), // This will push the following items to the right
-                  // Minus button
-                  _buildCircularButton(
-                    icon: Icons.remove,
-                    onPressed: () => _updateServiceQuantity(service, item, -1),
-                    bgColor: Colors.grey[200]!,
-                  ),
-                  SizedBox(width: 12),
-                  // Quantity
-                  Text(
-                    '${item.size}M',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  SizedBox(width: 12),
-                  // Plus button
-                  _buildCircularButton(
-                    icon: Icons.add,
-                    onPressed: () => _updateServiceQuantity(service, item, 1),
-                    bgColor: Colors.grey[200]!,
-                  ),
+                  Spacer(),
+                  if (isSelected) ...[
+                    _buildCircularButton(
+                      icon: Icons.remove,
+                      onPressed: () => _updateServiceQuantity(service, -1),
+                      bgColor: Colors.grey[200]!,
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      '$quantity',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(width: 12),
+                    _buildCircularButton(
+                      icon: Icons.add,
+                      onPressed: () => _updateServiceQuantity(service, 1),
+                      bgColor: Colors.grey[200]!,
+                    ),
+                  ] else
+                    ElevatedButton(
+                      onPressed: () => _addService(service),
+                      child: Text('Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
-        ),
-        SizedBox(width: 8),
-        // Delete button outside the main container
-        _buildCircularButton(
-          icon: Icons.close,
-          onPressed: () => _removeService(service, item),
-          bgColor: Colors.red[50]!,
-          iconColor: Colors.red,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -378,30 +357,23 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
 
   void _addService(ServiceModel service) {
     setState(() {
-      if (selectedServices[service.serviceId] == null) {
-        selectedServices[service.serviceId] = [];
-      }
-      selectedServices[service.serviceId]!
-          .add(ServiceItem(quantity: 1, size: 30));
+      selectedServices[service.serviceId] = [ServiceItem(quantity: 1)];
       _updateTotalPrice();
     });
   }
 
-  void _removeService(ServiceModel service, ServiceItem item) {
+  void _updateServiceQuantity(ServiceModel service, int change) {
     setState(() {
-      selectedServices[service.serviceId]?.remove(item);
-      if (selectedServices[service.serviceId]?.isEmpty ?? false) {
-        selectedServices.remove(service.serviceId);
+      if (selectedServices.containsKey(service.serviceId)) {
+        int newQuantity =
+            selectedServices[service.serviceId]![0].quantity + change;
+        if (newQuantity > 0) {
+          selectedServices[service.serviceId]![0].quantity = newQuantity;
+        } else {
+          selectedServices.remove(service.serviceId);
+        }
+        _updateTotalPrice();
       }
-      _updateTotalPrice();
-    });
-  }
-
-  void _updateServiceQuantity(
-      ServiceModel service, ServiceItem item, int change) {
-    setState(() {
-      item.size = (item.size + change).clamp(1, 100);
-      _updateTotalPrice();
     });
   }
 
@@ -411,44 +383,9 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       ServiceModel service =
           userProvider.services.firstWhere((s) => s.serviceId == serviceId);
       items.forEach((item) {
-        totalPrice += (item.size / 30) * service.price;
+        totalPrice += item.quantity * service.price;
       });
     });
-  }
-
-  Widget _buildReviewsTab() {
-    return ListView.builder(
-      itemCount: reviews.length,
-      itemBuilder: (context, index) {
-        final review = reviews[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(review.userImage),
-          ),
-          title: Text(review.userName),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  ...List.generate(5, (index) {
-                    return Icon(
-                      index < review.rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
-                      size: 16,
-                    );
-                  }),
-                  const SizedBox(width: 8),
-                  Text(review.rating.toString()),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(review.comment),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Widget _buildBottomFixedSection() {
@@ -518,7 +455,6 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
 
 class ServiceItem {
   int quantity;
-  int size;
 
-  ServiceItem({required this.quantity, required this.size});
+  ServiceItem({required this.quantity});
 }
