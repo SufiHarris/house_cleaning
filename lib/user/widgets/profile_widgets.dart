@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/custom_colors.dart';
 
 // Profile Header Widget
+
 class ProfileHeader extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -25,7 +26,7 @@ class ProfileHeader extends StatelessWidget {
               radius: 60,
               backgroundImage: AssetImage(imagePath),
             ),
-            Positioned(
+            const Positioned(
               bottom: 0,
               right: 0,
               child: CircleAvatar(

@@ -1,34 +1,34 @@
 class ServiceModel {
-  final String id; // Unique identifier for the service
-  final String name; // Name of the service
-  final String category; // Category of the service
-  final String image; // Image URL for the service
-  final double price; // Price for the service
+  final String serviceName;
+  final int serviceId;
+  final String category;
+  final String image;
+  final int price;
 
   ServiceModel({
-    required this.id,
-    required this.name,
+    required this.serviceName,
+    required this.serviceId,
     required this.category,
     required this.image,
     required this.price,
   });
 
-  // Factory constructor to create a Service object from JSON
+  // Convert Firestore document to ServiceModel object
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
-      id: json['service_id'],
-      name: json['service_name'],
-      category: json['category'],
-      image: json['image'],
-      price: json['price'].toDouble(),
+      serviceName: json['service_name'] ?? '',
+      serviceId: json['service_id'] ?? 0,
+      category: json['category'] ?? '',
+      image: json['image'] ?? '',
+      price: json['price'] ?? 0,
     );
   }
 
-  // Method to convert a Service object to JSON
+  // Convert ServiceModel to a map (optional)
   Map<String, dynamic> toJson() {
     return {
-      'service_id': id,
-      'service_name': name,
+      'service_name': serviceName,
+      'service_id': serviceId,
       'category': category,
       'image': image,
       'price': price,

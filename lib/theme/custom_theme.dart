@@ -42,6 +42,6 @@ class CustomTheme {
             fontSize: 20,
             fontWeight: FontWeight.w600),
         centerTitle: true,
-        backgroundColor: CustomColors.eggPlant),
+        backgroundColor: Colors.white),
   );
 }
