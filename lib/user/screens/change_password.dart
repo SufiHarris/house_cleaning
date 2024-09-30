@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/changepassword_widget.dart';
+import '../widgets/custom_button_widget.dart';
 
 class ChangePassword extends StatelessWidget {
-  const ChangePassword({Key? key}) : super(key: key);
+  ChangePassword({super.key});
+  final TextEditingController currentpasswordController =
+      TextEditingController();
+  final TextEditingController newpasswordController = TextEditingController();
+  final TextEditingController reEnterpasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final AuthProvider authProvider = Get.find<AuthProvider>();
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: CustomColors.textColorThree),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Text('Change Password',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: CustomColors.textColorThree,
-                )),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Change Password")),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -37,7 +32,7 @@ class ChangePassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            CustomPasswordField(),
+            PasswordTextField(controller: currentpasswordController),
             SizedBox(height: 20),
             Text(
               "New Password",
@@ -47,7 +42,7 @@ class ChangePassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            CustomPasswordField(),
+            PasswordTextField(controller: newpasswordController),
             SizedBox(height: 20),
             Text(
               "Re-enter New Password",
@@ -57,13 +52,12 @@ class ChangePassword extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            CustomPasswordField(),
+            PasswordTextField(controller: reEnterpasswordController),
             Spacer(),
             Center(
-              child: ChangePasswordButton(
-                onPressed: () {
-                  // Add functionality here
-                },
+              child: CustomButton(
+                text: 'Change Password',
+                onTap: () {},
               ),
             ),
             SizedBox(height: 30),

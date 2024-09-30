@@ -6,23 +6,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon:
-              Icon(Icons.arrow_back, color: Colors.brown), // Back button color
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Text('Privacy Policy',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: CustomColors.textColorThree,
-                  fontSize: 20,
-                )),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Privacy Policy")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

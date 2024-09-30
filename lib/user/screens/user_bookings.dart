@@ -37,8 +37,7 @@ class _UserBookingsState extends State<UserBookings>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text('Orders'),
+        title: const Text("Orders"),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Colors.blue,
