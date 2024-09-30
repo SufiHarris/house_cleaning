@@ -1,62 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../theme/custom_colors.dart';
+import '../../theme/custom_colors.dart'; // GetX if you're using it for state management
 
-class CustomPasswordField extends StatelessWidget {
-  const CustomPasswordField({Key? key}) : super(key: key);
+class PasswordTextField extends StatefulWidget {
+  final TextEditingController controller;
+
+  PasswordTextField({required this.controller});
+
+  @override
+  _PasswordTextFieldState createState() => _PasswordTextFieldState();
+}
+
+class _PasswordTextFieldState extends State<PasswordTextField> {
+  bool _isObscured = true; // Control whether the password is visible or not
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      obscureText: true, // For password input
+      controller: widget.controller,
+      obscureText: _isObscured, // Controls whether to obscure the text
       decoration: InputDecoration(
-        filled: true,
-        fillColor: CustomColors.eggPlant, // Light background
-        contentPadding: EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        hintText: 'Enter your password',
+        labelStyle: const TextStyle(
+          color: Color(0xFFDCD7D8),
+          fontSize: 16,
+        ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: CustomColors.textColorThree, width: 1),
-          borderRadius: BorderRadius.circular(30), // Rounded edges
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: CustomColors.textColorThree, width: 1),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(30.0),
+          borderSide: BorderSide(color: CustomColors.textColorThree),
         ),
-      ),
-    );
-  }
-}
-
-// Profile Button Widget
-class ChangePasswordButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const ChangePasswordButton({
-    Key? key,
-    required this.onPressed,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(
-          color: CustomColors
-              .textColorThree, // Border color (matching the text color in the design)
-          width: 0.5, // Border thickness
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // Rounded corners
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 100, vertical: 15),
-      ),
-      child: Text(
-        "Change Password",
-        style: TextStyle(
-          color:
-              CustomColors.textColorThree, // Text color (matching the border)
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isObscured
+                ? Icons.visibility_off
+                : Icons.visibility, // Toggle icon
+            color: CustomColors.textColorThree,
+          ),
+          onPressed: () {
+            setState(() {
+              _isObscured = !_isObscured; // Toggle password visibility
+            });
+          },
         ),
       ),
     );

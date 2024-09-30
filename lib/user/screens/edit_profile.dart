@@ -1,32 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/theme/custom_colors.dart';
-// import 'package:house_cleaning/user/widgets/profile_widgets.dart';
-
 import '../../auth/provider/auth_provider.dart';
-import '../widgets/Profile_widgets.dart'; // Import the combined widget file
+import '../../theme/custom_colors.dart';
+import '../widgets/custom_button_widget.dart';
 
 class EditProfile extends StatelessWidget {
-  const EditProfile({Key? key}) : super(key: key);
+  const EditProfile({super.key});
+
   @override
   Widget build(BuildContext context) {
     final AuthProvider authProvider = Get.find<AuthProvider>();
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF6B3F3A)),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: Text(
-          'Edit Profile',
-          style: TextStyle(color: CustomColors.textColorThree),
-        ),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Edit Profile")),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SingleChildScrollView(
@@ -34,9 +19,33 @@ class EditProfile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 20),
-              ProfileHeader(
-                imagePath: 'assets/images/UserProfile-Pic.png',
-                name: 'Jubayl Bin Meenak',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(alignment: Alignment.center, children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage:
+                          AssetImage('assets/images/UserProfile-Pic.png'),
+                    ),
+                    const Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        backgroundColor: Color(0xFF6B3F3A),
+                        radius: 16,
+                        child: Icon(Icons.edit, size: 18, color: Colors.white),
+                      ),
+                    ),
+                  ]),
+                  SizedBox(height: 10),
+                  Text(
+                    "Jubayl Bin Meenak",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: CustomColors.textColorThree,
+                        ),
+                  ),
+                ],
               ),
               SizedBox(height: 30),
               Align(
@@ -50,7 +59,23 @@ class EditProfile extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              ProfileTextField(label: 'Saad Al Nayem'),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Saad Al Nayem',
+                  labelStyle:
+                      const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: CustomColors.textColorThree),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+              ),
               SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
@@ -63,7 +88,45 @@ class EditProfile extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              ProfilePhoneField(),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter phone number',
+                  labelStyle:
+                      const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: CustomColors.textColorThree),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  prefixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          '+1',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: CustomColors.textColorThree,
+                          ),
+                        ),
+                      ),
+                      VerticalDivider(
+                        color: CustomColors.textColorThree,
+                        thickness: 1,
+                        width: 1, // Minimal width for the divider
+                        indent: 12, // Optional, add spacing to top and bottom
+                        endIndent: 12,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
@@ -76,15 +139,29 @@ class EditProfile extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              ProfileTextField(label: 'saadalnayem@gmail.com'),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'saadalnayem@gmail.com',
+                  labelStyle:
+                      const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(color: CustomColors.textColorThree),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                ),
+              ),
               SizedBox(height: 80),
-              ProfileButton(
-                onPressed: () {
-                  // Handle profile update logic here
-                  // For example: validate form, send data to server, etc.
-                },
-                buttonText: "Update Profile",
-                buttonColor: CustomColors.textColorThree,
+              Center(
+                child: CustomButton(
+                  text: 'Update',
+                  onTap: () {},
+                ),
               ),
             ],
           ),

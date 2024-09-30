@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "name": "Flutter (lib\\user\\screens\\privacy_policy_screen.dart)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib\\user\\screens\\privacy_policy_screen.dart"
+        }
+    ]
+}

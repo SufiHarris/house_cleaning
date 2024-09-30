@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/screens/user_create_profile_screen.dart';
 import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
 import '../widgets/heading_text.dart';
-// import '../models/product_model.dart';
 import '../widgets/product_card.dart';
 import '../../theme/custom_colors.dart';
 
@@ -53,13 +53,18 @@ class UserHome extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  Container(
-                    decoration: const BoxDecoration(color: Colors.white),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: SvgPicture.asset("assets/images/icon_bell.svg"),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(() => CreateProfilePage());
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset("assets/images/icon_bell.svg"),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
               const SizedBox(height: 20),

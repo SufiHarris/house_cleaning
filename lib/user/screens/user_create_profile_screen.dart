@@ -1,0 +1,408 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../auth/provider/auth_provider.dart';
+import '../../theme/custom_colors.dart';
+
+class CreateProfilePage extends StatefulWidget {
+  @override
+  _CreateProfilePageState createState() => _CreateProfilePageState();
+}
+
+class _CreateProfilePageState extends State<CreateProfilePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool isNextPressed = false;
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController buildingController = TextEditingController();
+  final TextEditingController floorController = TextEditingController();
+  final TextEditingController landmarkController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AuthProvider authProvider = Get.find<AuthProvider>();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Create Profile"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: TabBar(
+            controller: _tabController,
+            indicatorColor: CustomColors.textColorThree,
+            indicatorWeight: 2,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelColor: CustomColors.textColorThree,
+            unselectedLabelColor: Color(0xFFDCD7D8),
+            labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            tabs: [
+              Tab(text: 'Personal Details'),
+              Tab(text: 'Address Details'),
+            ],
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Personal Details Tab
+          SingleChildScrollView(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 70,
+                        // backgroundImage: NetworkImage(
+                        //     "https://via.placeholder.com/150"), // Placeholder for avatar image
+                      ),
+                      SizedBox(
+                          width: 16), // Space between avatar and text fields
+                      Expanded(
+                        child: Stack(
+                          alignment:
+                              Alignment.bottomRight, // Aligning to bottom right
+                          children: [
+                            // Placeholder for potential other content (if needed)
+                            Container(),
+                            // Positioned widget for the camera icon
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: Icon(Icons.camera_alt,
+                                    color: CustomColors.textColorThree),
+                                onPressed: () {
+                                  // Add camera functionality here
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your name',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: phoneController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter phone number',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      prefixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Text(
+                              '+1',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: CustomColors.textColorThree,
+                              ),
+                            ),
+                          ),
+                          VerticalDivider(
+                            color: CustomColors.textColorThree,
+                            thickness: 1,
+                            width: 1, // Minimal width for the divider
+                            indent:
+                                12, // Optional, add spacing to top and bottom
+                            endIndent: 12,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 300), // Added spacing before button
+                  Center(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          isNextPressed = true; // Set button as pressed
+                        });
+                        _tabController.animateTo(1);
+
+                        // Add logic for what happens when the button is pressed here.
+
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          // Reset button state after 250 milliseconds
+                          setState(() {
+                            isNextPressed = false; // Reset to normal state
+                          });
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(
+                            milliseconds:
+                                300), // Animation duration for smooth transition
+                        decoration: BoxDecoration(
+                          color: isNextPressed
+                              ? CustomColors.textColorThree
+                              : Colors
+                                  .white, // Background color changes smoothly
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: CustomColors.textColorThree,
+                            width: 1,
+                          ),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                        child: Center(
+                          child: AnimatedDefaultTextStyle(
+                            duration: Duration(
+                                milliseconds: 300), // Smooth text color change
+                            style: TextStyle(
+                              color: isNextPressed
+                                  ? Colors.white
+                                  : CustomColors
+                                      .textColorThree, // Text color changes smoothly
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            child: Text("Next"),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Address Details Tab
+          SingleChildScrollView(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Enter Location",
+                      style: TextStyle(
+                          color: CustomColors.textColorThree, fontSize: 16)),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: locationController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter location',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Add location fetch logic
+                    },
+                    icon: Icon(Icons.location_pin,
+                        color: CustomColors.textColorThree),
+                    label: Text("Use Current Location",
+                        style: TextStyle(color: CustomColors.textColorThree)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      elevation: 0,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 75, vertical: 12),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Text("Building Number",
+                      style: TextStyle(
+                          color: CustomColors.textColorThree, fontSize: 16)),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: buildingController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter building number',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Text("Floor",
+                      style: TextStyle(
+                          color: CustomColors.textColorThree, fontSize: 16)),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: floorController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your floor',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Text("Landmark",
+                      style: TextStyle(
+                          color: CustomColors.textColorThree, fontSize: 16)),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: landmarkController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter landmark',
+                      labelStyle: const TextStyle(
+                          color: Color(0xFFDCD7D8), fontSize: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Color(0xFFDCD7D8)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide:
+                            BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                    ),
+                  ),
+                  SizedBox(height: 100),
+                  Center(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          isNextPressed = true; // Set button as pressed
+                        });
+
+                        // Add logic for what happens when the button is pressed here.
+
+                        Future.delayed(Duration(milliseconds: 300), () {
+                          // Reset button state after 250 milliseconds
+                          setState(() {
+                            isNextPressed = false; // Reset to normal state
+                          });
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(
+                            milliseconds:
+                                300), // Animation duration for smooth transition
+                        decoration: BoxDecoration(
+                          color: isNextPressed
+                              ? CustomColors.textColorThree
+                              : Colors
+                                  .white, // Background color changes smoothly
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: CustomColors.textColorThree,
+                            width: 1,
+                          ),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                        child: Center(
+                          child: AnimatedDefaultTextStyle(
+                            duration: Duration(
+                                milliseconds: 300), // Smooth text color change
+                            style: TextStyle(
+                              color: isNextPressed
+                                  ? Colors.white
+                                  : CustomColors
+                                      .textColorThree, // Text color changes smoothly
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            child: Text("Save Changes"),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
