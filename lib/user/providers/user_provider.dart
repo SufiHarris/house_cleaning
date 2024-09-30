@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class UserProvider extends GetxController {
   var categoryList =
@@ -10,6 +12,27 @@ class UserProvider extends GetxController {
   var products = <UserProductModel>[].obs;
   var services = <ServiceModel>[].obs;
   var isLoading = true.obs;
+
+  var profileImage = Rx<File?>(null); // Observable for the profile image
+  final ImagePicker _picker = ImagePicker();
+
+  // Function to pick image from gallery
+  Future<void> pickImageFromGallery() async {
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      profileImage.value = File(pickedFile.path);
+    }
+  }
+
+  // Function to pick image from camera
+  Future<void> pickImageFromCamera() async {
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      profileImage.value = File(pickedFile.path);
+    }
+  }
 
   Future<void> fetchServicesByCategory(String category) async {
     try {
