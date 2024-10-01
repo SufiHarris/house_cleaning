@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
+import '../providers/user_provider.dart';
 
 class CreateProfilePage extends StatefulWidget {
   @override
@@ -21,6 +22,9 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   final TextEditingController floorController = TextEditingController();
   final TextEditingController landmarkController = TextEditingController();
 
+  final UserProvider userProfileController = Get.put(UserProvider());
+  final AuthProvider authProvider = Get.find<AuthProvider>();
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +35,51 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _showPhotoOptions(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        decoration: BoxDecoration(
+          color: Colors.white, // Background color of the bottom sheet
+          borderRadius: BorderRadius.vertical(
+              top: Radius.circular(16)), // Rounded corners
+        ),
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_library,
+                  color: CustomColors.textColorThree), // Set icon color
+              title: Text(
+                'Choose from Gallery',
+                style: TextStyle(
+                    color: CustomColors.textColorThree), // Set text color
+              ),
+              onTap: () {
+                userProfileController.pickImageFromGallery();
+                Get.back(); // Close bottom sheet
+              },
+            ),
+            Divider(), // Divider for better separation
+            ListTile(
+              leading: Icon(Icons.camera_alt,
+                  color: CustomColors.textColorThree), // Set icon color
+              title: Text(
+                'Take a Photo',
+                style: TextStyle(
+                    color: CustomColors.textColorThree), // Set text color
+              ),
+              onTap: () {
+                userProfileController.pickImageFromCamera();
+                Get.back(); // Close bottom sheet
+              },
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true, // Allow scrolling if needed
+    );
   }
 
   @override
@@ -69,30 +118,41 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 70,
-                        // backgroundImage: NetworkImage(
-                        //     "https://via.placeholder.com/150"), // Placeholder for avatar image
-                      ),
+                      // CircleAvatar(
+                      //   radius: 70,
+                      //   // backgroundImage: NetworkImage(
+                      //   //     "https://via.placeholder.com/150"), // Placeholder for avatar image
+                      // ),
                       SizedBox(
                           width: 16), // Space between avatar and text fields
                       Expanded(
                         child: Stack(
-                          alignment:
-                              Alignment.bottomRight, // Aligning to bottom right
+                          // alignment: Alignment.bottomLeft,
                           children: [
-                            // Placeholder for potential other content (if needed)
-                            Container(),
-                            // Positioned widget for the camera icon
+                            Obx(() {
+                              return CircleAvatar(
+                                radius: 70,
+                                backgroundImage: userProfileController
+                                            .profileImage.value !=
+                                        null
+                                    ? FileImage(userProfileController
+                                        .profileImage.value!)
+                                    : const AssetImage(
+                                            'assets/images/UserProfile-Pic.png')
+                                        as ImageProvider,
+                              );
+                            }),
                             Positioned(
                               bottom: 0,
-                              right: 0,
-                              child: IconButton(
-                                icon: Icon(Icons.camera_alt,
-                                    color: CustomColors.textColorThree),
-                                onPressed: () {
-                                  // Add camera functionality here
-                                },
+                              right: 200,
+                              child: GestureDetector(
+                                onTap: () => _showPhotoOptions(context),
+                                child: const CircleAvatar(
+                                  backgroundColor: Color(0xFF6B3F3A),
+                                  radius: 16,
+                                  child: Icon(Icons.edit,
+                                      size: 18, color: Colors.white),
+                                ),
                               ),
                             ),
                           ],
