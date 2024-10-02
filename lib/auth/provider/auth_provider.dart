@@ -17,7 +17,9 @@ class AuthProvider extends GetxController {
   TextEditingController passwordController = TextEditingController();
 
   Rx<User?> user = Rx<User?>(null);
-  RxBool isLoading = false.obs; // Loader variable
+  RxBool isLoading = false.obs;
+
+  String? get user_id => null; // Loader variable
 
   @override
   void onInit() {
@@ -46,6 +48,8 @@ class AuthProvider extends GetxController {
   }
 
   Future<void> signIn() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty) {
       _showSnackBar('Please fill in all fields', true);
@@ -63,8 +67,8 @@ class AuthProvider extends GetxController {
 
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
+        email: email,
+        password: password,
       );
       User? userDetails = result.user;
 
@@ -82,6 +86,16 @@ class AuthProvider extends GetxController {
           isLoading.value = false; // Hide loader
           Get.offAll(() => const UserMain());
           _showSnackBar('Logged in successfully', false);
+        } else {
+          // User does not exist in Firestore, redirect to CreateProfilePage
+          isLoading.value = false; // Hide loader
+          Get.to(() => CreateProfilePage(
+                // name: userDetails.displayName ?? '',
+                // email: userDetails.email ?? '',
+                email: 'email',
+                password: 'password',
+                // Pass any other required data here
+              ));
         }
       }
     } on FirebaseAuthException catch (e) {
@@ -117,10 +131,12 @@ class AuthProvider extends GetxController {
         // If user does not exist, redirect to the create profile page
         isLoading.value = false; // Hide loader
         print(googleSignInAccount);
-        Get.to(() => CreateProfilePage(
-            // googleSignInAccount:
-            //     googleSignInAccount, // Pass Google Sign-In data
-            ));
+        // Get.to(() => CreateProfilePage(
+        //     // name: googleSignInAccount.displayName ?? '',
+        //     // email: googleEmail,
+        //     // googleSignInAccount:
+        //     //     googleSignInAccount, // Pass Google Sign-In data
+        //     ));
       }
     } catch (e) {
       isLoading.value = false; // Hide loader
