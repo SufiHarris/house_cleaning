@@ -1,12 +1,63 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:house_cleaning/user/widgets/changepassword_widget.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
+import '../screens/user_main.dart';
+
 class UserProvider extends GetxController {
+  Future<void> saveUserProfile({
+    required String email,
+    required String name,
+    required String phone,
+    required String password,
+  }) async {
+    try {
+      // Step 1: Register the user
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      // Check if userCredential is valid
+      if (userCredential.user == null) {
+        Get.snackbar("Error", "Failed to register user");
+        return;
+      }
+
+      // Step 2: Save user data in Firestore
+      String uid = userCredential.user!.uid; // Get the user's UID
+
+      await FirebaseFirestore.instance.collection('users_table').doc(uid).set({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'user_id': 3, // Ensure this is correct based on your logic
+      });
+
+      Get.snackbar("Success", "Profile created successfully!");
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase Authentication errors
+      print("Firebase Auth error: ${e.message}");
+      Get.snackbar(
+          "Error", e.message ?? "An error occurred during authentication");
+    } on FirebaseException catch (e) {
+      // Handle Firestore errors
+      print("Firestore error: ${e.message}");
+      Get.snackbar("Error", "Failed to save data to Firestore: ${e.message}");
+    } catch (e) {
+      // Handle any other errors
+      print("General error: $e");
+      Get.snackbar("Error", "An unexpected error occurred");
+    }
+  }
+
   var categoryList =
       <CategoryModel>[].obs; // Assuming you have this for categories
   var products = <UserProductModel>[].obs;

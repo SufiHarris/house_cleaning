@@ -5,6 +5,15 @@ import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 
 class CreateProfilePage extends StatefulWidget {
+  // final String name;
+  final String email;
+  final String password;
+
+  const CreateProfilePage(
+      {super.key,
+      // required this.name,
+      required this.email,
+      required this.password});
   @override
   _CreateProfilePageState createState() => _CreateProfilePageState();
 }
@@ -118,11 +127,6 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                 children: [
                   Row(
                     children: [
-                      // CircleAvatar(
-                      //   radius: 70,
-                      //   // backgroundImage: NetworkImage(
-                      //   //     "https://via.placeholder.com/150"), // Placeholder for avatar image
-                      // ),
                       SizedBox(
                           width: 16), // Space between avatar and text fields
                       Expanded(
@@ -228,7 +232,14 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                   SizedBox(height: 300), // Added spacing before button
                   Center(
                     child: InkWell(
-                      onTap: () {
+                      onTap: () async {
+                        await userProfileController.saveUserProfile(
+                          email: widget.email,
+                          name: nameController.text, // Use widget.email
+                          phone: phoneController.text,
+                          password: widget.password,
+                        );
+
                         setState(() {
                           isNextPressed = true; // Set button as pressed
                         });
