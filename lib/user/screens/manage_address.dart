@@ -24,8 +24,8 @@ class ManageAddress extends StatelessWidget {
             // Iterate through the address list and build AddressSection for each
             for (var address in addressList) ...[
               AddressSection(
-                addressTitle: address.addressTitle,
-                address: address.address,
+                addressTitle: address.city,
+                address: address.city,
               ),
 
               Divider(color: Colors.grey[300]), // Divider line

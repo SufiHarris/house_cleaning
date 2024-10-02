@@ -455,6 +455,5 @@ class _UserVehicleCleaningServiceScreenState
 
 class ServiceItem {
   int quantity;
-
   ServiceItem({required this.quantity});
 }

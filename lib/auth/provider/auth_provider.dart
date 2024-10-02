@@ -71,20 +71,31 @@ class AuthProvider extends GetxController {
         password: password,
       );
       User? userDetails = result.user;
+      print("hiii am here 3");
+      print("hiii am here 3");
 
       if (userDetails != null) {
+        print("hiii am here 2");
+
+        print("hiii am here 2");
+
         DocumentSnapshot userDoc = await _firestore
             .collection('users_table')
             .doc(userDetails.uid)
             .get();
 
         if (userDoc.exists) {
+          print("hiii am here");
+          print("hiii am here");
           Map<String, dynamic> userData =
               userDoc.data() as Map<String, dynamic>;
           await _saveUserData(userData);
-
           isLoading.value = false; // Hide loader
           Get.offAll(() => const UserMain());
+          print("but not here");
+
+          print("but not here");
+
           _showSnackBar('Logged in successfully', false);
         } else {
           // User does not exist in Firestore, redirect to CreateProfilePage
@@ -183,13 +194,36 @@ class AuthProvider extends GetxController {
   }
 
   Future<void> _saveUserData(Map<String, dynamic> userData) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_email', userData['email'] ?? '');
-    await prefs.setString('user_name', userData['name'] ?? '');
-    await prefs.setString('user_imgUrl', userData['imgUrl'] ?? '');
-    await prefs.setString('user_id', userData['id'] ?? '');
-    await prefs.setString('phone', userData['phone'] ?? '');
-    await prefs.setString('address', userData['address'] ?? '');
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_email', userData['email'] ?? '');
+      await prefs.setString('user_name', userData['name'] ?? '');
+      await prefs.setString('user_imgUrl', userData['imgUrl'] ?? '');
+      await prefs.setString(
+          'user_id', userData['user_id'] ?? 0); // Ensure this is an int
+      await prefs.setString('phone', userData['phone'] ?? '');
+      await prefs.setString('address', userData['address'] ?? '');
+
+      print("User data saved: ${userData}");
+    } catch (e) {
+      print(e);
+      print("Error occurred while saving");
+    }
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_email', userData['email'] ?? '');
+      await prefs.setString('user_name', userData['name'] ?? '');
+      await prefs.setString('user_imgUrl', userData['imgUrl'] ?? '');
+      await prefs.setString(
+          'user_id', userData['user_id'] ?? 0); // Ensure this is an int
+      await prefs.setString('phone', userData['phone'] ?? '');
+      await prefs.setString('address', userData['address'] ?? '');
+
+      print("User data saved: ${userData}");
+    } catch (e) {
+      print(e);
+      print("Error occurred while saving");
+    }
   }
 
   void _showSnackBar(String message, bool isError) {

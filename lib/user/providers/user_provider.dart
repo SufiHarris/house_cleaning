@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:house_cleaning/user/widgets/changepassword_widget.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/address_model.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
@@ -63,6 +63,7 @@ class UserProvider extends GetxController {
   var products = <UserProductModel>[].obs;
   var services = <ServiceModel>[].obs;
   var isLoading = true.obs;
+  var addresses = <AddressModel>[].obs;
 
   var profileImage = Rx<File?>(null); // Observable for the profile image
   final ImagePicker _picker = ImagePicker();
@@ -132,6 +133,39 @@ class UserProvider extends GetxController {
           .toList();
     } catch (e) {
       print("Error fetching categories: $e");
+    }
+  }
+
+  Future<void> fetchAddresses() async {
+    try {
+      isLoading.value = true; // Set loading to true
+
+      // Get the user_id from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final userId = 1;
+
+      if (userId == 0) {
+        print("User ID not found in SharedPreferences");
+        return;
+      }
+
+      // Fetch addresses from Firestore
+      var snapshot = await FirebaseFirestore.instance
+          .collection('address_table')
+          .where('user_id', isEqualTo: userId)
+          .get();
+      print("Fetched ${snapshot.docs.length} addresses for user $userId");
+
+      // Map the Firestore documents to AddressModel and update the addresses list
+      addresses.value = snapshot.docs
+          .map((doc) => AddressModel.fromJson(doc.data()))
+          .toList();
+
+      print("Fetched ${addresses.length} addresses for user $userId");
+    } catch (e) {
+      print("Error fetching addresses: $e");
+    } finally {
+      isLoading.value = false; // Set loading to false after fetching
     }
   }
 }
