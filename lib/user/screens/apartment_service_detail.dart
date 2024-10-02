@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
+import 'package:house_cleaning/user/screens/user_select_address.dart';
 import '../../theme/custom_colors.dart';
+import '../models/service_summary_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
+import 'package:intl/intl.dart';
 
 class ApartmentServiceDetail extends StatefulWidget {
   final CategoryModel category;
@@ -22,8 +25,10 @@ class ApartmentServiceDetail extends StatefulWidget {
 class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     with SingleTickerProviderStateMixin {
   final userProvider = Get.find<UserProvider>();
+  DateTime? selectedDate;
 
   Map<int, List<ServiceItem>> selectedServices = {};
+  List<ServiceSummaryModel> bookedServices = [];
   double totalPrice = 0;
   late TabController _tabController;
 
@@ -130,13 +135,92 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   ],
                 ),
               ),
-              SizedBox(
-                height: 100,
-              )
+              const SizedBox(height: 100),
             ],
           ),
         );
       },
+    );
+  }
+
+  void _showDatePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          height: 400,
+          decoration: const BoxDecoration(color: Colors.white),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Select Date',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: CustomColors.primaryColor,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CalendarDatePicker(
+                  initialDate: selectedDate ?? DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  onDateChanged: (DateTime date) {
+                    setState(() {
+                      selectedDate = date;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildDateButton('Today', () {
+                      setState(() {
+                        selectedDate = DateTime.now();
+                      });
+                      Navigator.pop(context);
+                    }),
+                    _buildDateButton('Tomorrow', () {
+                      setState(() {
+                        selectedDate =
+                            DateTime.now().add(const Duration(days: 1));
+                      });
+                      Navigator.pop(context);
+                    }),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDateButton(String label, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: Text(
+        label,
+        style: TextStyle(color: CustomColors.primaryColor),
+      ),
+      style: ElevatedButton.styleFrom(
+        side: BorderSide(color: CustomColors.primaryColor),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        backgroundColor: Colors.white,
+      ),
     );
   }
 
@@ -167,35 +251,32 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       indicatorSize: TabBarIndicatorSize.tab,
       indicator: UnderlineTabIndicator(
         borderSide: BorderSide(width: 2.0, color: CustomColors.primaryColor),
-        // insets: EdgeInsets.symmetric(horizontal: 40.0),
       ),
       controller: _tabController,
       tabs: [
         Tab(
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centering the content
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 "assets/images/broom.svg",
-                height: 20, // Adjust icon size if necessary
+                height: 20,
               ),
-              const SizedBox(width: 8), // Adding space between icon and text
-              Text("Service"),
+              const SizedBox(width: 8),
+              const Text("Service"),
             ],
           ),
         ),
         Tab(
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Centering the content
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 "assets/images/star.svg",
-                height: 20, // Adjust icon size if necessary
+                height: 20,
               ),
-              const SizedBox(width: 8), // Adding space between icon and text
-              Text("Reviews"),
+              const SizedBox(width: 8),
+              const Text("Reviews"),
             ],
           ),
         ),
@@ -206,9 +287,9 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   Widget _buildLayoutSelectionScreen(ScrollController scrollController) {
     return Obx(() {
       if (userProvider.isLoading.value) {
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       } else if (userProvider.services.isEmpty) {
-        return Center(child: Text('No services available'));
+        return const Center(child: Text('No services available'));
       } else {
         return ListView(
           controller: scrollController,
@@ -222,7 +303,24 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                     height: 1.5,
                   ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 26),
+            // Text(
+            //   "Select Date",
+            //   style: TextStyle(
+            //     fontSize: 16,
+            //     fontWeight: FontWeight.w500,
+            //     color: CustomColors.textColorTwo,
+            //   ),
+            // ),
+            _buildSelectOption(
+              context: context,
+              label: "Select Date",
+              value: selectedDate != null
+                  ? DateFormat('d MMMM yyyy').format(selectedDate!)
+                  : "Choose",
+              onTap: () => _showDatePicker(context),
+            ),
+            const SizedBox(height: 16),
             Text(
               "Add Rooms & Size",
               style: TextStyle(
@@ -241,6 +339,53 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     });
   }
 
+  Widget _buildSelectOption({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: CustomColors.primaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: CustomColors.textColorThree),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: CustomColors.textColorThree,
+                    fontSize: 16,
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios,
+                    size: 16, color: CustomColors.textColorThree),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
   Widget _buildServiceItem(ServiceModel service) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,12 +396,12 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
               width: 30,
               height: 30,
               decoration: BoxDecoration(
-                color: CustomColors.boneColor,
+                color: Colors.grey.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Image.network(service.image),
+                child: SvgPicture.network(service.image),
               ),
             ),
             const SizedBox(width: 10),
@@ -268,9 +413,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   icon: Row(
                     children: [
                       SvgPicture.asset("assets/images/add.svg"),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      const SizedBox(width: 10),
                       const Text("ADD")
                     ],
                   ),
@@ -302,7 +445,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   color: Colors.grey.withOpacity(0.3),
                   spreadRadius: 1,
                   blurRadius: 3,
-                  offset: Offset(0, 1),
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
@@ -310,30 +453,27 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  // Currency and amount
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: Text(
-                      '50 SAR',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      '${item.price.toStringAsFixed(2)} SAR',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
-                  Spacer(), // This will push the following items to the right
-                  // Minus button
+                  const Spacer(),
                   _buildCircularButton(
                     icon: Icons.remove,
                     onPressed: () => _updateServiceQuantity(service, item, -1),
                     bgColor: Colors.grey[200]!,
                   ),
-                  SizedBox(width: 12),
-                  // Quantity
+                  const SizedBox(width: 12),
                   Text(
                     '${item.size}M',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  SizedBox(width: 12),
-                  // Plus button
+                  const SizedBox(width: 12),
                   _buildCircularButton(
                     icon: Icons.add,
                     onPressed: () => _updateServiceQuantity(service, item, 1),
@@ -344,8 +484,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
             ),
           ),
         ),
-        SizedBox(width: 8),
-        // Delete button outside the main container
+        const SizedBox(width: 8),
         _buildCircularButton(
           icon: Icons.close,
           onPressed: () => _removeService(service, item),
@@ -360,18 +499,14 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     required IconData icon,
     required VoidCallback onPressed,
     required Color bgColor,
-    Color iconColor = Colors.black54,
+    Color? iconColor,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onPressed,
-      customBorder: CircleBorder(),
-      child: Container(
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: bgColor,
-        ),
-        child: Icon(icon, size: 20, color: iconColor),
+      child: CircleAvatar(
+        radius: 16,
+        backgroundColor: bgColor,
+        child: Icon(icon, color: iconColor ?? Colors.black, size: 16),
       ),
     );
   }
@@ -381,8 +516,30 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       if (selectedServices[service.serviceId] == null) {
         selectedServices[service.serviceId] = [];
       }
+
+      // Default size (10 sqm for example) for a new room
+      int defaultSize = 10;
+      int itemPrice = service.price * defaultSize;
+
+      // Add new service item to the list
       selectedServices[service.serviceId]!
-          .add(ServiceItem(quantity: 1, size: 30));
+          .add(ServiceItem(quantity: 1, size: defaultSize, price: itemPrice));
+
+      // Update total price
+      _updateTotalPrice();
+    });
+  }
+
+  void _updateServiceQuantity(
+      ServiceModel service, ServiceItem item, int change) {
+    print(service);
+    setState(() {
+      int newSize = (item.size + change).clamp(1, 100);
+      int newPrice = service.price * newSize;
+
+      item.size = newSize;
+      item.price = newPrice;
+
       _updateTotalPrice();
     });
   }
@@ -390,17 +547,11 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   void _removeService(ServiceModel service, ServiceItem item) {
     setState(() {
       selectedServices[service.serviceId]?.remove(item);
+
       if (selectedServices[service.serviceId]?.isEmpty ?? false) {
         selectedServices.remove(service.serviceId);
       }
-      _updateTotalPrice();
-    });
-  }
 
-  void _updateServiceQuantity(
-      ServiceModel service, ServiceItem item, int change) {
-    setState(() {
-      item.size = (item.size + change).clamp(1, 100);
       _updateTotalPrice();
     });
   }
@@ -408,47 +559,10 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   void _updateTotalPrice() {
     totalPrice = 0;
     selectedServices.forEach((serviceId, items) {
-      ServiceModel service =
-          userProvider.services.firstWhere((s) => s.serviceId == serviceId);
       items.forEach((item) {
-        totalPrice += (item.size / 30) * service.price;
+        totalPrice += item.price;
       });
     });
-  }
-
-  Widget _buildReviewsTab() {
-    return ListView.builder(
-      itemCount: reviews.length,
-      itemBuilder: (context, index) {
-        final review = reviews[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(review.userImage),
-          ),
-          title: Text(review.userName),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  ...List.generate(5, (index) {
-                    return Icon(
-                      index < review.rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
-                      size: 16,
-                    );
-                  }),
-                  const SizedBox(width: 8),
-                  Text(review.rating.toString()),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(review.comment),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   Widget _buildBottomFixedSection() {
@@ -492,7 +606,11 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
             const Spacer(),
             ElevatedButton(
               onPressed: () {
-                // Handle booking action
+                // Generate service summary before printing
+                _generateServiceSummary();
+
+                // Print the booked services
+                Get.to(() => UserSelectAddress(summary: bookedServices));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.brown[700],
@@ -514,11 +632,51 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       ),
     );
   }
+
+  void _generateServiceSummary() {
+    bookedServices.clear();
+    Map<String, Map<String, dynamic>> consolidatedServices = {};
+
+    // Consolidate services of the same type
+    selectedServices.forEach((serviceId, items) {
+      ServiceModel service =
+          userProvider.services.firstWhere((s) => s.serviceId == serviceId);
+
+      if (!consolidatedServices.containsKey(service.serviceName)) {
+        consolidatedServices[service.serviceName] = {
+          'totalQuantity': 0,
+          'totalSize': 0,
+          'totalPrice': 0.0,
+        };
+      }
+
+      // Summing up size, quantity, and price for each service type
+      items.forEach((item) {
+        consolidatedServices[service.serviceName]!['totalQuantity'] +=
+            item.quantity;
+        consolidatedServices[service.serviceName]!['totalSize'] += item.size;
+        consolidatedServices[service.serviceName]!['totalPrice'] += item.price;
+      });
+    });
+
+    // Convert consolidated services to a list of ServiceSummaryModel
+    consolidatedServices.forEach((serviceName, serviceDetails) {
+      bookedServices.add(ServiceSummaryModel(
+        serviceName: serviceName,
+        totalQuantity: serviceDetails['totalQuantity'],
+        totalSize: serviceDetails['totalSize'],
+        totalPrice: serviceDetails['totalPrice'],
+      ));
+    });
+    userProvider.fetchAddresses();
+  }
 }
 
 class ServiceItem {
   int quantity;
   int size;
+  int price;
 
-  ServiceItem({required this.quantity, required this.size});
+  ServiceItem(
+      {required this.quantity, required this.size, required this.price});
 }
