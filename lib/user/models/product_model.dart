@@ -1,137 +1,49 @@
 class UserProductModel {
-  final String productId;
   final String name;
-  final String brand;
-  final String description;
-  final String image;
+  final String imageUrl;
   final double price;
-  final int quantity;
-  final String deliveryTime;
+  final String? brand; // Optional fields
+  final String? deliveryTime; // Optional fields
+  final String? description; // Optional fields
+  final int? productId; // Optional fields
+  final int? quantity; // Optional fields
 
   UserProductModel({
-    required this.productId,
     required this.name,
-    required this.brand,
-    required this.description,
-    required this.image,
+    required this.imageUrl,
     required this.price,
-    required this.quantity,
-    required this.deliveryTime,
+    this.brand,
+    this.deliveryTime,
+    this.description,
+    this.productId,
+    this.quantity,
   });
 
-  // Factory method to create an object from Firestore
+  // Factory method to create a Product object from Firestore
   factory UserProductModel.fromFirestore(Map<String, dynamic> json) {
     return UserProductModel(
-      productId: json['product_id'].toString(),
-      name: json['name'],
+      name: json['name'] ?? 'Unknown', // Provide a default if name is null
+      imageUrl: json['image'] ?? '', // Check for null values, assign defaults
+      price: (json['price'] ?? 0).toDouble(),
       brand: json['brand'],
-      description: json['description'],
-      image: json['image'],
-      price: json['price'].toDouble(),
-      quantity: json['quantity'],
       deliveryTime: json['delivery_time'],
+      description: json['description'],
+      productId: json['product_id'],
+      quantity: json['quantity'],
     );
   }
 
-  // Method to convert the object to a JSON format (for sending to Firestore or any other database)
+  // Method to convert the Product object to a JSON format (for sending to Firestore)
   Map<String, dynamic> toJson() {
     return {
-      'product_id': productId,
       'name': name,
-      'brand': brand,
-      'description': description,
-      'image': image,
+      'image': imageUrl,
       'price': price,
-      'quantity': quantity,
+      'brand': brand,
       'delivery_time': deliveryTime,
+      'description': description,
+      'product_id': productId,
+      'quantity': quantity,
     };
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// class Product {
-//   final String name;
-//   final String imageUrl;
-//   final double currentPrice;
-//   final double? originalPrice;
-//   final double price;
-//   final double rating;
-
-//   Product(
-//       {required this.name,
-//       required this.imageUrl,
-//       required this.currentPrice,
-//       this.originalPrice,
-//       required this.price,
-//       required this.rating});
-// }
-
-// List<Product> products = [
-//   Product(
-//       name: 'Mr Muscle Kitchen Cleaner - 425ml Pouch (Lemon)',
-//       imageUrl:
-//           'https://cdn.shopify.com/s/files/1/2303/2711/files/10.jpg?v=1617058819', // Replace with your image URL
-//       currentPrice: 15,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-//   Product(
-//       name: 'Spotzero by Milton Prime Spin Mop',
-//       imageUrl:
-//           'https://cdn.shopify.com/s/files/1/2303/2711/files/2_e822dae0-14df-4cb8-b145-ea4dc0966b34.jpg?v=1617059123',
-//       currentPrice: 349.99,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-//   Product(
-//       name: 'Mr Muscle Kitchen Cleaner - 425ml Pouch (Lemon)',
-//       imageUrl:
-//           'https://cdn.shopify.com/s/files/1/2303/2711/files/4_98b999c5-25a8-48ff-8998-d819c1db9d75.jpg?v=1617058517', // Replace with your image URL
-//       currentPrice: 15,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-//   Product(
-//       name: 'Spotzero by Milton Prime Spin Mop',
-//       imageUrl:
-//           'https://cdn.shopify.com/s/files/1/2303/2711/files/7_324422e0-fe83-4b3d-ae5c-641f4567b5ff.jpg?v=1617058709',
-//       currentPrice: 349.99,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-//   Product(
-//       name: 'Mr Muscle Kitchen Cleaner - 425ml Pouch (Lemon)',
-//       imageUrl:
-//           'https://cloudinary-marketing-res.cloudinary.com/images/w_1000,c_scale/v1679921049/Image_URL_header/Image_URL_header-png?_i=AA', // Replace with your image URL
-//       currentPrice: 15,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-//   Product(
-//       name: 'Spotzero by Milton Prime Spin Mop',
-//       imageUrl: '',
-//       currentPrice: 349.99,
-//       originalPrice: 999,
-//       rating: 4,
-//       price: 400),
-// ];

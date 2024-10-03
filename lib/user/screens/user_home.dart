@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/screens/notification_page.dart';
 import 'package:house_cleaning/user/screens/user_create_profile_screen.dart';
+import '../models/notification_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
 import '../widgets/heading_text.dart';
@@ -55,7 +57,9 @@ class UserHome extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      // Get.to(() => CreateProfilePage( ));
+                      // Get.to(
+                      //   () => NotificationsPage(),
+                      // );
                     },
                     child: Container(
                       decoration: const BoxDecoration(color: Colors.white),

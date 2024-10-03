@@ -3,21 +3,61 @@ import 'package:get/get.dart';
 
 import '../../theme/custom_colors.dart';
 import '../../user/screens/user_create_profile_screen.dart';
-import '../../user/screens/user_main.dart';
 import '../widgets/image_button.dart';
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController.addListener(_updateButtonState);
+    passwordController.addListener(_updateButtonState);
+    confirmPasswordController.addListener(_updateButtonState);
+  }
+
+  void _updateButtonState() {
+    setState(() {
+      _isButtonEnabled = emailController.text.isNotEmpty &&
+          passwordController.text.isNotEmpty &&
+          confirmPasswordController.text.isNotEmpty;
+    });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      'Error',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final TextEditingController confirmPasswordController =
-        TextEditingController();
-
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -26,7 +66,7 @@ class RegisterScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
-            key: _formKey, // Add the Form widget with a GlobalKey
+            key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,9 +75,7 @@ class RegisterScreen extends StatelessWidget {
                   "Hello! Register to get started",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 TextFormField(
                   controller: emailController,
                   decoration: const InputDecoration(
@@ -47,12 +85,13 @@ class RegisterScreen extends StatelessWidget {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    return null; // Return null if valid
+                    if (!GetUtils.isEmail(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
                   },
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: passwordController,
                   obscureText: true,
@@ -69,12 +108,13 @@ class RegisterScreen extends StatelessWidget {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-                    return null; // Return null if valid
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
+                    }
+                    return null;
                   },
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: confirmPasswordController,
                   obscureText: true,
@@ -88,16 +128,13 @@ class RegisterScreen extends StatelessWidget {
                     ),
                   ),
                   validator: (value) {
-                    // Check if the confirm password matches the password
                     if (value != passwordController.text) {
                       return 'Passwords do not match';
                     }
-                    return null; // Return null if valid
+                    return null;
                   },
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
                 const Row(children: [
                   Spacer(),
                   Text(
@@ -108,31 +145,35 @@ class RegisterScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                 ]),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // If the form is valid, navigate to the CreateProfilePage
-                      Get.to(
-                        () => CreateProfilePage(
-                          email: emailController.text.trim(),
-                          password: passwordController.text,
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _isButtonEnabled
+                      ? () {
+                          if (_formKey.currentState!.validate()) {
+                            Get.to(
+                              () => CreateProfilePage(
+                                email: emailController.text.trim(),
+                                password: passwordController.text,
+                              ),
+                            );
+                          } else {
+                            _showErrorSnackbar(
+                                'Please correct the errors in the form.');
+                          }
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),
-                    backgroundColor: CustomColors.primaryColor,
+                    backgroundColor: _isButtonEnabled
+                        ? CustomColors.primaryColor
+                        : Colors.grey,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40),
                     ),
                   ),
                   child: const Text(
-                    'Register', // Changed from 'Login' to 'Register'
+                    'Register',
                     style: TextStyle(
                       color: Colors.white,
                     ),
