@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
+import 'package:house_cleaning/auth/screens/staff_login.dart';
 
 class SegerationScreen extends StatelessWidget {
   @override
@@ -96,6 +97,7 @@ class SegerationScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (label == "Staff") {
+          Get.to(StaffLogin());
         } else {
           Get.to(AuthScreen());
         }

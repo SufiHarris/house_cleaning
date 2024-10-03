@@ -25,7 +25,7 @@ class ApartmentServiceDetail extends StatefulWidget {
 class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     with SingleTickerProviderStateMixin {
   final userProvider = Get.find<UserProvider>();
-  DateTime? selectedDate;
+  DateTime selectedDate = DateTime.now();
 
   Map<int, List<ServiceItem>> selectedServices = {};
   List<ServiceSummaryModel> bookedServices = [];
@@ -37,6 +37,10 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchServices();
+    if (userProvider.selectedDate.value == null) {
+      userProvider.setSelectedDate(DateTime.now());
+    }
+    userProvider.updateMyString(widget.category.categoryImage);
   }
 
   void _fetchServices() {
@@ -608,9 +612,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
               onPressed: () {
                 // Generate service summary before printing
                 _generateServiceSummary();
-
                 // Print the booked services
-                Get.to(() => UserSelectAddress(summary: bookedServices));
+                Get.to(() => UserSelectAddress());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.brown[700],
@@ -668,6 +671,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
         totalPrice: serviceDetails['totalPrice'],
       ));
     });
+
+    userProvider.setSelectedServices(bookedServices);
     userProvider.fetchAddresses();
   }
 }

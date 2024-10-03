@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,60 +11,22 @@ import '../models/service_model.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/service_summary_model.dart';
 import '../screens/user_main.dart';
 
 class UserProvider extends GetxController {
-  Future<void> saveUserProfile({
-    required String email,
-    required String name,
-    required String phone,
-    required String password,
-  }) async {
-    try {
-      // Step 1: Register the user
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      // Check if userCredential is valid
-      if (userCredential.user == null) {
-        Get.snackbar("Error", "Failed to register user");
-        return;
-      }
-
-      // Step 2: Save user data in Firestore
-      String uid = userCredential.user!.uid; // Get the user's UID
-
-      await FirebaseFirestore.instance.collection('users_table').doc(uid).set({
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'password': password,
-        'user_id': 3, // Ensure this is correct based on your logic
-      });
-
-      Get.snackbar("Success", "Profile created successfully!");
-    } on FirebaseAuthException catch (e) {
-      // Handle Firebase Authentication errors
-      print("Firebase Auth error: ${e.message}");
-      Get.snackbar(
-          "Error", e.message ?? "An error occurred during authentication");
-    } on FirebaseException catch (e) {
-      // Handle Firestore errors
-      print("Firestore error: ${e.message}");
-      Get.snackbar("Error", "Failed to save data to Firestore: ${e.message}");
-    } catch (e) {
-      // Handle any other errors
-      print("General error: $e");
-      Get.snackbar("Error", "An unexpected error occurred");
-    }
-  }
-
   var categoryList =
       <CategoryModel>[].obs; // Assuming you have this for categories
   var products = <UserProductModel>[].obs;
   var services = <ServiceModel>[].obs;
   var isLoading = true.obs;
   var addresses = <AddressModel>[].obs;
+  // New observable properties
+  var selectedDate = Rx<DateTime?>(null);
+  var selectedServices = <ServiceSummaryModel>[].obs;
+  var selectedAddress = Rx<AddressModel?>(null);
+  var selectedProducts = <UserProductModel>[].obs;
+  var imageString = ''.obs;
 
   var profileImage = Rx<File?>(null); // Observable for the profile image
   final ImagePicker _picker = ImagePicker();
@@ -113,9 +76,14 @@ class UserProvider extends GetxController {
       isLoading.value = true;
       var snapshot =
           await FirebaseFirestore.instance.collection('product_table').get();
-      products.value = snapshot.docs
-          .map((doc) => UserProductModel.fromFirestore(doc.data()))
-          .toList();
+
+      // Ensure each product has proper data with null checks
+      products.value = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return UserProductModel.fromFirestore(data);
+      }).toList();
+
+      print("Mapped products: ${products.length}");
     } catch (e) {
       print("Error fetching products: $e");
     } finally {
@@ -167,5 +135,37 @@ class UserProvider extends GetxController {
     } finally {
       isLoading.value = false; // Set loading to false after fetching
     }
+  }
+
+  void setSelectedDate(DateTime date) {
+    selectedDate.value = date;
+  }
+
+  void setSelectedServices(List<ServiceSummaryModel> services) {
+    selectedServices.value = services;
+  }
+
+  void setSelectedAddress(AddressModel address) {
+    selectedAddress.value = address;
+  }
+
+  void toggleProductSelection(UserProductModel product) {
+    if (selectedProducts.contains(product)) {
+      selectedProducts.remove(product);
+    } else {
+      selectedProducts.add(product);
+    }
+  }
+
+  void updateMyString(String value) {
+    imageString.value = value;
+  }
+
+  void clearSelections() {
+    selectedDate.value = null;
+    selectedServices.clear();
+    selectedAddress.value = null;
+    selectedProducts.clear();
+    imageString.value = '';
   }
 }

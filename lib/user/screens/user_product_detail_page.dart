@@ -35,7 +35,7 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(widget.product.image),
+                    image: NetworkImage(widget.product.imageUrl),
                     fit: BoxFit.fill,
                   ),
                 ),

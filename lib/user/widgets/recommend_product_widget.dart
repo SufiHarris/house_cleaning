@@ -4,10 +4,16 @@ import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/user/screens/user_product_detail_page.dart';
 import '../models/product_model.dart';
 
-class ProductCard extends StatelessWidget {
+class RecommendProduct extends StatelessWidget {
   final UserProductModel product;
-
-  const ProductCard({super.key, required this.product});
+  final bool isSelected;
+  final VoidCallback onToggle;
+  const RecommendProduct({
+    super.key,
+    required this.product,
+    required this.isSelected,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class ProductCard extends StatelessWidget {
           Get.to(() => UserProductDetailPage(product: product));
         },
         child: Container(
-          width: 150,
+          width: double.infinity,
           child: Stack(
             children: [
               Column(
@@ -26,7 +32,7 @@ class ProductCard extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isSelected ? Colors.green.shade100 : Colors.white,
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
@@ -88,14 +94,13 @@ class ProductCard extends StatelessWidget {
                           height: 16,
                           image: AssetImage("assets/images/star.png"),
                         ),
-                        // Uncomment if you have a rating field
-                        // Text(
-                        //   product.rating.toString(),
-                        //   style: Theme.of(context)
-                        //       .textTheme
-                        //       .labelLarge
-                        //       ?.copyWith(color: CustomColors.textColorTwo),
-                        // ),
+                        Text(
+                          product.price.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(color: CustomColors.textColorTwo),
+                        ),
                       ],
                     ),
                   ),
@@ -110,8 +115,30 @@ class ProductCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
-                      const Spacer()
+                      const Spacer(),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => onToggle(),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        side: BorderSide(color: Colors.grey.shade300),
+                        backgroundColor:
+                            isSelected ? Colors.green : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text(
+                        isSelected ? "Added" : "+ Add",
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

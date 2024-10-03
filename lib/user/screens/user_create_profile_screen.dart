@@ -50,7 +50,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white, // Background color of the bottom sheet
           borderRadius: BorderRadius.vertical(
               top: Radius.circular(16)), // Rounded corners
@@ -107,7 +107,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
             labelColor: CustomColors.textColorThree,
             unselectedLabelColor: Color(0xFFDCD7D8),
             labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            tabs: [
+            tabs: const [
               Tab(text: 'Personal Details'),
               Tab(text: 'Address Details'),
             ],
@@ -233,7 +233,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                   Center(
                     child: InkWell(
                       onTap: () async {
-                        await userProfileController.saveUserProfile(
+                        await authProvider.saveUserProfile(
                           email: widget.email,
                           name: nameController.text, // Use widget.email
                           phone: phoneController.text,
@@ -255,7 +255,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                         });
                       },
                       child: AnimatedContainer(
-                        duration: Duration(
+                        duration: const Duration(
                             milliseconds:
                                 300), // Animation duration for smooth transition
                         decoration: BoxDecoration(

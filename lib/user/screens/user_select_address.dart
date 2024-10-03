@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/user/models/service_summary_model.dart';
+import 'package:house_cleaning/user/screens/product_recommend_screen.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
-
-import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
 import '../models/address_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/custom_button_widget.dart';
 
 class UserSelectAddress extends StatefulWidget {
-  final List<ServiceSummaryModel> summary;
-
-  const UserSelectAddress({Key? key, required this.summary}) : super(key: key);
+  const UserSelectAddress({Key? key}) : super(key: key);
 
   @override
   State<UserSelectAddress> createState() => _UserSelectAddressState();
@@ -21,53 +17,44 @@ class UserSelectAddress extends StatefulWidget {
 class _UserSelectAddressState extends State<UserSelectAddress> {
   final userProvider = Get.find<UserProvider>();
 
-  // Track the selected address
-  int _selectedAddressIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    // Fetch addresses when the widget is initialized
     userProvider.fetchAddresses();
   }
 
   @override
   Widget build(BuildContext context) {
-    final AuthProvider authProvider = Get.find<AuthProvider>();
-
     return Scaffold(
       appBar: AppBar(title: const Text("Select Address")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Obx(() {
-          // Use Obx to make the widget reactive
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (userProvider.addresses.isEmpty)
                 const Center(child: Text('No addresses found.'))
               else
-                // Use ListView.builder to display each address with Radio buttons
                 Expanded(
                   child: ListView.builder(
                     itemCount: userProvider.addresses.length,
                     itemBuilder: (context, index) {
                       final address = userProvider.addresses[index];
-
                       return Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: RadioListTile<int>(
-                              value: index,
-                              groupValue: _selectedAddressIndex,
-                              onChanged: (value) {
+                            child: RadioListTile<AddressModel>(
+                              value: address,
+                              groupValue: userProvider.selectedAddress.value,
+                              onChanged: (AddressModel? selectedAddress) {
                                 setState(() {
-                                  _selectedAddressIndex = value!;
+                                  userProvider
+                                      .setSelectedAddress(selectedAddress!);
                                 });
                               },
-                              activeColor: CustomColors
-                                  .primaryColor, // Customize as needed
+                              activeColor: CustomColors.primaryColor,
                               title: Text(
                                 address.name,
                                 style: const TextStyle(
@@ -78,11 +65,11 @@ class _UserSelectAddressState extends State<UserSelectAddress> {
                                 '${address.city}, ${address.building}, ${address.landmark}, ${address.floor}',
                                 style: const TextStyle(color: Colors.grey),
                               ),
-                              secondary: const Icon(Icons.location_on,
-                                  color: Colors.red),
+                              secondary: Icon(Icons.location_on,
+                                  color: CustomColors.primaryColor),
                             ),
                           ),
-                          Divider()
+                          const Divider(),
                         ],
                       );
                     },
@@ -105,16 +92,22 @@ class _UserSelectAddressState extends State<UserSelectAddress> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: CustomButton(
-                  text: 'Next',
-                  onTap: () {
-                    // Implement the logic when "Next" button is pressed
-                  },
-                  horizontalPadding: 50,
-                  verticalPadding: 15,
-                  // backgroundColor:
-                  //     CustomColors.primaryColor, // Customize as needed
-                ),
+                child: Obx(() {
+                  // Disable the Next button if no address is selected
+                  return CustomButton(
+                    text: 'Next',
+                    onTap: userProvider.selectedAddress.value != null
+                        ? () {
+                            Get.to(() => ProductRecommendScreen());
+                          }
+                        : () {
+                            // Show error message if no address is selected
+                            Get.snackbar('Error', 'Please select an address',
+                                snackPosition: SnackPosition.BOTTOM);
+                          },
+                    // isDisabled: userProvider.selectedAddress.value == null,
+                  );
+                }),
               ),
             ],
           );
