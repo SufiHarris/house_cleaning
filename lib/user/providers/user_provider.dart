@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/address_model.dart';
+import '../models/bookings_model.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
@@ -21,6 +22,8 @@ class UserProvider extends GetxController {
   var services = <ServiceModel>[].obs;
   var isLoading = true.obs;
   var addresses = <AddressModel>[].obs;
+  var bookings = <BookingModel>[].obs;
+
   // New observable properties
   var selectedDate = Rx<DateTime?>(null);
   var selectedServices = <ServiceSummaryModel>[].obs;
@@ -135,6 +138,141 @@ class UserProvider extends GetxController {
     } finally {
       isLoading.value = false; // Set loading to false after fetching
     }
+  }
+
+  void printBookings() {
+    if (bookings.isEmpty) {
+      print("No bookings available.");
+      return;
+    }
+
+    for (var i = 0; i < bookings.length; i++) {
+      var booking = bookings[i];
+      print("Booking ${i + 1}:");
+      print("  Booking ID: ${booking.booking_id}");
+      print("  Date: ${booking.bookingDate}");
+      print("  Time: ${booking.bookingTime}");
+      print("  Address: ${booking.address}");
+      print("  Status: ${booking.status}");
+      print("  Payment Status: ${booking.payment_status}");
+      print("  Total Price: ${booking.total_price}");
+
+      print("  Products:");
+      for (var product in booking.products) {
+        print(
+            "    - ${product.product_name} (Quantity: ${product.quantity}, Delivery Time: ${product.delivery_time})");
+      }
+
+      print("  Services:");
+      for (var service in booking.services) {
+        print(
+            "    - ${service.service_name} (Quantity: ${service.quantity}, Size: ${service.size})");
+      }
+
+      print("  User ID: ${booking.user_id}");
+      print("  User Phone: ${booking.user_phn_number}");
+      print("  Employee ID: ${booking.employee_id}");
+      print("----------------------------------------");
+    }
+  }
+
+  Future<void> fetchBookings() async {
+    try {
+      isLoading.value = true;
+
+      // Get the user_id from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('user_id') ?? 111;
+
+      if (userId == 0) {
+        print("User ID not found in SharedPreferences");
+        return;
+      }
+
+      var snapshot = await FirebaseFirestore.instance
+          .collection('services(size)_products_bookings_table')
+          .where('user_id', isEqualTo: userId)
+          .get();
+
+      bookings.value = snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.data()))
+          .toList();
+
+      print("Fetched ${bookings.length} bookings for user $userId");
+      printBookings();
+    } catch (e) {
+      print("Error fetching bookings: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Map<String, dynamic> createBookingDocument() {
+    return {
+      'address': selectedAddress.value?.floor ?? 'zoonimar',
+      'booking_date': selectedDate.value?.toString() ?? '10 September',
+      'booking_id': 110, // You might want to generate this dynamically
+      'booking_time': '1 PM',
+      'employee_id': 102,
+      'end_image': '',
+      'payment_status': 'Done',
+      'products': selectedProducts
+          .map((product) => {
+                'product_name': product.name,
+                'quantity': product.quantity ?? 1,
+                'delivery_time': product.deliveryTime ?? '1-2 Days',
+              })
+          .toList(),
+      'services': [
+        {
+          'service_names': selectedServices
+              .map((service) => {
+                    'quantity': service.totalQuantity,
+                    'service_name': service.serviceName,
+                    'size': service.totalSize,
+                  })
+              .toList(),
+        }
+      ],
+      'start_image': 'yyyyyy',
+      'status': 'pending',
+      'total_price':
+          400, // You might want to calculate this based on selected services and products
+      'user_id': 111,
+      'user_phn_number': '9999999999',
+    };
+  }
+
+  double calculateTotalPrice() {
+    double serviceTotal = selectedServices.fold(
+        0, (sum, service) => sum + (service.totalPrice ?? 0));
+    double productTotal = selectedProducts.fold(
+        0, (sum, product) => sum + (product.price * (product.quantity ?? 1)));
+    return serviceTotal + productTotal;
+  }
+
+  Future<void> saveBookingToFirestore() async {
+    try {
+      final bookingData = createBookingDocument();
+
+      // Create a new document with an auto-generated ID
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('services(size)_products_bookings_table')
+          .add(bookingData);
+
+      print('Booking saved successfully with ID: ${docRef.id}');
+      Get.offAll(() => UserMain());
+      // You might want to show a success message to the user here
+    } catch (e) {
+      print('Error saving booking: $e');
+      // Handle the error (show a snackbar, dialog, etc.)
+    }
+  }
+
+  Future<void> processBooking() async {
+    await saveBookingToFirestore();
+    clearSelections(); // Clear selections after successful booking
+    // Navigate to a confirmation screen or show a success message
   }
 
   void setSelectedDate(DateTime date) {
