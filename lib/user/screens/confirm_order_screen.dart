@@ -46,6 +46,7 @@ class ConfirmOrderScreen extends StatelessWidget {
                 // const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
+                    userProvider.processBooking();
                     // Implement order confirmation logic
                   },
                   child: Text('Confirm Order'),
