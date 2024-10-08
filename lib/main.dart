@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           final authProvider = Get.find<AuthProvider>();
           return authProvider.user.value != null
               ? const UserMain()
-              : SegerationScreen();
+              : AuthScreen();
         }),
       ),
     );

@@ -69,6 +69,20 @@ class UserHome extends StatelessWidget {
                         child: SvgPicture.asset("assets/images/icon_bell.svg"),
                       ),
                     ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        () => CartPage(),
+                      );
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(color: Colors.white),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset("assets/images/cart.svg"),
+                      ),
+                    ),
                   )
                 ],
               ),
