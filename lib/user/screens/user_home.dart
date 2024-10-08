@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/screens/cart_screen.dart';
 import 'package:house_cleaning/user/screens/notification_page.dart';
 import 'package:house_cleaning/user/screens/user_create_profile_screen.dart';
 import '../models/notification_model.dart';
@@ -57,9 +58,9 @@ class UserHome extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      // Get.to(
-                      //   () => NotificationsPage(),
-                      // );
+                      Get.to(
+                        () => CartPage(),
+                      );
                     },
                     child: Container(
                       decoration: const BoxDecoration(color: Colors.white),

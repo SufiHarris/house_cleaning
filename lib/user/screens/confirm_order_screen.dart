@@ -8,6 +8,8 @@ import 'package:house_cleaning/user/widgets/confirm_order_edit.dart';
 import '../providers/user_provider.dart';
 import 'package:intl/intl.dart';
 
+import 'user_main.dart';
+
 class ConfirmOrderScreen extends StatelessWidget {
   const ConfirmOrderScreen({super.key});
 
@@ -46,8 +48,20 @@ class ConfirmOrderScreen extends StatelessWidget {
                 // const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    userProvider.processBooking();
-                    // Implement order confirmation logic
+                    userProvider.addToCart();
+                  },
+                  child: Text('Add to Cart'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: CustomColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 50),
+                  ),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    userProvider.saveBookingToFirestore();
+                    Get.offAll(() => UserMain());
                   },
                   child: Text('Confirm Order'),
                   style: ElevatedButton.styleFrom(
