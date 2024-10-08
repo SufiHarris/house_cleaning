@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:house_cleaning/user/screens/user_googlemap.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/custom_button_widget.dart';
+import 'controller/user_addaddress_controller.dart';
 
 class UserAddAddressPage extends StatelessWidget {
   UserAddAddressPage({super.key});
+  final AddAddressController addAddressController =
+      Get.put(AddAddressController());
   bool isNextPressed = false;
 
   final TextEditingController locationController = TextEditingController();
   final TextEditingController buildingController = TextEditingController();
   final TextEditingController floorController = TextEditingController();
   final TextEditingController landmarkController = TextEditingController();
+
+  final RxBool isAllFieldsFilled = false.obs;
+
+  void checkFields() {
+    isAllFieldsFilled.value =
+        addAddressController.locationController.text.isNotEmpty &&
+            addAddressController.buildingController.text.isNotEmpty &&
+            addAddressController.floorController.text.isNotEmpty &&
+            addAddressController.landmarkController.text.isNotEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +44,8 @@ class UserAddAddressPage extends StatelessWidget {
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
               TextField(
-                controller: locationController,
+                controller: addAddressController.locationController,
+                onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
                   hintText: 'Enter location',
                   labelStyle:
@@ -47,8 +64,13 @@ class UserAddAddressPage extends StatelessWidget {
               ),
               SizedBox(height: 15),
               ElevatedButton.icon(
-                onPressed: () {
-                  // Add location fetch logic
+                onPressed: () async {
+                  LatLng selectedLocation =
+                      await Get.to(() => SelectLocationOnMapPage());
+                  if (selectedLocation != null) {
+                    await addAddressController
+                        .setLocationFromMap(selectedLocation);
+                  }
                 },
                 icon: Icon(Icons.location_pin,
                     color: CustomColors.textColorThree),
@@ -70,7 +92,8 @@ class UserAddAddressPage extends StatelessWidget {
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
               TextField(
-                controller: buildingController,
+                controller: addAddressController.buildingController,
+                onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
                   hintText: 'Enter building number',
                   labelStyle:
@@ -93,7 +116,8 @@ class UserAddAddressPage extends StatelessWidget {
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
               TextField(
-                controller: floorController,
+                controller: addAddressController.floorController,
+                onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
                   hintText: 'Enter your floor',
                   labelStyle:
@@ -116,7 +140,8 @@ class UserAddAddressPage extends StatelessWidget {
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
               TextField(
-                controller: landmarkController,
+                controller: addAddressController.landmarkController,
+                onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
                   hintText: 'Enter landmark',
                   labelStyle:
@@ -134,14 +159,30 @@ class UserAddAddressPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 100),
-              Center(
-                child: CustomButton(
-                  text: 'Save Address',
-                  onTap: () {
-                    // Save address logic here
-                  },
-                ),
-              ),
+              Obx(() => ElevatedButton(
+                    onPressed: isAllFieldsFilled.value
+                        ? () async {
+                            await addAddressController.saveAddress();
+                            Get.back();
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 120, vertical: 15),
+                      backgroundColor: isAllFieldsFilled.value
+                          ? CustomColors.textColorThree
+                          : Colors.white,
+                      side: BorderSide(color: CustomColors.textColorThree),
+                    ),
+                    child: Text(
+                      'Save Address',
+                      style: TextStyle(
+                        color: isAllFieldsFilled.value
+                            ? Colors.white
+                            : CustomColors.textColorThree,
+                      ),
+                    ),
+                  )),
             ],
           ),
         ),
