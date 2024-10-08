@@ -31,25 +31,34 @@ class AuthProvider extends GetxController {
     super.onInit();
     user.bindStream(_auth.authStateChanges());
 
-    ever(user, (User? currentUser) {
+    ever(user, (User? currentUser) async {
       if (currentUser != null) {
-        // When user state changes, check if logged-in user is available
-        Get.offAll(() => const UserMain());
+        // Check if the user exists in users_table
+        bool userexists = await userExists(currentUser.email!);
+        if (userexists) {
+          // Navigate to UserMain if the user is a regular user
+          Get.offAll(() => const UserMain());
+        } else {
+          // Check if the user exists in staff_table
+          bool staffexists = await staffExists(currentUser.email!);
+          if (staffexists) {
+            // Navigate to EmployeeHome if the user is staff
+            Get.offAll(() => const EmployeeHome());
+          } else {
+            // Handle case when the user is not found in either table
+            Get.offAll(() => SegerationScreen());
+          }
+        }
       }
     });
   }
 
   Future<bool> staffExists(String email) async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('staff_table')
-          .where('email', isEqualTo: email)
-          .get();
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      print('Error checking staff existence: $e');
-      return false;
-    }
+    final QuerySnapshot result = await _firestore
+        .collection('staff_table')
+        .where('email', isEqualTo: email)
+        .get();
+    return result.docs.isNotEmpty; // Return true if staff exists
   }
 
 // Staff sign-in function
@@ -110,84 +119,73 @@ class AuthProvider extends GetxController {
   }
 
   Future<bool> userExists(String email) async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('users_table')
-          .where('email', isEqualTo: email)
-          .get();
-      return querySnapshot.docs.isNotEmpty;
-    } catch (e) {
-      print('Error checking user existence: $e');
-      return false;
-    }
+    final QuerySnapshot result = await _firestore
+        .collection('users_table')
+        .where('email', isEqualTo: email)
+        .get();
+    return result.docs.isNotEmpty; // Return true if user exists
   }
 
   Future<void> signIn() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.isEmpty) {
+    if (email.isEmpty || password.isEmpty) {
       _showSnackBar('Please fill in all fields', true);
       return;
     }
 
     isLoading.value = true; // Show loader
 
-    bool exists = await userExists(emailController.text.trim());
-    if (!exists) {
-      isLoading.value = false; // Hide loader
-      _showSnackBar('User does not exist. Please sign up.', true);
-      return;
-    }
+    // Check for the user in the users_table
+    bool existsuser = await userExists(email);
+    if (existsuser) {
+      // If user exists, attempt to sign in
+      try {
+        UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
 
-    try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      User? userDetails = result.user;
-      print("hiii am here 3");
-      print("hiii am here 3");
-
-      if (userDetails != null) {
-        print("hiii am here 2");
-
-        print("hiii am here 2");
-
-        DocumentSnapshot userDoc = await _firestore
-            .collection('users_table')
-            .doc(userDetails.uid)
-            .get();
-
-        if (userDoc.exists) {
-          print("hiii am here");
-          print("hiii am here");
-          Map<String, dynamic> userData =
-              userDoc.data() as Map<String, dynamic>;
-          await _saveUserData(userData);
+        if (result.user != null) {
+          // User signed in successfully
+          // Navigate to the user main page
           isLoading.value = false; // Hide loader
           Get.offAll(() => const UserMain());
-          print("but not here");
-
-          print("but not here");
-
           _showSnackBar('Logged in successfully', false);
-        } else {
-          // User does not exist in Firestore, redirect to CreateProfilePage
-          isLoading.value = false; // Hide loader
-          Get.to(() => CreateProfilePage(
-                // name: userDetails.displayName ?? '',
-                // email: userDetails.email ?? '',
-                email: 'email',
-                password: 'password',
-                // Pass any other required data here
-              ));
         }
+      } on FirebaseAuthException catch (e) {
+        isLoading.value = false; // Hide loader
+        String message = _getFirebaseErrorMessage(e.code);
+        _showSnackBar(message, true);
       }
-    } on FirebaseAuthException catch (e) {
-      isLoading.value = false; // Hide loader
-      String message = _getFirebaseErrorMessage(e.code);
-      _showSnackBar(message, true);
+    } else {
+      // Check for the staff in the staff_table
+      bool existsstaff = await staffExists(email);
+      if (existsstaff) {
+        // If staff exists, attempt to sign in
+        try {
+          UserCredential result = await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+
+          if (result.user != null) {
+            // Staff signed in successfully
+            // Navigate to the employee home page
+            isLoading.value = false; // Hide loader
+            Get.offAll(() => const EmployeeHome());
+            _showSnackBar('Logged in as staff successfully', false);
+          }
+        } on FirebaseAuthException catch (e) {
+          isLoading.value = false; // Hide loader
+          String message = _getFirebaseErrorMessage(e.code);
+          _showSnackBar(message, true);
+        }
+      } else {
+        // If neither user nor staff found
+        isLoading.value = false; // Hide loader
+        _showSnackBar('User not found in both tables.', true);
+      }
     }
   }
 
@@ -195,11 +193,10 @@ class AuthProvider extends GetxController {
     try {
       isLoading.value = true; // Show loader
 
-      // Trigger Google Sign-In, but don't authenticate with Firebase yet
+      // Trigger Google Sign-In
       final GoogleSignInAccount? googleSignInAccount =
           await GoogleSignIn().signIn();
       if (googleSignInAccount == null) {
-        // Handle case when Google sign-in is canceled
         isLoading.value = false; // Hide loader
         _showSnackBar('Google Sign-In was canceled.', true);
         return;
@@ -208,21 +205,23 @@ class AuthProvider extends GetxController {
       final String googleEmail = googleSignInAccount.email;
 
       // Check if the email exists in the Firestore user table
-      bool exists = await userExists(googleEmail);
-
-      if (exists) {
-        // If user exists, now perform the Google authentication
+      bool userExists = await this.userExists(googleEmail);
+      if (userExists) {
+        // If user exists, perform the Google authentication
         await _signInWithGoogleAuth(googleSignInAccount);
       } else {
-        // If user does not exist, redirect to the create profile page
-        isLoading.value = false; // Hide loader
-        print(googleSignInAccount);
-        // Get.to(() => CreateProfilePage(
-        //     // name: googleSignInAccount.displayName ?? '',
-        //     // email: googleEmail,
-        //     // googleSignInAccount:
-        //     //     googleSignInAccount, // Pass Google Sign-In data
-        //     ));
+        // Check if the email exists in the staff table
+        bool staffExists = await this.staffExists(googleEmail);
+        if (staffExists) {
+          // If staff exists, perform the Google authentication
+          await _signInWithGoogleAuth(googleSignInAccount);
+        } else {
+          // If user does not exist in both tables, navigate to Create Profile Page
+          isLoading.value = false; // Hide loader
+          Get.to(() => CreateProfilePage(
+              account: googleSignInAccount // Pass only the email
+              ));
+        }
       }
     } catch (e) {
       isLoading.value = false; // Hide loader
@@ -230,7 +229,6 @@ class AuthProvider extends GetxController {
     }
   }
 
-// Perform the actual Google authentication after profile creation
   Future<void> _signInWithGoogleAuth(
       GoogleSignInAccount googleSignInAccount) async {
     try {
@@ -248,22 +246,50 @@ class AuthProvider extends GetxController {
       User? userDetails = result.user;
 
       if (userDetails != null) {
-        // Fetch user data from Firestore
-        DocumentSnapshot userDoc = await _firestore
-            .collection('users_table')
-            .doc(userDetails.uid)
-            .get();
+        final String email = userDetails.email!;
 
-        if (userDoc.exists) {
+        // Check if user exists in users_table
+        bool userexists = await userExists(email);
+        if (userexists) {
+          // User exists in users_table
+          DocumentSnapshot userDoc = await _firestore
+              .collection('users_table')
+              .where('email', isEqualTo: email)
+              .get()
+              .then((snapshot) => snapshot.docs.first);
+
           Map<String, dynamic> userData =
               userDoc.data() as Map<String, dynamic>;
-          await _saveUserData(userData);
-          Get.offAll(() => const UserMain());
+          await _saveUserData(userData); // Save user data
+          Get.offAll(() => const UserMain()); // Navigate to User Main Page
           _showSnackBar('Logged in successfully', false);
+        } else {
+          // Check if user exists in staff_table
+          bool staffexists = await staffExists(email);
+          if (staffexists) {
+            // Staff exists in staff_table
+            DocumentSnapshot staffDoc = await _firestore
+                .collection('staff_table')
+                .where('email', isEqualTo: email)
+                .get()
+                .then((snapshot) => snapshot.docs.first);
+
+            Map<String, dynamic> staffData =
+                staffDoc.data() as Map<String, dynamic>;
+            // You can save staff-specific data if needed
+            Get.offAll(
+                () => const EmployeeHome()); // Navigate to Employee Home Page
+            _showSnackBar('Logged in as staff successfully', false);
+          } else {
+            // If user does not exist in either table, navigate to Create Profile Page
+            Get.to(() => CreateProfilePage(
+                  account: googleSignInAccount, // Pass only the email
+                ));
+          }
         }
       }
     } catch (e) {
-      isLoading.value = false;
+      isLoading.value = false; // Hide loader
       _showSnackBar('Authentication failed. Please try again.', true);
     }
   }
