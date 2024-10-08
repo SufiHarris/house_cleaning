@@ -11,7 +11,7 @@ class UserBookings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Get.find<UserProvider>();
-
+    userProvider.fetchBookings();
     return DefaultTabController(
       length: 3,
       child: Scaffold(
