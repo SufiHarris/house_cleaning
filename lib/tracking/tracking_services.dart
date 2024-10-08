@@ -5,6 +5,8 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:house_cleaning/tracking/tracking_controller.dart';
 
+import 'directions_repository.dart';
+
 class TrackingController extends GetxController {
   Rx<Position?> currentPosition = Rx<Position?>(null);
   RxList<LatLng> polylineCoordinates = <LatLng>[].obs;

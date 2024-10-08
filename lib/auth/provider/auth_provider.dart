@@ -46,7 +46,7 @@ class AuthProvider extends GetxController {
             Get.offAll(() => const EmployeeHome());
           } else {
             // Handle case when the user is not found in either table
-            Get.offAll(() => SegerationScreen());
+            Get.offAll(() => AuthScreen());
           }
         }
       }
@@ -330,7 +330,7 @@ class AuthProvider extends GetxController {
       await prefs.clear();
 
       user.value = null;
-      Get.offAll(() => SegerationScreen());
+      Get.offAll(() => AuthScreen());
 
       _showSnackBar('Logged out successfully', false);
     } catch (e) {
