@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCNG-HjyJGcuiMnFWytLm2jMJmMl-_Y3jY',
-    appId: '1:1003248471502:web:a4fc59975792867a2e6f9f',
-    messagingSenderId: '1003248471502',
-    projectId: 'housecleaning-ed9da',
-    authDomain: 'housecleaning-ed9da.firebaseapp.com',
-    storageBucket: 'housecleaning-ed9da.appspot.com',
-    measurementId: 'G-FCWZ72P8NP',
+    apiKey: 'AIzaSyAX1NCAH4ooUd2hpI2jUVflRVmJRKC8kVg',
+    appId: '1:550265053132:web:c04eb58b7db1046ff98769',
+    messagingSenderId: '550265053132',
+    projectId: 'housecleaning-b5862',
+    authDomain: 'housecleaning-b5862.firebaseapp.com',
+    storageBucket: 'housecleaning-b5862.appspot.com',
+    measurementId: 'G-GTD4NMZ5RZ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAhTgApDD9WT_pNzLBwH1DR7-G0iWC-y1w',
-    appId: '1:1003248471502:android:995c34f2deedc2c02e6f9f',
-    messagingSenderId: '1003248471502',
-    projectId: 'housecleaning-ed9da',
-    storageBucket: 'housecleaning-ed9da.appspot.com',
+    apiKey: 'AIzaSyCA-WUrH_uu7umE-vystBjT_o8p4N-a5sE',
+    appId: '1:550265053132:android:a737e3588239cc00f98769',
+    messagingSenderId: '550265053132',
+    projectId: 'housecleaning-b5862',
+    storageBucket: 'housecleaning-b5862.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCcVZzzHrIIutWpURe1iEhXraW21y4WJrs',
-    appId: '1:1003248471502:ios:ebd0db93ec1cb0922e6f9f',
-    messagingSenderId: '1003248471502',
-    projectId: 'housecleaning-ed9da',
-    storageBucket: 'housecleaning-ed9da.appspot.com',
+    apiKey: 'AIzaSyDourYxD2K8D0PjgSpwG8YWQOt4dYXlPIw',
+    appId: '1:550265053132:ios:7b0f62c89268f92ef98769',
+    messagingSenderId: '550265053132',
+    projectId: 'housecleaning-b5862',
+    storageBucket: 'housecleaning-b5862.appspot.com',
     iosBundleId: 'com.aseef.houseCleaning',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCcVZzzHrIIutWpURe1iEhXraW21y4WJrs',
-    appId: '1:1003248471502:ios:ebd0db93ec1cb0922e6f9f',
-    messagingSenderId: '1003248471502',
-    projectId: 'housecleaning-ed9da',
-    storageBucket: 'housecleaning-ed9da.appspot.com',
+    apiKey: 'AIzaSyDourYxD2K8D0PjgSpwG8YWQOt4dYXlPIw',
+    appId: '1:550265053132:ios:7b0f62c89268f92ef98769',
+    messagingSenderId: '550265053132',
+    projectId: 'housecleaning-b5862',
+    storageBucket: 'housecleaning-b5862.appspot.com',
     iosBundleId: 'com.aseef.houseCleaning',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCNG-HjyJGcuiMnFWytLm2jMJmMl-_Y3jY',
-    appId: '1:1003248471502:web:6e07272129a007822e6f9f',
-    messagingSenderId: '1003248471502',
-    projectId: 'housecleaning-ed9da',
-    authDomain: 'housecleaning-ed9da.firebaseapp.com',
-    storageBucket: 'housecleaning-ed9da.appspot.com',
-    measurementId: 'G-V98WTDM7BQ',
+    apiKey: 'AIzaSyAX1NCAH4ooUd2hpI2jUVflRVmJRKC8kVg',
+    appId: '1:550265053132:web:8a8ed291092be808f98769',
+    messagingSenderId: '550265053132',
+    projectId: 'housecleaning-b5862',
+    authDomain: 'housecleaning-b5862.firebaseapp.com',
+    storageBucket: 'housecleaning-b5862.appspot.com',
+    measurementId: 'G-ZNEMX3JKRN',
   );
+
 }
