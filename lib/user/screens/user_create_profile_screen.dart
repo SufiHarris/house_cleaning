@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 
 class CreateProfilePage extends StatefulWidget {
-  // final String name;
-  final String email;
-  final String password;
+  final GoogleSignInAccount account;
 
-  const CreateProfilePage(
-      {super.key,
-      // required this.name,
-      required this.email,
-      required this.password});
+  const CreateProfilePage({super.key, required this.account});
   @override
   _CreateProfilePageState createState() => _CreateProfilePageState();
 }
@@ -233,31 +228,40 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                   Center(
                     child: InkWell(
                       onTap: () async {
+                        if (nameController.text.isEmpty ||
+                            phoneController.text.isEmpty) {
+                          Get.snackbar(
+                              'Error', 'Please enter all required details.');
+                          return;
+                        }
+
+                        // Simulate generating a random password if not provided (for Google sign-in)
+                        String randomPassword =
+                            "123456"; // Can be replaced with a generated password
+
                         await authProvider.saveUserProfile(
-                          email: widget.email,
-                          name: nameController.text, // Use widget.email
+                          email: widget.account.email,
+                          name: nameController
+                              .text, // Collect name from user input
                           phone: phoneController.text,
-                          password: widget.password,
+                          password:
+                              randomPassword, // Use the generated or provided password
                         );
 
                         setState(() {
                           isNextPressed = true; // Set button as pressed
                         });
-                        _tabController.animateTo(1);
-
-                        // Add logic for what happens when the button is pressed here.
+                        _tabController.animateTo(1); // Switch to next tab
 
                         Future.delayed(Duration(milliseconds: 300), () {
-                          // Reset button state after 250 milliseconds
                           setState(() {
-                            isNextPressed = false; // Reset to normal state
+                            isNextPressed =
+                                false; // Reset button state after delay
                           });
                         });
                       },
                       child: AnimatedContainer(
-                        duration: const Duration(
-                            milliseconds:
-                                300), // Animation duration for smooth transition
+                        duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
                           color: isNextPressed
                               ? CustomColors.textColorThree
@@ -273,13 +277,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                             EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                         child: Center(
                           child: AnimatedDefaultTextStyle(
-                            duration: Duration(
-                                milliseconds: 300), // Smooth text color change
+                            duration: Duration(milliseconds: 300),
                             style: TextStyle(
                               color: isNextPressed
                                   ? Colors.white
-                                  : CustomColors
-                                      .textColorThree, // Text color changes smoothly
+                                  : CustomColors.textColorThree,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),

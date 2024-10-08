@@ -150,12 +150,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: _isButtonEnabled
                       ? () {
                           if (_formKey.currentState!.validate()) {
-                            Get.to(
-                              () => CreateProfilePage(
-                                email: emailController.text.trim(),
-                                password: passwordController.text,
-                              ),
-                            );
+                            // Get.to(
+                            //   () => CreateProfilePage(
+                            //     email: emailController.text.trim(),
+                            //     password: passwordController.text,
+                            //   ),
+                            // );
                           } else {
                             _showErrorSnackbar(
                                 'Please correct the errors in the form.');
