@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCcVZzzHrIIutWpURe1iEhXraW21y4WJrs</string>
+	<string>AIzaSyDourYxD2K8D0PjgSpwG8YWQOt4dYXlPIw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1003248471502</string>
+	<string>550265053132</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.aseef.houseCleaning</string>
 	<key>PROJECT_ID</key>
-	<string>housecleaning-ed9da</string>
+	<string>housecleaning-b5862</string>
 	<key>STORAGE_BUCKET</key>
-	<string>housecleaning-ed9da.appspot.com</string>
+	<string>housecleaning-b5862.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1003248471502:ios:ebd0db93ec1cb0922e6f9f</string>
+	<string>1:550265053132:ios:7b0f62c89268f92ef98769</string>
 </dict>
 </plist>
