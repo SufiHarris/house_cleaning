@@ -246,6 +246,17 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           phone: phoneController.text,
                           password:
                               randomPassword, // Use the generated or provided password
+                          address: {
+                            'Building': 'DemoBuild', // Dummy building name
+                            'Floor': 2, // Dummy floor number
+                            'Geolocation': [
+                              10,
+                              12
+                            ], // Dummy geolocation (latitude, longitude)
+                            'Landmark': 'Soura', // Dummy landmark
+                            'Location':
+                                'soura market', // Dummy location description
+                          },
                         );
 
                         setState(() {
