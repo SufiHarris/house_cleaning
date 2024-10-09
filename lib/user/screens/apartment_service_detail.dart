@@ -41,6 +41,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       userProvider.setSelectedDate(DateTime.now());
     }
     userProvider.updateMyString(widget.category.categoryImage);
+    userProvider.setSelectedCategory(widget.category);
   }
 
   void _fetchServices() {

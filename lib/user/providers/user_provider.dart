@@ -32,7 +32,7 @@ class UserProvider extends GetxController {
   var selectedProducts = <UserProductModel>[].obs;
   var imageString = ''.obs;
   var profileImage = Rx<File?>(null);
-
+  var selectedCategory = Rx<CategoryModel?>(null);
   final ImagePicker _picker = ImagePicker();
   @override
   void onInit() {
@@ -163,10 +163,16 @@ class UserProvider extends GetxController {
 
   // Cart-related methods
   Future<void> addToCart() async {
+    if (selectedCategory.value == null) {
+      Get.snackbar('Error', 'Please select a category',
+          backgroundColor: Colors.red);
+      return;
+    }
     final bookingData = createBookingDocument();
     final booking = BookingModel.fromFirestore(bookingData);
     cartBookings.add(booking);
     await saveCartToPrefs();
+    clearSelections(); // This will now also clear the selected category
     Get.offAll(() => UserMain());
     Get.snackbar('Success', 'Added to cart', backgroundColor: Colors.green);
   }
@@ -188,6 +194,7 @@ class UserProvider extends GetxController {
                     'product_name': product.product_name,
                     'quantity': product.quantity,
                     'delivery_time': product.delivery_time,
+                    'image_url': product.imageUrl
                   })
               .toList(),
           'services': [
@@ -206,6 +213,8 @@ class UserProvider extends GetxController {
           'total_price': booking.total_price,
           'user_id': booking.user_id,
           'user_phn_number': booking.user_phn_number,
+          'category_name': booking.categoryName,
+          'category_image': booking.categoryImage,
         };
       }).toList();
 
@@ -254,12 +263,11 @@ class UserProvider extends GetxController {
 
   Map<String, dynamic> createProductBookingDocument(UserProductModel product) {
     return {
-      'address':
-          'default address', // You may want to add a way to select address for product orders
+      'address': 'default address',
       'booking_date': DateTime.now().toString(),
       'booking_id': DateTime.now().millisecondsSinceEpoch,
       'booking_time': DateFormat('h:mm a').format(DateTime.now()),
-      'employee_id': 102, // You might want to adjust this for product orders
+      'employee_id': 102,
       'end_image': '',
       'payment_status': 'Pending',
       'products': [
@@ -267,15 +275,18 @@ class UserProvider extends GetxController {
           'product_name': product.name,
           'quantity': product.quantity ?? 1,
           'delivery_time': product.deliveryTime ?? '1-2 Days',
+          'image_url': product.imageUrl ?? 'https://placeholder.com/100',
+          'price': product.price,
         }
       ],
-      'services': [], // Empty for product-only orders
+      'services': [],
       'start_image': '',
       'status': 'pending',
       'total_price': product.price * (product.quantity ?? 1),
-      'user_id': 111, // You may want to get this from user authentication
-      'user_phn_number':
-          '9999999999', // You may want to get this from user profile
+      'user_id': 111,
+      'user_phn_number': '9999999999',
+      'category_name': '', // Added with empty string
+      'category_image': '', // Added with empty string
     };
   }
 
@@ -400,6 +411,7 @@ class UserProvider extends GetxController {
                 'quantity': product.quantity ?? 1,
                 'delivery_time': product.deliveryTime ?? '1-2 Days',
                 'price': product.price,
+                'image_url': product.imageUrl
               })
           .toList(),
       'services': [
@@ -420,7 +432,13 @@ class UserProvider extends GetxController {
           calculateTotalPrice(services: services, products: products),
       'user_id': 111,
       'user_phn_number': '9999999999',
+      'category_name': selectedCategory.value?.categoryName ?? '',
+      'category_image': selectedCategory.value?.categoryImage ?? '',
     };
+  }
+
+  void setSelectedCategory(CategoryModel category) {
+    selectedCategory.value = category;
   }
 
   // Utility methods
@@ -465,6 +483,7 @@ class UserProvider extends GetxController {
     selectedAddress.value = null;
     selectedProducts.clear();
     imageString.value = '';
+    selectedCategory.value = null;
   }
 
   void printBookings() {
