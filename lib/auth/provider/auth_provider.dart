@@ -142,16 +142,17 @@ class AuthProvider extends GetxController {
     if (existsuser) {
       // If user exists, attempt to sign in
       try {
-        // UserCredential result = await _auth.signInWithEmailAndPassword(
-        //   email: email,
-        //   password: password,
-        // );
-
         // User signed in successfully
         // Navigate to the user main page
         // Save user details to local storage
         await saveUserDetailsLocally(email);
         isLoading.value = false; // Hide loader
+
+        UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
         _showSnackBar('Logged in successfully', false);
 
         Get.offAll(() => const UserMain());
