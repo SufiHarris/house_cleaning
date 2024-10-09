@@ -13,138 +13,175 @@ class BookingCardCart extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withOpacity(0.1),
+        //     spreadRadius: 1,
+        //     blurRadius: 3,
+        //   ),
+        // ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: booking.services.isEmpty
+          ? _buildProductCard(context)
+          : _buildServiceCard(context),
+    );
+  }
+
+  Widget _buildProductCard(BuildContext context) {
+    final product = booking.products.first;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            product.imageUrl,
+            width: 80,
+            height: 80,
+            //fit: BoxFi,
+          ),
+        ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  'https://placeholder.com/100',
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      booking.services.isNotEmpty
-                          ? booking.services.first.service_name
-                          : booking.products.first.product_name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+              Text(product.product_name,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: CustomColors.textColorTwo)),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    '${product.price}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: CustomColors.textColorFive),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    'SAR',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: CustomColors.textColorTwo,
+                        ),
+                  ),
+                  Spacer(),
+                  Row(
+                    children: [
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(Icons.remove, color: Colors.grey),
+                            Text(
+                              '${product.quantity}',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Icon(Icons.add, color: CustomColors.primaryColor),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '${booking.total_price} SAR',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: CustomColors.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
+              SizedBox(height: 8),
             ],
           ),
-          SizedBox(height: 16),
-          if (booking.services.isNotEmpty)
-            _buildServiceGrid()
-          else
-            _buildProductCard(),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _buildServiceGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 1.5,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: booking.services.length,
-      itemBuilder: (context, index) {
-        final service = booking.services[index];
-        return serviceCard(
-          service.service_name,
-          service.quantity,
-          service.price,
-          service.size,
-        );
-      },
-    );
-  }
-
-  Widget _buildProductCard() {
-    final product = booking.products.first;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${product.product_name} x ${product.quantity}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Price: ${product.price} SAR',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Delivery Time: ${product.delivery_time}',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: CustomColors.primaryColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${product.quantity}',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+  Widget _buildServiceCard(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                booking.categoryImage,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
               ),
             ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(booking.categoryName,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: CustomColors.textColorTwo)),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        '${booking.total_price}',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(color: CustomColors.textColorFive),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'SAR',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: CustomColors.textColorTwo,
+                            ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        SizedBox(
+          height: 80, // Adjust this height as needed
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: booking.services.length,
+            itemBuilder: (context, index) {
+              final service = booking.services[index];
+              return Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: serviceCard(service.service_name, service.quantity,
+                    service.price, service.size, context),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget serviceCard(String name, int quantity, double price, int size) {
+  Widget serviceCard(
+      String name, int quantity, double price, int size, BuildContext context) {
     return Container(
+      width: 180, // Adjust this width as needed
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
@@ -152,20 +189,32 @@ class BookingCardCart extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             maxLines: 1,
             '$name X $quantity',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              overflow: TextOverflow.clip,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: CustomColors.textColorTwo,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           SizedBox(height: 4),
-          Text(
-            '\$$price | $size Sq/ft',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+          Row(
+            children: [
+              Text(
+                '\$$price ',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: CustomColors.textColorTwo,
+                    ),
+              ),
+              Text(
+                '| ${size} Sq/ft',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: CustomColors.textColorTwo,
+                    ),
+              ),
+            ],
           ),
         ],
       ),
