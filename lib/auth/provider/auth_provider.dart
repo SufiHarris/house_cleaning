@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/auth/screens/segregation_screen.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -141,18 +142,19 @@ class AuthProvider extends GetxController {
     if (existsuser) {
       // If user exists, attempt to sign in
       try {
-        UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
+        // UserCredential result = await _auth.signInWithEmailAndPassword(
+        //   email: email,
+        //   password: password,
+        // );
 
-        if (result.user != null) {
-          // User signed in successfully
-          // Navigate to the user main page
-          isLoading.value = false; // Hide loader
-          Get.offAll(() => const UserMain());
-          _showSnackBar('Logged in successfully', false);
-        }
+        // User signed in successfully
+        // Navigate to the user main page
+        // Save user details to local storage
+        await saveUserDetailsLocally(email);
+        isLoading.value = false; // Hide loader
+        _showSnackBar('Logged in successfully', false);
+
+        Get.offAll(() => const UserMain());
       } on FirebaseAuthException catch (e) {
         isLoading.value = false; // Hide loader
         String message = _getFirebaseErrorMessage(e.code);
@@ -338,11 +340,89 @@ class AuthProvider extends GetxController {
     }
   }
 
+  // Future<void> saveUserProfile({
+  //   required String email,
+  //   required String name,
+  //   required String phone,
+  //   required String password,
+  // }) async {
+  //   String? tempUid;
+
+  //   try {
+  //     // Generate temporary user ID
+  //     tempUid = FirebaseFirestore.instance.collection('users_table').doc().id;
+
+  //     // Save user data without the password
+  //     await FirebaseFirestore.instance
+  //         .collection('users_table')
+  //         .doc(tempUid)
+  //         .set({
+  //       'name': name,
+  //       'email': email,
+  //       'phone': phone,
+  //       'image': "",
+  //       'password': password,
+  //       'user_id': 2, // Temporary ID until registration completes
+  //     });
+
+  //     // Create user in Firebase Authentication
+  //     UserCredential userCredential =
+  //         await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  //       email: email,
+  //       password: password,
+  //     );
+
+  //     if (userCredential.user == null) {
+  //       throw FirebaseAuthException(
+  //           code: 'user-null', message: 'User creation failed');
+  //     } else {
+  //       Get.snackbar("Success", "Profile created and registered successfully!");
+  //       Future.delayed(Duration(seconds: 2), () {
+  //         Get.offAll(() => UserMain());
+  //       });
+  //     }
+
+  //     // Update the user_id with the Firebase Authentication UID
+  //     // String uid = userCredential.user!.uid;
+  //     // await FirebaseFirestore.instance
+  //     //     .collection('users_table')
+  //     //     .doc(tempUid)
+  //     //     .update({
+  //     //   'user_id': uid,
+  //     // });
+  //   } on FirebaseAuthException catch (e) {
+  //     // Remove temporary document in case of failure
+  //     if (tempUid != null) {
+  //       await FirebaseFirestore.instance
+  //           .collection('users_table')
+  //           .doc(tempUid)
+  //           .delete();
+  //     }
+
+  //     // Handle specific FirebaseAuthException cases
+  //     if (e.code == 'email-already-in-use') {
+  //       Get.snackbar("Error", "The email address is already in use.");
+  //     } else if (e.code == 'weak-password') {
+  //       Get.snackbar("Error", "The password provided is too weak.");
+  //     } else {
+  //       Get.snackbar(
+  //           "Error", e.message ?? "An error occurred during authentication");
+  //     }
+  //   } on FirebaseException catch (e) {
+  //     // Handle Firestore exceptions
+  //     Get.snackbar("Error", "Failed to save data to Firestore: ${e.message}");
+  //   } catch (e) {
+  //     // Catch any other unexpected errors
+  //     Get.snackbar("Error", "An unexpected error occurred: ${e.toString()}");
+  //   }
+  // }
+
   Future<void> saveUserProfile({
     required String email,
     required String name,
     required String phone,
     required String password,
+    required Map<String, dynamic> address, // Pass address as a map
   }) async {
     String? tempUid;
 
@@ -350,7 +430,7 @@ class AuthProvider extends GetxController {
       // Generate temporary user ID
       tempUid = FirebaseFirestore.instance.collection('users_table').doc().id;
 
-      // Save user data without the password
+      // Save user data with address and other fields
       await FirebaseFirestore.instance
           .collection('users_table')
           .doc(tempUid)
@@ -358,9 +438,10 @@ class AuthProvider extends GetxController {
         'name': name,
         'email': email,
         'phone': phone,
-        'image': "",
+        'image': "", // Placeholder for future image upload
         'password': password,
         'user_id': 2, // Temporary ID until registration completes
+        'address': address, // Include address in user data
       });
 
       // Create user in Firebase Authentication
@@ -381,13 +462,13 @@ class AuthProvider extends GetxController {
       }
 
       // Update the user_id with the Firebase Authentication UID
-      // String uid = userCredential.user!.uid;
-      // await FirebaseFirestore.instance
-      //     .collection('users_table')
-      //     .doc(tempUid)
-      //     .update({
-      //   'user_id': uid,
-      // });
+      String uid = userCredential.user!.uid;
+      await FirebaseFirestore.instance
+          .collection('users_table')
+          .doc(tempUid)
+          .update({
+        'user_id': uid,
+      });
     } on FirebaseAuthException catch (e) {
       // Remove temporary document in case of failure
       if (tempUid != null) {
