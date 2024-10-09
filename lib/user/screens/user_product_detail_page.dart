@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/product_model.dart';
 import '../../theme/custom_colors.dart';
+import '../providers/user_provider.dart';
 
 class UserProductDetailPage extends StatefulWidget {
   final UserProductModel product;
@@ -23,6 +25,8 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final UserProvider userProvider = Get.find<UserProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -193,6 +197,8 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
             ElevatedButton(
               onPressed: () {
                 // Add to cart functionality
+
+                userProvider.addProductToCart(widget.product);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: CustomColors.primaryColor,

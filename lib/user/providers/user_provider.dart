@@ -34,6 +34,11 @@ class UserProvider extends GetxController {
   var profileImage = Rx<File?>(null);
 
   final ImagePicker _picker = ImagePicker();
+  @override
+  void onInit() {
+    super.onInit();
+    loadCartFromPrefs(); // Load cart data when provider is initialized
+  }
 
   // Helper method for service price calculation
   double _calculateServicePrice(int quantity, int size) {
@@ -63,14 +68,22 @@ class UserProvider extends GetxController {
   Future<void> fetchServicesByCategory(String category) async {
     try {
       isLoading.value = true;
+
+      // Fetch services by category
       var snapshot = await FirebaseFirestore.instance
           .collection('services_table')
           .where('category', isEqualTo: category)
           .get();
 
+      // Map snapshot data to ServiceModel list
       services.value = snapshot.docs
           .map((doc) => ServiceModel.fromJson(doc.data()))
           .toList();
+
+      if (services.isEmpty) {
+        // Handle case where no services are found for the category
+        print("No services found for category: $category");
+      }
     } catch (e) {
       print("Error fetching services by category: $e");
     } finally {
@@ -110,7 +123,7 @@ class UserProvider extends GetxController {
     try {
       isLoading.value = true;
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('user_id') ?? 1;
+      final userId = prefs.getInt('user_id') ?? 121;
 
       var snapshot = await FirebaseFirestore.instance
           .collection('address_table')
@@ -134,7 +147,7 @@ class UserProvider extends GetxController {
       final userId = prefs.getInt('user_id') ?? 111;
 
       var snapshot = await FirebaseFirestore.instance
-          .collection('services(size)_products_bookings_table')
+          .collection('size_based_bookings')
           .where('user_id', isEqualTo: userId)
           .get();
 
@@ -154,44 +167,116 @@ class UserProvider extends GetxController {
     final booking = BookingModel.fromFirestore(bookingData);
     cartBookings.add(booking);
     await saveCartToPrefs();
+    Get.offAll(() => UserMain());
     Get.snackbar('Success', 'Added to cart', backgroundColor: Colors.green);
   }
 
   Future<void> saveCartToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cartData = cartBookings
-        .map((booking) => createBookingDocument(
-              bookingDate: DateTime.parse(booking.bookingDate),
-              services: booking.services
-                  .map((s) => ServiceSummaryModel(
-                      serviceName: s.service_name,
-                      totalQuantity: s.quantity,
-                      totalSize: s.size,
-                      totalPrice: _calculateServicePrice(s.quantity, s.size)))
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cartDataList = cartBookings.map((booking) {
+        return {
+          'address': booking.address,
+          'booking_date': booking.bookingDate,
+          'booking_id': booking.booking_id,
+          'booking_time': booking.bookingTime,
+          'employee_id': booking.employee_id,
+          'end_image': booking.endImage,
+          'payment_status': booking.payment_status,
+          'products': booking.products
+              .map((product) => {
+                    'product_name': product.product_name,
+                    'quantity': product.quantity,
+                    'delivery_time': product.delivery_time,
+                  })
+              .toList(),
+          'services': [
+            {
+              'service_names': booking.services
+                  .map((service) => {
+                        'service_name': service.service_name,
+                        'quantity': service.quantity,
+                        'size': service.size,
+                      })
                   .toList(),
-              products: booking.products
-                  .map((p) => UserProductModel(
-                        name: p.product_name,
-                        quantity: p.quantity,
-                        deliveryTime: p.delivery_time,
-                        price: 0,
-                        imageUrl: '',
-                      ))
-                  .toList(),
-            ))
-        .toList();
+            }
+          ],
+          'start_image': booking.start_image,
+          'status': booking.status,
+          'total_price': booking.total_price,
+          'user_id': booking.user_id,
+          'user_phn_number': booking.user_phn_number,
+        };
+      }).toList();
 
-    await prefs.setString('cart_bookings', json.encode(cartData));
+      final String encodedData = json.encode(cartDataList);
+      await prefs.setString('cart_bookings', encodedData);
+    } catch (e) {
+      print('Error saving cart to SharedPreferences: $e');
+    }
   }
 
   Future<void> loadCartFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cartDataString = prefs.getString('cart_bookings');
-    if (cartDataString != null) {
-      final cartData = json.decode(cartDataString) as List;
-      cartBookings.value =
-          cartData.map((data) => BookingModel.fromFirestore(data)).toList();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? cartDataString = prefs.getString('cart_bookings');
+
+      if (cartDataString != null && cartDataString.isNotEmpty) {
+        final List<dynamic> cartDataList = json.decode(cartDataString);
+        cartBookings.value = cartDataList
+            .map((data) =>
+                BookingModel.fromFirestore(data as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (e) {
+      print('Error loading cart from SharedPreferences: $e');
     }
+  }
+
+  Future<void> removeFromCart(int index) async {
+    cartBookings.removeAt(index);
+    await saveCartToPrefs();
+  }
+
+  Future<void> clearCart() async {
+    cartBookings.clear();
+    await saveCartToPrefs();
+  }
+
+  Future<void> addProductToCart(UserProductModel product) async {
+    final bookingData = createProductBookingDocument(product);
+    final booking = BookingModel.fromFirestore(bookingData);
+    cartBookings.add(booking);
+    await saveCartToPrefs();
+    Get.snackbar('Success', '${product.name} added to cart',
+        backgroundColor: Colors.green);
+  }
+
+  Map<String, dynamic> createProductBookingDocument(UserProductModel product) {
+    return {
+      'address':
+          'default address', // You may want to add a way to select address for product orders
+      'booking_date': DateTime.now().toString(),
+      'booking_id': DateTime.now().millisecondsSinceEpoch,
+      'booking_time': DateFormat('h:mm a').format(DateTime.now()),
+      'employee_id': 102, // You might want to adjust this for product orders
+      'end_image': '',
+      'payment_status': 'Pending',
+      'products': [
+        {
+          'product_name': product.name,
+          'quantity': product.quantity ?? 1,
+          'delivery_time': product.deliveryTime ?? '1-2 Days',
+        }
+      ],
+      'services': [], // Empty for product-only orders
+      'start_image': '',
+      'status': 'pending',
+      'total_price': product.price * (product.quantity ?? 1),
+      'user_id': 111, // You may want to get this from user authentication
+      'user_phn_number':
+          '9999999999', // You may want to get this from user profile
+    };
   }
 
   // Booking processing methods
@@ -279,8 +364,10 @@ class UserProvider extends GetxController {
     try {
       final data = bookingData ?? createBookingDocument();
       DocumentReference docRef = await FirebaseFirestore.instance
-          .collection('services(size)_products_bookings_table')
+          .collection('size_based_bookings')
           .add(data);
+      clearSelections();
+      clearCart();
       print('Booking saved successfully with ID: ${docRef.id}');
     } catch (e) {
       print('Error saving booking: $e');
@@ -312,6 +399,7 @@ class UserProvider extends GetxController {
                 'product_name': product.name,
                 'quantity': product.quantity ?? 1,
                 'delivery_time': product.deliveryTime ?? '1-2 Days',
+                'price': product.price,
               })
           .toList(),
       'services': [

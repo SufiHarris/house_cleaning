@@ -10,9 +10,9 @@ class BookingModel {
   final List<ServiceBooking> services;
   final String start_image;
   final String status;
-  final int total_price;
+  final double total_price;
   final int user_id;
-  final int user_phn_number;
+  final String user_phn_number;
 
   BookingModel({
     required this.address,
@@ -35,9 +35,9 @@ class BookingModel {
     return BookingModel(
       address: json['address'] ?? '',
       bookingDate: json['booking_date'] ?? '',
-      booking_id: _parseInteger(json['booking__id'], 0),
+      booking_id: _parseInteger(json['booking_id'], 0),
       bookingTime: json['booking_time'] ?? '',
-      employee_id: _parseInteger(json['employee__id'], 0),
+      employee_id: _parseInteger(json['employee_id'], 0),
       endImage: json['end_image'] ?? '',
       payment_status: json['payment_status'] ?? '',
       products: (json['products'] as List<dynamic>?)
@@ -47,9 +47,9 @@ class BookingModel {
       services: _parseServices(json['services']),
       start_image: json['start_image'] ?? '',
       status: json['status'] ?? '',
-      total_price: _parseInteger(json['total_price'], 0),
-      user_id: _parseInteger(json['user__id'], 0),
-      user_phn_number: _parseInteger(json['user_phn_number'], 0),
+      total_price: _parseDouble(json['total_price'], 0.0),
+      user_id: _parseInteger(json['user_id'], 0),
+      user_phn_number: json['user_phn_number'] ?? '',
     );
   }
 
@@ -63,11 +63,38 @@ class BookingModel {
     return [];
   }
 
-  // Helper method to parse integers
   static int _parseInteger(dynamic value, int defaultValue) {
     if (value is int) return value;
     if (value is String) return int.tryParse(value) ?? defaultValue;
     return defaultValue;
+  }
+
+  static double _parseDouble(dynamic value, double defaultValue) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? defaultValue;
+    return defaultValue;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'address': address,
+      'booking_date': bookingDate,
+      'booking_id': booking_id,
+      'booking_time': bookingTime,
+      'employee_id': employee_id,
+      'end_image': endImage,
+      'payment_status': payment_status,
+      'products': products.map((p) => p.toJson()).toList(),
+      'services': [
+        {'service_names': services.map((s) => s.toJson()).toList()}
+      ],
+      'start_image': start_image,
+      'status': status,
+      'total_price': total_price,
+      'user_id': user_id,
+      'user_phn_number': user_phn_number,
+    };
   }
 }
 
@@ -75,11 +102,13 @@ class ServiceBooking {
   final int quantity;
   final String service_name;
   final int size;
+  final double price;
 
   ServiceBooking({
     required this.quantity,
     required this.service_name,
     required this.size,
+    required this.price,
   });
 
   factory ServiceBooking.fromJson(Map<String, dynamic> json) {
@@ -87,7 +116,17 @@ class ServiceBooking {
       quantity: BookingModel._parseInteger(json['quantity'], 0),
       service_name: json['service_name'] ?? '',
       size: BookingModel._parseInteger(json['size'], 0),
+      price: BookingModel._parseDouble(json['price'], 0.0),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'quantity': quantity,
+      'service_name': service_name,
+      'size': size,
+      'price': price,
+    };
   }
 }
 
@@ -95,11 +134,13 @@ class ProductBooking {
   final String product_name;
   final int quantity;
   final String delivery_time;
+  final double price;
 
   ProductBooking({
     required this.product_name,
     required this.quantity,
     required this.delivery_time,
+    required this.price,
   });
 
   factory ProductBooking.fromJson(Map<String, dynamic> json) {
@@ -107,6 +148,16 @@ class ProductBooking {
       product_name: json['product_name'] ?? '',
       quantity: BookingModel._parseInteger(json['quantity'], 0),
       delivery_time: json['delivery_time'] ?? '',
+      price: BookingModel._parseDouble(json['price'], 0.0),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'product_name': product_name,
+      'quantity': quantity,
+      'delivery_time': delivery_time,
+      'price': price,
+    };
   }
 }

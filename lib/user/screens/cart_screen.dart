@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:house_cleaning/user/widgets/booking_card_cart.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 
@@ -11,67 +11,90 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shopping Cart'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text('My Cart', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Obx(() {
         if (userProvider.cartBookings.isEmpty) {
-          return Center(
-            child: Text('Your cart is empty'),
-          );
+          return Center(child: Text('Your cart is empty'));
         }
-
         return Column(
           children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Items (${userProvider.cartBookings.length})',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Implement remove items functionality
+                    },
+                    child: Text('Remove Items',
+                        style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 itemCount: userProvider.cartBookings.length,
                 itemBuilder: (context, index) {
                   final booking = userProvider.cartBookings[index];
-                  return Card(
-                    margin: EdgeInsets.all(8),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Booking Date: ${booking.bookingDate}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 8),
-                          Text('Services:'),
-                          ...booking.services.map((service) => Text(
-                              '- ${service.service_name} (${service.quantity})')),
-                          SizedBox(height: 8),
-                          if (booking.products.isNotEmpty) ...[
-                            Text('Products:'),
-                            ...booking.products.map((product) => Text(
-                                '- ${product.product_name} (${product.quantity})')),
-                          ],
-                          SizedBox(height: 8),
-                          Text(
-                            'Total Price: \$${booking.total_price}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
+                  return Column(
+                    children: [BookingCardCart(booking: booking), Divider()],
                   );
                 },
               ),
             ),
             Padding(
               padding: EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: () {
-                  userProvider.processCartBookings();
-                },
-                child: Text('Confirm All Bookings'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: CustomColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 50),
-                ),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Implement continue shopping functionality
+                    },
+                    child: Text('Continue Shopping'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: CustomColors.primaryColor,
+                      minimumSize: Size(double.infinity, 50),
+                      side: BorderSide(color: CustomColors.primaryColor),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      userProvider.processCartBookings();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${userProvider.calculateTotalPrice()} SAR'),
+                        Row(
+                          children: [
+                            Text('Checkout'),
+                            Icon(Icons.arrow_forward_ios, size: 16),
+                          ],
+                        ),
+                      ],
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: CustomColors.primaryColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
