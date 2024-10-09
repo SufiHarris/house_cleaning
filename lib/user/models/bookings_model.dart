@@ -13,6 +13,8 @@ class BookingModel {
   final double total_price;
   final int user_id;
   final String user_phn_number;
+  final String categoryName; // New field
+  final String categoryImage; // New field
 
   BookingModel({
     required this.address,
@@ -29,6 +31,8 @@ class BookingModel {
     required this.total_price,
     required this.user_id,
     required this.user_phn_number,
+    required this.categoryName, // New field
+    required this.categoryImage, // New field
   });
 
   factory BookingModel.fromFirestore(Map<String, dynamic> json) {
@@ -50,6 +54,8 @@ class BookingModel {
       total_price: _parseDouble(json['total_price'], 0.0),
       user_id: _parseInteger(json['user_id'], 0),
       user_phn_number: json['user_phn_number'] ?? '',
+      categoryName: json['category_name'] ?? '', // New field
+      categoryImage: json['category_image'] ?? '', // New field
     );
   }
 
@@ -94,6 +100,8 @@ class BookingModel {
       'total_price': total_price,
       'user_id': user_id,
       'user_phn_number': user_phn_number,
+      'category_name': categoryName, // New field
+      'category_image': categoryImage, // New field
     };
   }
 }
@@ -135,12 +143,14 @@ class ProductBooking {
   final int quantity;
   final String delivery_time;
   final double price;
+  final String imageUrl;
 
   ProductBooking({
     required this.product_name,
     required this.quantity,
     required this.delivery_time,
     required this.price,
+    required this.imageUrl,
   });
 
   factory ProductBooking.fromJson(Map<String, dynamic> json) {
@@ -149,6 +159,7 @@ class ProductBooking {
       quantity: BookingModel._parseInteger(json['quantity'], 0),
       delivery_time: json['delivery_time'] ?? '',
       price: BookingModel._parseDouble(json['price'], 0.0),
+      imageUrl: json['image_url'] ?? '',
     );
   }
 
@@ -158,6 +169,7 @@ class ProductBooking {
       'quantity': quantity,
       'delivery_time': delivery_time,
       'price': price,
+      'image_url': imageUrl
     };
   }
 }
