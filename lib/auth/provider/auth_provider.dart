@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -173,12 +176,15 @@ class AuthProvider extends GetxController {
           if (result.user != null) {
             // Staff signed in successfully
             // Navigate to the employee home page
+            await saveStaffDetailsLocally(email); // Call to save staff details
+
             isLoading.value = false; // Hide loader
             Get.offAll(() => const EmployeeHome());
             _showSnackBar('Logged in as staff successfully', false);
           }
         } on FirebaseAuthException catch (e) {
           isLoading.value = false; // Hide loader
+          print("Staff Auth Erro: $e");
           String message = _getFirebaseErrorMessage(e.code);
           _showSnackBar(message, true);
         }
@@ -295,24 +301,6 @@ class AuthProvider extends GetxController {
   //   }
   // }
 
-  Future<void> _saveUserData(Map<String, dynamic> userData) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_email', userData['email'] ?? '');
-      await prefs.setString('user_name', userData['name'] ?? '');
-      await prefs.setString('user_imgUrl', userData['imgUrl'] ?? '');
-      await prefs.setString(
-          'user_id', userData['user_id'] ?? 0); // Ensure this is an int
-      await prefs.setString('phone', userData['phone'] ?? '');
-      await prefs.setString('address', userData['address'] ?? '');
-
-      print("User data saved: ${userData}");
-    } catch (e) {
-      print(e);
-      print("Error occurred while saving");
-    }
-  }
-
   void _showSnackBar(String message, bool isError) {
     ScaffoldMessenger.of(Get.context!).showSnackBar(
       SnackBar(
@@ -339,7 +327,6 @@ class AuthProvider extends GetxController {
     }
   }
 
-  // In your AuthProvider class
   Future<void> saveUserProfile(UserModel user) async {
     try {
       UserCredential userCredential;
@@ -352,7 +339,7 @@ class AuthProvider extends GetxController {
         // Create the user in Firebase Authentication
         userCredential = await _auth.createUserWithEmailAndPassword(
           email: user.email,
-          password: user.password, // Assuming UserModel has a password field
+          password: user.password,
         );
       } catch (e) {
         print("Error creating user: $e");
@@ -367,9 +354,14 @@ class AuthProvider extends GetxController {
       CollectionReference users =
           FirebaseFirestore.instance.collection('users_table');
 
-      // Prepare data for saving
+      // Prepare data for saving, including userId
       Map<String, dynamic> data = user.toMap();
+      data['user_id'] = userId; // Set user_id here
       print("Debug line:$data"); // Debugging line
+
+      // Update SharedPreferences with the new user details
+      await _updateUserDetailsInPrefs(userId, user);
+      print("Updated User");
 
       // Set document ID based on the user's email (or any unique identifier)
       await users.doc(userId).set(data, SetOptions(merge: true));
@@ -395,6 +387,35 @@ class AuthProvider extends GetxController {
         return 'The email address is badly formatted.';
       default:
         return 'An error occurred. Please try again.';
+    }
+  }
+
+// Method to update user details in SharedPreferences
+  Future<void> _updateUserDetailsInPrefs(String userId, UserModel user) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      // Prepare the user details to be saved
+      String updatedUserJson = jsonEncode({
+        'name': user.name,
+        'email': user.email,
+        'phone': user.phone,
+        'image': user.image,
+        'password': user.password,
+        'address': user.address?.map((addr) => addr.toMap()).toList() ?? [],
+        'userId': userId, // Save the userId here
+      });
+
+      // Update the SharedPreferences
+      await prefs.setString('userDetails', updatedUserJson);
+      await prefs.setString('userDocId', userId);
+
+      print("User details updated in SharedPreferences: $updatedUserJson");
+    } catch (e) {
+      print("Error updating SharedPreferences: $e");
+      Get.snackbar(
+          "Error", "Failed to update local user details. Please try again.",
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

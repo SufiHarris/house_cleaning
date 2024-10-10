@@ -35,6 +35,7 @@ class _EditProfileState extends State<EditProfile> {
     if (user != null) {
       print(
           "Fetched User: Name - ${user.name}, Email - ${user.email}, Phone - ${user.phone}");
+      print("user id ${user.userId}");
       setState(() {
         nameController.text = user.name;
         emailController.text = user.email;
@@ -59,6 +60,8 @@ class _EditProfileState extends State<EditProfile> {
       String? userDocId =
           prefs.getString('userDocId'); // Retrieve the document ID
 
+      print("UserId Update: $userDocId");
+
       if (userDetails != null && userDocId != null) {
         Map<String, dynamic> userMap = jsonDecode(userDetails);
 
@@ -82,6 +85,7 @@ class _EditProfileState extends State<EditProfile> {
               ? List<AddressModel>.from((userMap['address'] as List)
                   .map((item) => AddressModel.fromFirestore(item)))
               : [],
+          userId: userDocId,
         );
 
         // Update the SharedPreferences with the new values
@@ -94,15 +98,31 @@ class _EditProfileState extends State<EditProfile> {
             .doc(userDocId)
             .update(updatedUser.toMap());
 
-        // Now, update the email in the Authentication table based on the user ID
-        // Get the current user based on userDocId (or the user ID you have)
-        User? currentUser = FirebaseAuth.instance.currentUser;
+        // Check if the email has changed
+        if (oldEmail != updatedUser.email) {
+          // Get the current user
+          User? currentUser = FirebaseAuth.instance.currentUser;
 
-        if (currentUser != null) {
-          // Check if the email has changed
-          if (oldEmail != updatedUser.email) {
+          // Check if the current user's UID matches the userDocId
+          if (currentUser != null && currentUser.uid == userDocId) {
             // Update the email in Firebase Authentication
-            await currentUser.updateEmail(updatedUser.email);
+            await currentUser.updateEmail(updatedUser.email).then((_) {
+              print("Email updated in Auth table successfully.");
+            }).catchError((e) {
+              print("Failed to update email in Auth table: $e");
+              Get.snackbar("Error", "Failed to update email in Auth table.",
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: Colors.redAccent,
+                  colorText: Colors.white,
+                  duration: Duration(seconds: 3));
+            });
+          } else {
+            print("User not found or UID does not match.");
+            Get.snackbar("Error", "User not found or UID does not match.",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.redAccent,
+                colorText: Colors.white,
+                duration: Duration(seconds: 3));
           }
         }
 

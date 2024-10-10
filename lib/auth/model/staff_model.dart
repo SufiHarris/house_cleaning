@@ -1,79 +1,108 @@
 // staff_model.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Staff {
-  final String id;
-  final String email;
+class StaffModel {
   final String name;
+  final String email;
   final String password;
-  final int age;
-  final String phoneNumber;
-  final String emergencyPhoneNumber;
+  final int phoneNumber;
+  final String employeeId;
   final String image;
   final String role;
-  final int employeeId;
+  final int age;
+  final int emergencyPhoneNumber;
 
-  Staff({
-    required this.id,
-    required this.email,
+  StaffModel({
     required this.name,
+    required this.email,
     required this.password,
-    required this.age,
     required this.phoneNumber,
-    required this.emergencyPhoneNumber,
+    required this.employeeId,
     required this.image,
     required this.role,
-    required this.employeeId,
+    required this.age,
+    required this.emergencyPhoneNumber,
   });
 
-  // Factory method to create a Staff object from a Firestore document
-  factory Staff.fromDocument(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    return Staff(
-      id: doc.id,
-      email: data['email'] ?? '',
-      name: data['name'] ?? '',
-      password: data['password'] ?? '',
+  // Factory method to create a StaffModel from Firestore data
+  factory StaffModel.fromFirestore(Map<String, dynamic> data) {
+    return StaffModel(
+      name: data['name'],
+      email: data['email'],
+      password: data['password'],
+      phoneNumber: data['phone_number'] ?? "",
+      employeeId: data['employee_id'] ?? "",
+      image: data['image'] ?? "",
+      role: data['role'] ?? "",
       age: data['age'] ?? 0,
-      phoneNumber: data['phone_number'] ?? '',
-      emergencyPhoneNumber: data['emergency_phn_number'] ?? '',
-      image: data['image'] ?? '',
-      role: data['role'] ?? 'user',
-      employeeId: data['employee_id'] ?? 0,
+      emergencyPhoneNumber: data['emergency_phn_number'] ?? "",
     );
   }
 
-  // Convert Staff object to Map (for Firestore updates or SharedPreferences)
+  // Convert to map for saving in SharedPreferences
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
-      'email': email,
       'name': name,
+      'email': email,
       'password': password,
-      'age': age,
       'phone_number': phoneNumber,
-      'emergency_phn_number': emergencyPhoneNumber,
+      'employee_id': employeeId,
       'image': image,
       'role': role,
-      'employee_id': employeeId,
+      'age': age,
+      'emergency_phn_number': emergencyPhoneNumber,
     };
   }
+}
 
-  // Factory method to create a Staff object from a Map (for SharedPreferences)
-  factory Staff.fromMap(Map<String, dynamic> data) {
-    return Staff(
-      id: data['id'] ?? '',
-      email: data['email'] ?? '',
-      name: data['name'] ?? '',
-      password: data['password'] ?? '',
-      age: data['age'] ?? 0,
-      phoneNumber: data['phone_number'] ?? '',
-      emergencyPhoneNumber: data['emergency_phn_number'] ?? '',
-      image: data['image'] ?? '',
-      role: data['role'] ?? 'user',
-      employeeId: data['employee_id'] ?? 0,
-    );
+Future<void> saveStaffDetailsLocally(String email) async {
+  try {
+    // Fetch staff details from Firestore using email
+    var staffDoc = await FirebaseFirestore.instance
+        .collection('staff_table')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (staffDoc.docs.isNotEmpty) {
+      var staffData = staffDoc.docs.first.data();
+      String docId = staffDoc.docs.first.id; // Get the document ID
+      StaffModel staff = StaffModel.fromFirestore(staffData);
+
+      // Save staff details in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String staffJson = jsonEncode(staff.toMap());
+      await prefs.setString('staffDetails', staffJson);
+      await prefs.setString('staffDocId', docId); // Save the document ID
+      print('Staff details saved successfully: ${staffJson}');
+    } else {
+      print("No staff found with this email.");
+    }
+  } catch (e) {
+    print("Error saving staff details: $e");
   }
+}
+
+Future<StaffModel?> getStaffDetailsFromLocal() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? staffDetails = prefs.getString('staffDetails');
+
+  if (staffDetails != null) {
+    // Convert the string back to Map and then to StaffModel
+    Map<String, dynamic> staffMap = jsonDecode(staffDetails);
+    try {
+      StaffModel staff = StaffModel.fromFirestore(staffMap);
+      print('Successfully decoded StaffModel: ${staff.name}');
+      return staff;
+    } catch (e) {
+      print('Error decoding StaffModel: $e');
+      return null;
+    }
+  } else {
+    print('No staff details found in SharedPreferences');
+  }
+
+  return null;
 }
