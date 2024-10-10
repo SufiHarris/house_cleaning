@@ -141,10 +141,10 @@ class AuthProvider extends GetxController {
     if (existsuser) {
       // If user exists, attempt to sign in
       try {
-        // UserCredential result = await _auth.signInWithEmailAndPassword(
-        //   email: email,
-        //   password: password,
-        // );
+        UserCredential result = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
 
         // User signed in successfully
         // Navigate to the user main page
