@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,137 +12,208 @@ class TrackingController extends GetxController {
   RxList<LatLng> polylineCoordinates = <LatLng>[].obs;
   GoogleMapController? mapController;
   RxString eta = ''.obs;
-  RxInt totalTime = 0.obs; // Total time taken in seconds
+  RxDouble totalDistance = 0.0.obs;
+  RxDouble remainingDistance = 0.0.obs;
+  RxSet<Marker> markers = <Marker>{}.obs;
+  RxString elapsedTime = ''.obs;
+  StreamSubscription<Position>? positionStream;
+  final String googleAPIKey =
+      'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs'; // Replace with your API key
+  late DateTime startTime;
 
   @override
   void onInit() {
     super.onInit();
+    clientLocation.value =
+        // LatLng(34.1289468, 74.8416077); // dargah location
+        LatLng(34.1386, 74.7995); //soura location
+    checkLocationPermission();
+  }
 
-    // Set mock current position (employee location)
-    currentPosition.value = Position(
-      latitude: 40.7128, // New York City
-      longitude: -74.0060,
-      timestamp: DateTime.now(),
-      accuracy: 1.0,
-      altitude: 0,
-      heading: 0,
-      speed: 0,
-      speedAccuracy: 0,
-      altitudeAccuracy: 0,
-      headingAccuracy: 0,
+  void checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.deniedForever) {
+      showPermissionDialog();
+      return;
+    }
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      startTracking();
+    } else {
+      print('Location permission not granted.');
+    }
+  }
+
+  void showPermissionDialog() {
+    Get.defaultDialog(
+      title: "Location Permission Required",
+      middleText:
+          "To use location features, please allow location access in your app settings.",
+      confirm: ElevatedButton.icon(
+        icon: Icon(Icons.settings),
+        label: Text("Allow in Settings"),
+        onPressed: () {
+          Geolocator.openAppSettings();
+          Get.back();
+        },
+      ),
+      cancel: TextButton(
+        child: Text("Not Now"),
+        onPressed: () {
+          Get.back();
+        },
+      ),
     );
+  }
 
-    clientLocation.value = LatLng(41.8781, -87.6298); //chicago
+  void startTracking() {
+    startTime = DateTime.now();
+    elapsedTime.value = "0:00";
+    positionStream = Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 1,
+      ),
+    ).listen((Position position) {
+      currentPosition.value = position;
+      updateMarkers();
+      calculateDistance();
+      moveMapToCurrentPosition();
+      fetchRoute(
+          LatLng(position.latitude, position.longitude), clientLocation.value!);
+      updateElapsedTime();
+      adjustZoomBasedOnSpeed(position.speed); // Adjust zoom dynamically
+    });
+  }
 
-    fetchRoute(
-      currentPosition.value != null
-          ? LatLng(
-              currentPosition.value!.latitude, currentPosition.value!.longitude)
-          : LatLng(37.7749, -122.4194),
-      clientLocation.value!,
-    );
+  void updateElapsedTime() {
+    Duration duration = DateTime.now().difference(startTime);
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    elapsedTime.value = "$twoDigitMinutes:$twoDigitSeconds";
+  }
 
-    moveEmployee();
+  void moveMapToCurrentPosition() {
+    if (mapController != null && currentPosition.value != null) {
+      LatLng currentLatLng = LatLng(
+        currentPosition.value!.latitude,
+        currentPosition.value!.longitude,
+      );
+      mapController!.animateCamera(
+        CameraUpdate.newLatLng(currentLatLng),
+      );
+    }
+  }
+
+  void adjustZoomBasedOnSpeed(double speed) {
+    if (mapController != null) {
+      double zoomLevel;
+      if (speed < 5) {
+        zoomLevel = 18.0; // Close-up view for slower speeds
+      } else if (speed < 10) {
+        zoomLevel = 16.0; // Moderate zoom for normal speeds
+      } else {
+        zoomLevel = 14.0; // Zoom out for faster speeds
+      }
+      mapController!.animateCamera(CameraUpdate.zoomTo(zoomLevel));
+    }
+  }
+
+  void updateMarkers() {
+    markers.clear();
+    if (currentPosition.value != null) {
+      markers.add(
+        Marker(
+          markerId: MarkerId('employee'),
+          position: LatLng(
+            currentPosition.value!.latitude,
+            currentPosition.value!.longitude,
+          ),
+        ),
+      );
+    }
+    if (clientLocation.value != null) {
+      markers.add(
+        Marker(
+          markerId: MarkerId('client'),
+          position: clientLocation.value!,
+        ),
+      );
+    }
   }
 
   Future<void> fetchRoute(LatLng origin, LatLng destination) async {
-    String googleApiKey = 'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs';
-
-    final response = await http.get(
-      Uri.parse(
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$googleApiKey',
-      ),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print("API Response: $data"); // Log the full response
-
-      if (data['routes'].isNotEmpty) {
-        var legs = data['routes'][0]['legs'][0];
-        totalTime.value = legs['duration']['value'];
-
-        // Get polyline points
-        polylineCoordinates.clear();
-        var polyline = legs['steps'].map<LatLng>((step) {
-          var startLocation = step['start_location'];
-          return LatLng(startLocation['lat'], startLocation['lng']);
-        }).toList();
-
-        // Add intermediate points for smooth movement
-        for (var step in legs['steps']) {
-          var polylinePoints = step['polyline']['points'];
-          polylineCoordinates.addAll(decodePolyline(polylinePoints));
+    final url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$googleAPIKey';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['routes'].isNotEmpty) {
+          final route = data['routes'][0]['overview_polyline']['points'];
+          polylineCoordinates.clear();
+          polylineCoordinates.addAll(_decodePolyline(route));
+          final legs = data['routes'][0]['legs'][0];
+          eta.value = legs['duration']['text'];
+          totalDistance.value = legs['distance']['value'] / 1000;
+          updateMarkers();
+        } else {
+          print('No routes found');
         }
-
-        eta.value = formatDuration(totalTime.value);
-        update(); // Notify listeners
       } else {
-        print('No routes found');
+        print('Error fetching route: ${response.statusCode}');
       }
-    } else {
-      print('Failed to load directions: ${response.statusCode}');
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
-  void moveEmployee() async {
-    if (polylineCoordinates.isNotEmpty) {
-      for (LatLng point in polylineCoordinates) {
-        currentPosition.value = Position(
-          latitude: point.latitude,
-          longitude: point.longitude,
-          timestamp: DateTime.now(),
-          accuracy: 1.0,
-          altitude: 0,
-          heading: 0,
-          speed: 0,
-          speedAccuracy: 0,
-          altitudeAccuracy: 0,
-          headingAccuracy: 0,
-        );
-
-        // Update map position
-        await Future.delayed(
-            Duration(seconds: 1)); // Simulate time taken to move
-      }
-    }
-  }
-
-  String formatDuration(int seconds) {
-    final duration = Duration(seconds: seconds);
-    return '${duration.inHours} hours, ${duration.inMinutes.remainder(60)} minutes';
-  }
-
-  List<LatLng> decodePolyline(String polyline) {
-    List<LatLng> points = [];
-    var index = 0, len = polyline.length;
+  List<LatLng> _decodePolyline(String polyline) {
+    List<LatLng> decodedCoordinates = [];
+    int index = 0, len = polyline.length;
     int lat = 0, lng = 0;
-
     while (index < len) {
-      int b;
-      int shift = 0;
-      int result = 0;
+      int b, shift = 0, result = 0;
       do {
         b = polyline.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
+        result |= (b & 0x1F) << shift;
         shift += 5;
       } while (b >= 0x20);
-      int dlat = (result >> 1) ^ (~(result << 1) >> 1);
+      int dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
       lat += dlat;
-
       shift = 0;
       result = 0;
       do {
         b = polyline.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
+        result |= (b & 0x1F) << shift;
         shift += 5;
       } while (b >= 0x20);
-      int dlng = (result >> 1) ^ (~(result << 1) >> 1);
+      int dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
       lng += dlng;
-
-      LatLng point = LatLng(lat / 1E5, lng / 1E5);
-      points.add(point);
+      decodedCoordinates.add(LatLng((lat / 1E5), (lng / 1E5)));
     }
-    return points;
+    return decodedCoordinates;
+  }
+
+  void calculateDistance() {
+    if (currentPosition.value != null && clientLocation.value != null) {
+      final double distanceInMeters = Geolocator.distanceBetween(
+        currentPosition.value!.latitude,
+        currentPosition.value!.longitude,
+        clientLocation.value!.latitude,
+        clientLocation.value!.longitude,
+      );
+      remainingDistance.value = distanceInMeters / 1000;
+    }
+  }
+
+  @override
+  void onClose() {
+    positionStream?.cancel();
+    super.onClose();
   }
 }
