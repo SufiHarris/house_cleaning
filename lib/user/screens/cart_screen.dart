@@ -37,6 +37,8 @@ class CartPage extends StatelessWidget {
                   TextButton(
                     onPressed: () {
                       // Implement remove items functionality
+                      // userProvider.removeFromCart();
+                      userProvider.clearCart();
                     },
                     child: Text('Remove Items',
                         style: TextStyle(color: Colors.red)),
@@ -72,28 +74,29 @@ class CartPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      userProvider.processCartBookings();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${userProvider.calculateTotalPrice()} SAR'),
-                        Row(
+                  Obx(() => ElevatedButton(
+                        onPressed: () {
+                          userProvider.processCartBookings();
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Checkout'),
-                            Icon(Icons.arrow_forward_ios, size: 16),
+                            Text(
+                                '${userProvider.calculateTotalCartPrice().toStringAsFixed(2)} SAR'),
+                            Row(
+                              children: [
+                                Text('Checkout'),
+                                Icon(Icons.arrow_forward_ios, size: 16),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: CustomColors.primaryColor,
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 50),
-                    ),
-                  ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: CustomColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 50),
+                        ),
+                      )),
                 ],
               ),
             ),

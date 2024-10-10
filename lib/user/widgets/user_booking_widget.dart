@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/bookings_model.dart';
-import 'package:house_cleaning/user/providers/user_provider.dart';
 import '../../theme/custom_colors.dart';
 
-class BookingCardCart extends StatelessWidget {
+class UserBookingWidget extends StatelessWidget {
   final BookingModel booking;
-  final UserProvider userProvider = Get.find<UserProvider>();
-
-  BookingCardCart({Key? key, required this.booking}) : super(key: key);
+  const UserBookingWidget({Key? key, required this.booking}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +14,13 @@ class BookingCardCart extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withOpacity(0.1),
+        //     spreadRadius: 1,
+        //     blurRadius: 3,
+        //   ),
+        // ],
       ),
       child: booking.services.isEmpty
           ? _buildProductCard(context)
@@ -36,6 +39,7 @@ class BookingCardCart extends StatelessWidget {
             product.imageUrl,
             width: 80,
             height: 80,
+            //fit: BoxFi,
           ),
         ),
         SizedBox(width: 16),
@@ -43,24 +47,24 @@ class BookingCardCart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                product.product_name,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: CustomColors.textColorTwo),
-              ),
+              Text(product.product_name,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: CustomColors.textColorTwo)),
               SizedBox(height: 8),
               Row(
                 children: [
                   Text(
-                    '${product.price * (product.quantity ?? 1)}',
+                    '${product.price}',
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge
                         ?.copyWith(color: CustomColors.textColorFive),
                   ),
-                  const SizedBox(width: 5),
+                  const SizedBox(
+                    width: 5,
+                  ),
                   Text(
                     'SAR',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -80,30 +84,13 @@ class BookingCardCart extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            InkWell(
-                              onTap: () => userProvider.updateProductQuantity(
-                                  booking, false),
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                child: Icon(Icons.remove, color: Colors.grey),
-                              ),
-                            ),
-                            SizedBox(width: 12),
+                            Icon(Icons.remove, color: Colors.grey),
                             Text(
-                              '${product.quantity ?? 1}',
+                              '${product.quantity}',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(width: 12),
-                            InkWell(
-                              onTap: () => userProvider.updateProductQuantity(
-                                  booking, true),
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                child: Icon(Icons.add,
-                                    color: CustomColors.primaryColor),
-                              ),
-                            ),
+                            Icon(Icons.add, color: CustomColors.primaryColor),
                           ],
                         ),
                       ),
@@ -112,14 +99,6 @@ class BookingCardCart extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 8),
-              if (product.delivery_time != null &&
-                  product.delivery_time!.isNotEmpty)
-                Text(
-                  'Delivery Time: ${product.delivery_time}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: CustomColors.textColorTwo,
-                      ),
-                ),
             ],
           ),
         ),
@@ -148,13 +127,11 @@ class BookingCardCart extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    booking.categoryName,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: CustomColors.textColorTwo),
-                  ),
+                  Text(booking.categoryName,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: CustomColors.textColorTwo)),
                   SizedBox(height: 8),
                   Row(
                     children: [
@@ -165,7 +142,9 @@ class BookingCardCart extends StatelessWidget {
                             .bodyLarge
                             ?.copyWith(color: CustomColors.textColorFive),
                       ),
-                      const SizedBox(width: 5),
+                      const SizedBox(
+                        width: 5,
+                      ),
                       Text(
                         'SAR',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -181,7 +160,7 @@ class BookingCardCart extends StatelessWidget {
         ),
         SizedBox(height: 16),
         SizedBox(
-          height: 80,
+          height: 80, // Adjust this height as needed
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: booking.services.length,
@@ -189,13 +168,8 @@ class BookingCardCart extends StatelessWidget {
               final service = booking.services[index];
               return Padding(
                 padding: EdgeInsets.only(right: 8),
-                child: serviceCard(
-                  service.service_name,
-                  service.quantity,
-                  service.price,
-                  service.size,
-                  context,
-                ),
+                child: serviceCard(service.service_name, service.quantity,
+                    service.price, service.size, context),
               );
             },
           ),
@@ -205,14 +179,9 @@ class BookingCardCart extends StatelessWidget {
   }
 
   Widget serviceCard(
-    String name,
-    int quantity,
-    double price,
-    int size,
-    BuildContext context,
-  ) {
+      String name, int quantity, double price, int size, BuildContext context) {
     return Container(
-      width: 180,
+      width: 180, // Adjust this width as needed
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
