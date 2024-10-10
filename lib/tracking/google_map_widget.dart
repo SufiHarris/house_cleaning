@@ -3,8 +3,9 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'tracking_controller.dart';
 
-class TrackingMap extends StatelessWidget {
-  final TrackingController trackingController = Get.put(TrackingController());
+class EmployeeTrackingMap extends StatelessWidget {
+  final EmployeeTrackingController trackingController =
+      Get.put(EmployeeTrackingController());
 
   @override
   Widget build(BuildContext context) {
