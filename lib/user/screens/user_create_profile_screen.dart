@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:house_cleaning/auth/model/usermodel.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 
 class CreateProfilePage extends StatefulWidget {
-  final GoogleSignInAccount account;
+  final String email;
+  final String password;
 
-  const CreateProfilePage({super.key, required this.account});
+  const CreateProfilePage(
+      {super.key, required this.email, required this.password});
+
   @override
   _CreateProfilePageState createState() => _CreateProfilePageState();
 }
@@ -25,6 +29,8 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   final TextEditingController buildingController = TextEditingController();
   final TextEditingController floorController = TextEditingController();
   final TextEditingController landmarkController = TextEditingController();
+  final TextEditingController passwordController =
+      TextEditingController(); // Add this line
 
   final UserProvider userProfileController = Get.put(UserProvider());
   final AuthProvider authProvider = Get.find<AuthProvider>();
@@ -33,6 +39,10 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Assign the email and password to their respective controllers
+    emailController.text = widget.email; // Assigning the email
+    passwordController.text = widget.password; // Assigning the password
   }
 
   @override
@@ -88,7 +98,6 @@ class _CreateProfilePageState extends State<CreateProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    final AuthProvider authProvider = Get.find<AuthProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text("Create Profile"),
@@ -126,7 +135,6 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           width: 16), // Space between avatar and text fields
                       Expanded(
                         child: Stack(
-                          // alignment: Alignment.bottomLeft,
                           children: [
                             Obx(() {
                               return CircleAvatar(
@@ -159,7 +167,6 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                       ),
                     ],
                   ),
-
                   SizedBox(height: 20),
                   TextField(
                     controller: nameController,
@@ -227,7 +234,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                   SizedBox(height: 300), // Added spacing before button
                   Center(
                     child: InkWell(
-                      onTap: () async {
+                      onTap: () {
                         if (nameController.text.isEmpty ||
                             phoneController.text.isEmpty) {
                           Get.snackbar(
@@ -235,33 +242,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           return;
                         }
 
-                        // Simulate generating a random password if not provided (for Google sign-in)
-                        String randomPassword =
-                            "123456"; // Can be replaced with a generated password
-
-                        await authProvider.saveUserProfile(
-                          email: widget.account.email,
-                          name: nameController
-                              .text, // Collect name from user input
-                          phone: phoneController.text,
-                          password:
-                              randomPassword, // Use the generated or provided password
-                          address: {
-                            'Building': 'DemoBuild', // Dummy building name
-                            'Floor': 2, // Dummy floor number
-                            'Geolocation': [
-                              10,
-                              12
-                            ], // Dummy geolocation (latitude, longitude)
-                            'Landmark': 'Soura', // Dummy landmark
-                            'Location':
-                                'soura market', // Dummy location description
-                          },
-                        );
-
                         setState(() {
                           isNextPressed = true; // Set button as pressed
                         });
+
+                        // Navigate to the address details tab
                         _tabController.animateTo(1); // Switch to next tab
 
                         Future.delayed(Duration(milliseconds: 300), () {
@@ -317,11 +302,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                   Text("Enter Location",
                       style: TextStyle(
                           color: CustomColors.textColorThree, fontSize: 16)),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   TextField(
                     controller: locationController,
                     decoration: InputDecoration(
-                      hintText: 'Enter location',
+                      hintText: 'Location',
                       labelStyle: const TextStyle(
                           color: Color(0xFFDCD7D8), fontSize: 16),
                       enabledBorder: OutlineInputBorder(
@@ -337,35 +322,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           horizontal: 20, vertical: 16),
                     ),
                   ),
-                  SizedBox(height: 15),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Add location fetch logic
-                    },
-                    icon: Icon(Icons.location_pin,
-                        color: CustomColors.textColorThree),
-                    label: Text("Use Current Location",
-                        style: TextStyle(color: CustomColors.textColorThree)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        side: BorderSide(color: CustomColors.textColorThree),
-                      ),
-                      elevation: 0,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 75, vertical: 12),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Text("Building Number",
-                      style: TextStyle(
-                          color: CustomColors.textColorThree, fontSize: 16)),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   TextField(
                     controller: buildingController,
                     decoration: InputDecoration(
-                      hintText: 'Enter building number',
+                      hintText: 'Building Name',
                       labelStyle: const TextStyle(
                           color: Color(0xFFDCD7D8), fontSize: 16),
                       enabledBorder: OutlineInputBorder(
@@ -381,15 +342,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           horizontal: 20, vertical: 16),
                     ),
                   ),
-                  SizedBox(height: 15),
-                  Text("Floor",
-                      style: TextStyle(
-                          color: CustomColors.textColorThree, fontSize: 16)),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   TextField(
                     controller: floorController,
                     decoration: InputDecoration(
-                      hintText: 'Enter your floor',
+                      hintText: 'Floor',
                       labelStyle: const TextStyle(
                           color: Color(0xFFDCD7D8), fontSize: 16),
                       enabledBorder: OutlineInputBorder(
@@ -405,15 +362,11 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           horizontal: 20, vertical: 16),
                     ),
                   ),
-                  SizedBox(height: 15),
-                  Text("Landmark",
-                      style: TextStyle(
-                          color: CustomColors.textColorThree, fontSize: 16)),
-                  SizedBox(height: 8),
+                  SizedBox(height: 20),
                   TextField(
                     controller: landmarkController,
                     decoration: InputDecoration(
-                      hintText: 'Enter landmark',
+                      hintText: 'Landmark',
                       labelStyle: const TextStyle(
                           color: Color(0xFFDCD7D8), fontSize: 16),
                       enabledBorder: OutlineInputBorder(
@@ -429,53 +382,69 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                           horizontal: 20, vertical: 16),
                     ),
                   ),
-                  SizedBox(height: 100),
+                  SizedBox(height: 40), // Space before the save button
                   Center(
                     child: InkWell(
                       onTap: () {
-                        setState(() {
-                          isNextPressed = true; // Set button as pressed
-                        });
+                        // Check if all fields are filled
+                        if (nameController.text.isNotEmpty &&
+                            emailController.text.isNotEmpty &&
+                            phoneController.text.isNotEmpty &&
+                            passwordController.text.isNotEmpty &&
+                            locationController
+                                .text.isNotEmpty && // Check location
+                            buildingController
+                                .text.isNotEmpty && // Check building
+                            floorController.text.isNotEmpty && // Check floor
+                            landmarkController.text.isNotEmpty) {
+                          // Check landmark
 
-                        // Add logic for what happens when the button is pressed here.
+                          // Create the address model from the collected data
+                          AddressModel address = AddressModel(
+                            location: locationController.text,
+                            building: buildingController.text,
+                            floor: int.parse(
+                                floorController.text), // Convert floor to int
+                            landmark: landmarkController.text,
+                            geolocation: GeoLocationModel(
+                              lat: '0.0', // Dummy latitude value for now
+                              lon: '0.0', // Dummy longitude value for now
+                            ), // Pass a GeoLocationModel, not an empty list
+                          );
 
-                        Future.delayed(Duration(milliseconds: 300), () {
-                          // Reset button state after 250 milliseconds
-                          setState(() {
-                            isNextPressed = false; // Reset to normal state
-                          });
-                        });
+                          // Call the save profile method
+                          _saveProfile(
+                            name: nameController.text,
+                            email: emailController.text,
+                            phone: phoneController.text,
+                            password: passwordController.text,
+                            image:
+                                '', // Handle image as per your implementation
+                            addresses: [address], // Pass the address model
+                          );
+                        } else {
+                          // Handle the case where inputs are empty
+                          Get.snackbar(
+                              "Error", "Please fill in all required fields.",
+                              snackPosition: SnackPosition.BOTTOM);
+                        }
                       },
                       child: AnimatedContainer(
-                        duration: Duration(
-                            milliseconds:
-                                300), // Animation duration for smooth transition
+                        duration: const Duration(milliseconds: 300),
                         decoration: BoxDecoration(
-                          color: isNextPressed
-                              ? CustomColors.textColorThree
-                              : Colors
-                                  .white, // Background color changes smoothly
+                          color: CustomColors.textColorThree,
                           borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: CustomColors.textColorThree,
-                            width: 1,
-                          ),
                         ),
                         padding:
                             EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                         child: Center(
-                          child: AnimatedDefaultTextStyle(
-                            duration: Duration(
-                                milliseconds: 300), // Smooth text color change
+                          child: Text(
+                            "Save Changes",
                             style: TextStyle(
-                              color: isNextPressed
-                                  ? Colors.white
-                                  : CustomColors
-                                      .textColorThree, // Text color changes smoothly
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
-                            child: Text("Save Changes"),
                           ),
                         ),
                       ),
@@ -488,5 +457,27 @@ class _CreateProfilePageState extends State<CreateProfilePage>
         ],
       ),
     );
+  }
+
+  void _saveProfile({
+    String? name,
+    String? email,
+    String? phone,
+    String? password,
+    String? image,
+    List<AddressModel> addresses = const [],
+  }) async {
+    // Create the UserModel instance
+    UserModel user = UserModel(
+      name: name ?? '', // Assign empty string if null
+      email: email ?? '',
+      image: image ?? '',
+      password: password ?? '',
+      address: addresses,
+      phone: phone ?? '',
+    );
+
+    // Call the saveUserProfile method in AuthProvider
+    await authProvider.saveUserProfile(user);
   }
 }

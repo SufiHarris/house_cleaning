@@ -121,7 +121,7 @@ class LogInScreen extends StatelessWidget {
                       ImageButton(
                         imageUrl: "assets/images/google.svg",
                         onPressed: () {
-                          authProvider.initiateGoogleSignIn();
+                          //authProvider.initiateGoogleSignIn();
                         },
                       ),
                       ImageButton(
