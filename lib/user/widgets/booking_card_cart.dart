@@ -8,7 +8,7 @@ class BookingCardCart extends StatelessWidget {
   final BookingModel booking;
   final UserProvider userProvider = Get.find<UserProvider>();
 
-  BookingCardCart({Key? key, required this.booking}) : super(key: key);
+  BookingCardCart({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context) {
