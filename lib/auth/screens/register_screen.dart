@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../theme/custom_colors.dart';
 import '../../user/screens/user_create_profile_screen.dart';
@@ -150,12 +151,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: _isButtonEnabled
                       ? () {
                           if (_formKey.currentState!.validate()) {
-                            // Get.to(
-                            //   () => CreateProfilePage(
-                            //     email: emailController.text.trim(),
-                            //     password: passwordController.text,
-                            //   ),
-                            // );
+                            Get.to(
+                              () => CreateProfilePage(
+                                email: emailController.text.trim(),
+                                password: passwordController.text,
+                              ),
+                            );
                           } else {
                             _showErrorSnackbar(
                                 'Please correct the errors in the form.');

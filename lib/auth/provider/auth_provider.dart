@@ -4,7 +4,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
-import 'package:house_cleaning/auth/screens/segregation_screen.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -142,17 +141,16 @@ class AuthProvider extends GetxController {
     if (existsuser) {
       // If user exists, attempt to sign in
       try {
+        // UserCredential result = await _auth.signInWithEmailAndPassword(
+        //   email: email,
+        //   password: password,
+        // );
+
         // User signed in successfully
         // Navigate to the user main page
         // Save user details to local storage
         await saveUserDetailsLocally(email);
         isLoading.value = false; // Hide loader
-
-        UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-
         _showSnackBar('Logged in successfully', false);
 
         Get.offAll(() => const UserMain());
@@ -192,110 +190,110 @@ class AuthProvider extends GetxController {
     }
   }
 
-  Future<void> initiateGoogleSignIn() async {
-    try {
-      isLoading.value = true; // Show loader
+  // Future<void> initiateGoogleSignIn() async {
+  //   try {
+  //     isLoading.value = true; // Show loader
 
-      // Trigger Google Sign-In
-      final GoogleSignInAccount? googleSignInAccount =
-          await GoogleSignIn().signIn();
-      if (googleSignInAccount == null) {
-        isLoading.value = false; // Hide loader
-        _showSnackBar('Google Sign-In was canceled.', true);
-        return;
-      }
+  //     // Trigger Google Sign-In
+  //     final GoogleSignInAccount? googleSignInAccount =
+  //         await GoogleSignIn().signIn();
+  //     if (googleSignInAccount == null) {
+  //       isLoading.value = false; // Hide loader
+  //       _showSnackBar('Google Sign-In was canceled.', true);
+  //       return;
+  //     }
 
-      final String googleEmail = googleSignInAccount.email;
+  //     final String googleEmail = googleSignInAccount.email;
 
-      // Check if the email exists in the Firestore user table
-      bool userExists = await this.userExists(googleEmail);
-      if (userExists) {
-        // If user exists, perform the Google authentication
-        await _signInWithGoogleAuth(googleSignInAccount);
-      } else {
-        // Check if the email exists in the staff table
-        bool staffExists = await this.staffExists(googleEmail);
-        if (staffExists) {
-          // If staff exists, perform the Google authentication
-          await _signInWithGoogleAuth(googleSignInAccount);
-        } else {
-          // If user does not exist in both tables, navigate to Create Profile Page
-          isLoading.value = false; // Hide loader
-          Get.to(() => CreateProfilePage(
-              account: googleSignInAccount // Pass only the email
-              ));
-        }
-      }
-    } catch (e) {
-      isLoading.value = false; // Hide loader
-      _showSnackBar('Google Sign-In failed. Please try again.', true);
-    }
-  }
+  //     // Check if the email exists in the Firestore user table
+  //     bool userExists = await this.userExists(googleEmail);
+  //     if (userExists) {
+  //       // If user exists, perform the Google authentication
+  //       await _signInWithGoogleAuth(googleSignInAccount);
+  //     } else {
+  //       // Check if the email exists in the staff table
+  //       bool staffExists = await this.staffExists(googleEmail);
+  //       if (staffExists) {
+  //         // If staff exists, perform the Google authentication
+  //         await _signInWithGoogleAuth(googleSignInAccount);
+  //       } else {
+  //         // If user does not exist in both tables, navigate to Create Profile Page
+  //         isLoading.value = false; // Hide loader
+  //         Get.to(() => CreateProfilePage(
+  //             account: googleSignInAccount // Pass only the email
+  //             ));
+  //       }
+  //     }
+  //   } catch (e) {
+  //     isLoading.value = false; // Hide loader
+  //     _showSnackBar('Google Sign-In failed. Please try again.', true);
+  //   }
+  // }
 
-  Future<void> _signInWithGoogleAuth(
-      GoogleSignInAccount googleSignInAccount) async {
-    try {
-      final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount.authentication;
+  // Future<void> _signInWithGoogleAuth(
+  //     GoogleSignInAccount googleSignInAccount) async {
+  //   try {
+  //     final GoogleSignInAuthentication googleSignInAuthentication =
+  //         await googleSignInAccount.authentication;
 
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken,
-      );
+  //     final AuthCredential credential = GoogleAuthProvider.credential(
+  //       idToken: googleSignInAuthentication.idToken,
+  //       accessToken: googleSignInAuthentication.accessToken,
+  //     );
 
-      // Authenticate with Firebase using Google credentials
-      UserCredential result =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      User? userDetails = result.user;
+  //     // Authenticate with Firebase using Google credentials
+  //     UserCredential result =
+  //         await FirebaseAuth.instance.signInWithCredential(credential);
+  //     User? userDetails = result.user;
 
-      if (userDetails != null) {
-        final String email = userDetails.email!;
+  //     if (userDetails != null) {
+  //       final String email = userDetails.email!;
 
-        // Check if user exists in users_table
-        bool userexists = await userExists(email);
-        if (userexists) {
-          // User exists in users_table
-          DocumentSnapshot userDoc = await _firestore
-              .collection('users_table')
-              .where('email', isEqualTo: email)
-              .get()
-              .then((snapshot) => snapshot.docs.first);
+  //       // Check if user exists in users_table
+  //       bool userexists = await userExists(email);
+  //       if (userexists) {
+  //         // User exists in users_table
+  //         DocumentSnapshot userDoc = await _firestore
+  //             .collection('users_table')
+  //             .where('email', isEqualTo: email)
+  //             .get()
+  //             .then((snapshot) => snapshot.docs.first);
 
-          Map<String, dynamic> userData =
-              userDoc.data() as Map<String, dynamic>;
-          await _saveUserData(userData); // Save user data
-          Get.offAll(() => const UserMain()); // Navigate to User Main Page
-          _showSnackBar('Logged in successfully', false);
-        } else {
-          // Check if user exists in staff_table
-          bool staffexists = await staffExists(email);
-          if (staffexists) {
-            // Staff exists in staff_table
-            DocumentSnapshot staffDoc = await _firestore
-                .collection('staff_table')
-                .where('email', isEqualTo: email)
-                .get()
-                .then((snapshot) => snapshot.docs.first);
+  //         Map<String, dynamic> userData =
+  //             userDoc.data() as Map<String, dynamic>;
+  //         await _saveUserData(userData); // Save user data
+  //         Get.offAll(() => const UserMain()); // Navigate to User Main Page
+  //         _showSnackBar('Logged in successfully', false);
+  //       } else {
+  //         // Check if user exists in staff_table
+  //         bool staffexists = await staffExists(email);
+  //         if (staffexists) {
+  //           // Staff exists in staff_table
+  //           DocumentSnapshot staffDoc = await _firestore
+  //               .collection('staff_table')
+  //               .where('email', isEqualTo: email)
+  //               .get()
+  //               .then((snapshot) => snapshot.docs.first);
 
-            Map<String, dynamic> staffData =
-                staffDoc.data() as Map<String, dynamic>;
-            // You can save staff-specific data if needed
-            Get.offAll(
-                () => const EmployeeHome()); // Navigate to Employee Home Page
-            _showSnackBar('Logged in as staff successfully', false);
-          } else {
-            // If user does not exist in either table, navigate to Create Profile Page
-            Get.to(() => CreateProfilePage(
-                  account: googleSignInAccount, // Pass only the email
-                ));
-          }
-        }
-      }
-    } catch (e) {
-      isLoading.value = false; // Hide loader
-      _showSnackBar('Authentication failed. Please try again.', true);
-    }
-  }
+  //           Map<String, dynamic> staffData =
+  //               staffDoc.data() as Map<String, dynamic>;
+  //           // You can save staff-specific data if needed
+  //           Get.offAll(
+  //               () => const EmployeeHome()); // Navigate to Employee Home Page
+  //           _showSnackBar('Logged in as staff successfully', false);
+  //         } else {
+  //           // If user does not exist in either table, navigate to Create Profile Page
+  //           Get.to(() => CreateProfilePage(
+  //                 account: googleSignInAccount, // Pass only the email
+  //               ));
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     isLoading.value = false; // Hide loader
+  //     _showSnackBar('Authentication failed. Please try again.', true);
+  //   }
+  // }
 
   Future<void> _saveUserData(Map<String, dynamic> userData) async {
     try {
@@ -341,159 +339,49 @@ class AuthProvider extends GetxController {
     }
   }
 
-  // Future<void> saveUserProfile({
-  //   required String email,
-  //   required String name,
-  //   required String phone,
-  //   required String password,
-  // }) async {
-  //   String? tempUid;
-
-  //   try {
-  //     // Generate temporary user ID
-  //     tempUid = FirebaseFirestore.instance.collection('users_table').doc().id;
-
-  //     // Save user data without the password
-  //     await FirebaseFirestore.instance
-  //         .collection('users_table')
-  //         .doc(tempUid)
-  //         .set({
-  //       'name': name,
-  //       'email': email,
-  //       'phone': phone,
-  //       'image': "",
-  //       'password': password,
-  //       'user_id': 2, // Temporary ID until registration completes
-  //     });
-
-  //     // Create user in Firebase Authentication
-  //     UserCredential userCredential =
-  //         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  //       email: email,
-  //       password: password,
-  //     );
-
-  //     if (userCredential.user == null) {
-  //       throw FirebaseAuthException(
-  //           code: 'user-null', message: 'User creation failed');
-  //     } else {
-  //       Get.snackbar("Success", "Profile created and registered successfully!");
-  //       Future.delayed(Duration(seconds: 2), () {
-  //         Get.offAll(() => UserMain());
-  //       });
-  //     }
-
-  //     // Update the user_id with the Firebase Authentication UID
-  //     // String uid = userCredential.user!.uid;
-  //     // await FirebaseFirestore.instance
-  //     //     .collection('users_table')
-  //     //     .doc(tempUid)
-  //     //     .update({
-  //     //   'user_id': uid,
-  //     // });
-  //   } on FirebaseAuthException catch (e) {
-  //     // Remove temporary document in case of failure
-  //     if (tempUid != null) {
-  //       await FirebaseFirestore.instance
-  //           .collection('users_table')
-  //           .doc(tempUid)
-  //           .delete();
-  //     }
-
-  //     // Handle specific FirebaseAuthException cases
-  //     if (e.code == 'email-already-in-use') {
-  //       Get.snackbar("Error", "The email address is already in use.");
-  //     } else if (e.code == 'weak-password') {
-  //       Get.snackbar("Error", "The password provided is too weak.");
-  //     } else {
-  //       Get.snackbar(
-  //           "Error", e.message ?? "An error occurred during authentication");
-  //     }
-  //   } on FirebaseException catch (e) {
-  //     // Handle Firestore exceptions
-  //     Get.snackbar("Error", "Failed to save data to Firestore: ${e.message}");
-  //   } catch (e) {
-  //     // Catch any other unexpected errors
-  //     Get.snackbar("Error", "An unexpected error occurred: ${e.toString()}");
-  //   }
-  // }
-
-  Future<void> saveUserProfile({
-    required String email,
-    required String name,
-    required String phone,
-    required String password,
-    required Map<String, dynamic> address, // Pass address as a map
-  }) async {
-    String? tempUid;
-
+  // In your AuthProvider class
+  Future<void> saveUserProfile(UserModel user) async {
     try {
-      // Generate temporary user ID
-      tempUid = FirebaseFirestore.instance.collection('users_table').doc().id;
+      UserCredential userCredential;
+      try {
+        print("User details before creating account: ${user.toMap()}");
 
-      // Save user data with address and other fields
-      await FirebaseFirestore.instance
-          .collection('users_table')
-          .doc(tempUid)
-          .set({
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'image': "", // Placeholder for future image upload
-        'password': password,
-        'user_id': 2, // Temporary ID until registration completes
-        'address': address, // Include address in user data
-      });
+        print(
+            "Creating user with email: ${user.email} and password: ${user.password}");
 
-      // Create user in Firebase Authentication
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      if (userCredential.user == null) {
-        throw FirebaseAuthException(
-            code: 'user-null', message: 'User creation failed');
-      } else {
-        Get.snackbar("Success", "Profile created and registered successfully!");
-        Future.delayed(Duration(seconds: 2), () {
-          Get.offAll(() => UserMain());
-        });
+        // Create the user in Firebase Authentication
+        userCredential = await _auth.createUserWithEmailAndPassword(
+          email: user.email,
+          password: user.password, // Assuming UserModel has a password field
+        );
+      } catch (e) {
+        print("Error creating user: $e");
+        Get.snackbar("Error", "Failed to create user. ${e.toString()}",
+            snackPosition: SnackPosition.BOTTOM);
+        return; // Exit the function if user creation fails
       }
 
-      // Update the user_id with the Firebase Authentication UID
-      String uid = userCredential.user!.uid;
-      await FirebaseFirestore.instance
-          .collection('users_table')
-          .doc(tempUid)
-          .update({
-        'user_id': uid,
-      });
-    } on FirebaseAuthException catch (e) {
-      // Remove temporary document in case of failure
-      if (tempUid != null) {
-        await FirebaseFirestore.instance
-            .collection('users_table')
-            .doc(tempUid)
-            .delete();
-      }
+      // Get the user ID from the userCredential
+      String userId = userCredential.user!.uid;
 
-      // Handle specific FirebaseAuthException cases
-      if (e.code == 'email-already-in-use') {
-        Get.snackbar("Error", "The email address is already in use.");
-      } else if (e.code == 'weak-password') {
-        Get.snackbar("Error", "The password provided is too weak.");
-      } else {
-        Get.snackbar(
-            "Error", e.message ?? "An error occurred during authentication");
-      }
-    } on FirebaseException catch (e) {
-      // Handle Firestore exceptions
-      Get.snackbar("Error", "Failed to save data to Firestore: ${e.message}");
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users_table');
+
+      // Prepare data for saving
+      Map<String, dynamic> data = user.toMap();
+      print("Debug line:$data"); // Debugging line
+
+      // Set document ID based on the user's email (or any unique identifier)
+      await users.doc(userId).set(data, SetOptions(merge: true));
+
+      // Show success snackbar
+      Get.snackbar("Success", "User profile saved successfully.",
+          snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      // Catch any other unexpected errors
-      Get.snackbar("Error", "An unexpected error occurred: ${e.toString()}");
+      print("Error saving user profile: $e");
+      // Show error snackbar
+      Get.snackbar("Error", "Failed to save user profile. Please try again.",
+          snackPosition: SnackPosition.BOTTOM);
     }
   }
 
