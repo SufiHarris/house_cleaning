@@ -40,7 +40,7 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(widget.product.imageUrl),
-                    fit: BoxFit.fill,
+                    // fit: BoxFit.fill,
                   ),
                 ),
               ),
@@ -57,7 +57,7 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                       "assets/images/chevron_left.svg",
                       width: 20,
                       height: 20,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                 ),
