@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
-import 'package:house_cleaning/auth/screens/segregation_screen.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
 import 'firebase_options.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../models/booking_model.dart';
 import '../models/bookings_model.dart';
 import '../providers/user_provider.dart';
+import '../widgets/user_booking_widget.dart';
 
 class UserBookings extends StatelessWidget {
   const UserBookings({Key? key}) : super(key: key);
@@ -54,13 +54,17 @@ class UserBookings extends StatelessWidget {
           if (inProcessBookings.isNotEmpty) ...[
             Text('STARTED', style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            ...inProcessBookings.map((booking) => _buildBookingCard(booking)),
+            ...inProcessBookings.map((booking) => UserBookingWidget(
+                  booking: booking,
+                )),
           ],
           if (upcomingBookings.isNotEmpty) ...[
             SizedBox(height: 16),
             Text('SCHEDULED', style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
-            ...upcomingBookings.map((booking) => _buildBookingCard(booking)),
+            ...upcomingBookings.map((booking) => UserBookingWidget(
+                  booking: booking,
+                )),
           ],
         ],
       );

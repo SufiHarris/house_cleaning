@@ -11,12 +11,7 @@ class TrackingMap extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Track Employee')),
       body: Obx(() {
-        // Ensure that the map only loads when all required data is available
         if (trackingController.currentPosition.value == null) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (trackingController.polylineCoordinates.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
 
@@ -26,7 +21,7 @@ class TrackingMap extends StatelessWidget {
               trackingController.currentPosition.value!.latitude,
               trackingController.currentPosition.value!.longitude,
             ),
-            zoom: 14,
+            zoom: 18,
           ),
           polylines: {
             Polyline(
@@ -36,28 +31,40 @@ class TrackingMap extends StatelessWidget {
               width: 6,
             ),
           },
-          markers: {
-            Marker(
-              markerId: MarkerId('employee'),
-              position: LatLng(
-                trackingController.currentPosition.value!.latitude,
-                trackingController.currentPosition.value!.longitude,
-              ),
-            ),
-            if (trackingController.clientLocation.value != null)
-              Marker(
-                markerId: MarkerId('client'),
-                position: trackingController.clientLocation.value!,
-              ),
-          },
+          markers: trackingController.markers.toSet(),
           onMapCreated: (GoogleMapController controller) {
             trackingController.mapController = controller;
+            trackingController.moveMapToCurrentPosition();
           },
         );
       }),
-      bottomSheet: Obx(() => Padding(
+      bottomSheet: Obx(() => Container(
+            color: Colors.white,
             padding: const EdgeInsets.all(8.0),
-            child: Text('ETA: ${trackingController.eta.value}'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'ETA: ${trackingController.eta.value}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Total Distance: ${trackingController.totalDistance.value.toStringAsFixed(2)} km',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Remaining Distance: ${trackingController.remainingDistance.value.toStringAsFixed(2)} km',
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Elapsed Time: ${trackingController.elapsedTime.value}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
           )),
     );
   }

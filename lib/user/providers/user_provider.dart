@@ -34,10 +34,11 @@ class UserProvider extends GetxController {
   var profileImage = Rx<File?>(null);
   var selectedCategory = Rx<CategoryModel?>(null);
   final ImagePicker _picker = ImagePicker();
+
   @override
   void onInit() {
     super.onInit();
-    loadCartFromPrefs(); // Load cart data when provider is initialized
+    loadCartFromPrefs();
   }
 
   // Helper method for service price calculation
@@ -68,20 +69,14 @@ class UserProvider extends GetxController {
   Future<void> fetchServicesByCategory(String category) async {
     try {
       isLoading.value = true;
-
-      // Fetch services by category
       var snapshot = await FirebaseFirestore.instance
           .collection('services_table')
           .where('category', isEqualTo: category)
           .get();
-
-      // Map snapshot data to ServiceModel list
       services.value = snapshot.docs
           .map((doc) => ServiceModel.fromJson(doc.data()))
           .toList();
-
       if (services.isEmpty) {
-        // Handle case where no services are found for the category
         print("No services found for category: $category");
       }
     } catch (e) {
@@ -124,12 +119,10 @@ class UserProvider extends GetxController {
       isLoading.value = true;
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id') ?? 121;
-
       var snapshot = await FirebaseFirestore.instance
           .collection('address_table')
           .where('user_id', isEqualTo: userId)
           .get();
-
       addresses.value = snapshot.docs
           .map((doc) => AddressModel.fromJson(doc.data()))
           .toList();
@@ -145,12 +138,10 @@ class UserProvider extends GetxController {
       isLoading.value = true;
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('user_id') ?? 111;
-
       var snapshot = await FirebaseFirestore.instance
           .collection('size_based_bookings')
           .where('user_id', isEqualTo: userId)
           .get();
-
       bookings.value = snapshot.docs
           .map((doc) => BookingModel.fromFirestore(doc.data()))
           .toList();
@@ -168,11 +159,14 @@ class UserProvider extends GetxController {
           backgroundColor: Colors.red);
       return;
     }
-    final bookingData = createBookingDocument();
+    final bookingData = createBookingDocument(
+      categoryName: selectedCategory.value!.categoryName,
+      categoryImage: selectedCategory.value!.categoryImage,
+    );
     final booking = BookingModel.fromFirestore(bookingData);
     cartBookings.add(booking);
     await saveCartToPrefs();
-    clearSelections(); // This will now also clear the selected category
+    clearSelections();
     Get.offAll(() => UserMain());
     Get.snackbar('Success', 'Added to cart', backgroundColor: Colors.green);
   }
@@ -180,44 +174,8 @@ class UserProvider extends GetxController {
   Future<void> saveCartToPrefs() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cartDataList = cartBookings.map((booking) {
-        return {
-          'address': booking.address,
-          'booking_date': booking.bookingDate,
-          'booking_id': booking.booking_id,
-          'booking_time': booking.bookingTime,
-          'employee_id': booking.employee_id,
-          'end_image': booking.endImage,
-          'payment_status': booking.payment_status,
-          'products': booking.products
-              .map((product) => {
-                    'product_name': product.product_name,
-                    'quantity': product.quantity,
-                    'delivery_time': product.delivery_time,
-                    'image_url': product.imageUrl
-                  })
-              .toList(),
-          'services': [
-            {
-              'service_names': booking.services
-                  .map((service) => {
-                        'service_name': service.service_name,
-                        'quantity': service.quantity,
-                        'size': service.size,
-                      })
-                  .toList(),
-            }
-          ],
-          'start_image': booking.start_image,
-          'status': booking.status,
-          'total_price': booking.total_price,
-          'user_id': booking.user_id,
-          'user_phn_number': booking.user_phn_number,
-          'category_name': booking.categoryName,
-          'category_image': booking.categoryImage,
-        };
-      }).toList();
-
+      final cartDataList =
+          cartBookings.map((booking) => booking.toJson()).toList();
       final String encodedData = json.encode(cartDataList);
       await prefs.setString('cart_bookings', encodedData);
     } catch (e) {
@@ -229,7 +187,6 @@ class UserProvider extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       final String? cartDataString = prefs.getString('cart_bookings');
-
       if (cartDataString != null && cartDataString.isNotEmpty) {
         final List<dynamic> cartDataList = json.decode(cartDataString);
         cartBookings.value = cartDataList
@@ -253,7 +210,12 @@ class UserProvider extends GetxController {
   }
 
   Future<void> addProductToCart(UserProductModel product) async {
-    final bookingData = createProductBookingDocument(product);
+    final bookingData = createBookingDocument(
+      products: [product],
+      categoryName:
+          '', // You may want to add a category to products if applicable
+      categoryImage: '',
+    );
     final booking = BookingModel.fromFirestore(bookingData);
     cartBookings.add(booking);
     await saveCartToPrefs();
@@ -261,45 +223,21 @@ class UserProvider extends GetxController {
         backgroundColor: Colors.green);
   }
 
-  Map<String, dynamic> createProductBookingDocument(UserProductModel product) {
-    return {
-      'address': 'default address',
-      'booking_date': DateTime.now().toString(),
-      'booking_id': DateTime.now().millisecondsSinceEpoch,
-      'booking_time': DateFormat('h:mm a').format(DateTime.now()),
-      'employee_id': 102,
-      'end_image': '',
-      'payment_status': 'Pending',
-      'products': [
-        {
-          'product_name': product.name,
-          'quantity': product.quantity ?? 1,
-          'delivery_time': product.deliveryTime ?? '1-2 Days',
-          'image_url': product.imageUrl ?? 'https://placeholder.com/100',
-          'price': product.price,
-        }
-      ],
-      'services': [],
-      'start_image': '',
-      'status': 'pending',
-      'total_price': product.price * (product.quantity ?? 1),
-      'user_id': 111,
-      'user_phn_number': '9999999999',
-      'category_name': '', // Added with empty string
-      'category_image': '', // Added with empty string
-    };
-  }
-
   // Booking processing methods
   Future<void> processCartBookings() async {
     try {
-      Map<String, List<BookingModel>> bookingsByDate = {};
+      Map<DateTime, List<BookingModel>> bookingsByDate = {};
       for (var booking in cartBookings) {
-        String date = booking.bookingDate;
-        if (!bookingsByDate.containsKey(date)) {
-          bookingsByDate[date] = [];
+        // Parse the booking date string to DateTime
+        DateTime bookingDate = DateTime.parse(booking.bookingDate).toLocal();
+        // Create a new DateTime with only the date part (year, month, day)
+        DateTime dateOnly =
+            DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
+
+        if (!bookingsByDate.containsKey(dateOnly)) {
+          bookingsByDate[dateOnly] = [];
         }
-        bookingsByDate[date]!.add(booking);
+        bookingsByDate[dateOnly]!.add(booking);
       }
 
       for (var entry in bookingsByDate.entries) {
@@ -307,26 +245,31 @@ class UserProvider extends GetxController {
           await _processCombinedBookings(entry.value);
         } else {
           await saveBookingToFirestore(
-              bookingData: createBookingDocument(
-            bookingDate: DateTime.parse(entry.value.first.bookingDate),
-            services: entry.value.first.services
-                .map((s) => ServiceSummaryModel(
-                      serviceName: s.service_name,
-                      totalQuantity: s.quantity,
-                      totalSize: s.size,
-                      totalPrice: _calculateServicePrice(s.quantity, s.size),
-                    ))
-                .toList(),
-            products: entry.value.first.products
-                .map((p) => UserProductModel(
+            bookingData: createBookingDocument(
+              bookingDate: DateTime.parse(entry.value.first.bookingDate),
+              services: entry.value.first.services
+                  .map((s) => ServiceSummaryModel(
+                        serviceName: s.service_name,
+                        totalQuantity: s.quantity,
+                        totalSize: s.size,
+                        totalPrice: _calculateServicePrice(s.quantity, s.size),
+                      ))
+                  .toList(),
+              products: entry.value.first.products
+                  .map(
+                    (p) => UserProductModel(
                       name: p.product_name,
                       quantity: p.quantity,
                       deliveryTime: p.delivery_time,
-                      price: 0,
-                      imageUrl: '',
-                    ))
-                .toList(),
-          ));
+                      price: p.price,
+                      imageUrl: p.imageUrl,
+                    ),
+                  )
+                  .toList(),
+              categoryName: entry.value.first.categoryName,
+              categoryImage: entry.value.first.categoryImage,
+            ),
+          );
         }
       }
 
@@ -344,6 +287,13 @@ class UserProvider extends GetxController {
   Future<void> _processCombinedBookings(List<BookingModel> bookings) async {
     List<ServiceSummaryModel> combinedServices = [];
     List<UserProductModel> combinedProducts = [];
+    String categoryName = '';
+    String categoryImage = '';
+
+    // Use the date from the first booking
+    DateTime bookingDate = DateTime.parse(bookings.first.bookingDate).toLocal();
+    DateTime dateOnly =
+        DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
 
     for (var booking in bookings) {
       combinedServices.addAll(booking.services.map((s) => ServiceSummaryModel(
@@ -357,17 +307,69 @@ class UserProvider extends GetxController {
             name: p.product_name,
             quantity: p.quantity,
             deliveryTime: p.delivery_time,
-            price: 0,
-            imageUrl: '',
+            price: p.price,
+            imageUrl: p.imageUrl,
           )));
+
+      // Use the category from the first booking that has one
+      if (categoryName.isEmpty && booking.categoryName.isNotEmpty) {
+        categoryName = booking.categoryName;
+        categoryImage = booking.categoryImage;
+      }
     }
 
     await saveBookingToFirestore(
         bookingData: createBookingDocument(
-      bookingDate: DateTime.parse(bookings.first.bookingDate),
+      bookingDate: dateOnly,
       services: combinedServices,
       products: combinedProducts,
+      categoryName: categoryName,
+      categoryImage: categoryImage,
     ));
+  }
+
+  // ... existing code ...
+
+  Future<void> updateProductQuantity(
+      BookingModel booking, bool increment) async {
+    int index = cartBookings.indexOf(booking);
+    if (index != -1 && booking.products.isNotEmpty) {
+      var updatedBooking = booking;
+      var product = updatedBooking.products.first;
+
+      // Update quantity
+      int newQuantity =
+          increment ? (product.quantity ?? 1) + 1 : (product.quantity ?? 1) - 1;
+
+      // Ensure quantity doesn't go below 1
+      if (newQuantity < 1) newQuantity = 1;
+
+      // Create updated product
+      var updatedProduct = UserProductModel(
+        name: product.product_name,
+        quantity: newQuantity,
+        deliveryTime: product.delivery_time,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      );
+
+      // Create updated booking with new total price
+      var updatedBookingData = createBookingDocument(
+        products: [updatedProduct],
+        categoryName: updatedBooking.categoryName,
+        categoryImage: updatedBooking.categoryImage,
+        bookingDate: DateTime.parse(updatedBooking.bookingDate),
+      );
+
+      // Update booking in cart
+      cartBookings[index] = BookingModel.fromFirestore(updatedBookingData);
+
+      // Save updated cart to SharedPreferences
+      await saveCartToPrefs();
+
+      // Trigger UI update
+      cartBookings.refresh();
+    }
   }
 
   Future<void> saveBookingToFirestore(
@@ -392,16 +394,20 @@ class UserProvider extends GetxController {
     List<ServiceSummaryModel>? services,
     List<UserProductModel>? products,
     AddressModel? address,
+    String? categoryName,
+    String? categoryImage,
+    int? userId,
+    String? userPhoneNumber,
   }) {
+    final now = DateTime.now();
     return {
       'address':
           address?.floor ?? selectedAddress.value?.floor ?? 'default address',
       'booking_date': bookingDate?.toString() ??
           selectedDate.value?.toString() ??
-          DateTime.now().toString(),
-      'booking_id': DateTime.now().millisecondsSinceEpoch,
-      'booking_time':
-          DateFormat('h:mm a').format(bookingDate ?? DateTime.now()),
+          now.toString(),
+      'booking_id': now.millisecondsSinceEpoch,
+      'booking_time': DateFormat('h:mm a').format(bookingDate ?? now),
       'employee_id': 102,
       'end_image': '',
       'payment_status': 'Pending',
@@ -411,7 +417,7 @@ class UserProvider extends GetxController {
                 'quantity': product.quantity ?? 1,
                 'delivery_time': product.deliveryTime ?? '1-2 Days',
                 'price': product.price,
-                'image_url': product.imageUrl
+                'image_url': product.imageUrl ?? ''
               })
           .toList(),
       'services': [
@@ -430,10 +436,12 @@ class UserProvider extends GetxController {
       'status': 'pending',
       'total_price':
           calculateTotalPrice(services: services, products: products),
-      'user_id': 111,
-      'user_phn_number': '9999999999',
-      'category_name': selectedCategory.value?.categoryName ?? '',
-      'category_image': selectedCategory.value?.categoryImage ?? '',
+      'user_id': userId ?? 111,
+      'user_phn_number': userPhoneNumber ?? '9999999999',
+      'category_name':
+          categoryName ?? selectedCategory.value?.categoryName ?? '',
+      'category_image':
+          categoryImage ?? selectedCategory.value?.categoryImage ?? '',
     };
   }
 
@@ -486,6 +494,10 @@ class UserProvider extends GetxController {
     selectedCategory.value = null;
   }
 
+  double calculateTotalCartPrice() {
+    return cartBookings.fold(0.0, (sum, booking) => sum + booking.total_price);
+  }
+
   void printBookings() {
     if (bookings.isEmpty) {
       print("No bookings available.");
@@ -518,6 +530,8 @@ class UserProvider extends GetxController {
       print("  User ID: ${booking.user_id}");
       print("  User Phone: ${booking.user_phn_number}");
       print("  Employee ID: ${booking.employee_id}");
+      print("  Category Name: ${booking.categoryName}");
+      print("  Category Image: ${booking.categoryImage}");
       print("----------------------------------------");
     }
   }

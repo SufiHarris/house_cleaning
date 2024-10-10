@@ -16,12 +16,48 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
   late GoogleMapController _mapController;
   final AddAddressController addAddressController =
       Get.find<AddAddressController>();
+  bool isLoading = true;
 
   // Define the boundaries for Riyadh
   final LatLngBounds riyadhBounds = LatLngBounds(
     southwest: LatLng(24.6352, 46.6022), // Southwest corner
     northeast: LatLng(24.8594, 46.8349), // Northeast corner
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMap();
+  }
+
+  Future<void> _initializeMap() async {
+    try {
+      await addAddressController.useCurrentLocation(); // Fetch current location
+      if (addAddressController.currentLocation.value != null) {
+        LatLng currentPosition = addAddressController.currentLocation.value!;
+        _mapController.animateCamera(
+          CameraUpdate.newLatLngZoom(currentPosition, 14.0),
+        );
+
+        setState(() {
+          selectedLocation = currentPosition;
+          markers = {
+            Marker(
+              markerId: MarkerId('current-location'),
+              position: currentPosition,
+            ),
+          };
+        });
+      }
+    } catch (e) {
+      print('Error using current location: $e');
+      Get.snackbar("Error", "Failed to get the current location.");
+    } finally {
+      setState(() {
+        isLoading = false; // Set loading to false once done
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,41 +71,43 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: LatLng(24.7136, 46.6753), // Riyadh coordinates
-              zoom: 14.0,
-            ),
-            onMapCreated: (GoogleMapController controller) {
-              _mapController = controller;
-            },
-            markers: markers,
-            onTap: (LatLng location) {
-              if (_isLocationInRiyadh(location)) {
-                setState(() {
-                  selectedLocation = location;
-                  markers = {
-                    Marker(
-                      markerId: MarkerId('selected-location'),
-                      position: selectedLocation!,
-                    ),
-                  };
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(24.7136, 46.6753), // Riyadh coordinates
+                    zoom: 14.0,
+                  ),
+                  onMapCreated: (GoogleMapController controller) {
+                    _mapController = controller;
+                  },
+                  markers: markers,
+                  onTap: (LatLng location) {
+                    if (_isLocationInRiyadh(location)) {
+                      setState(() {
+                        selectedLocation = location;
+                        markers = {
+                          Marker(
+                            markerId: MarkerId('selected-location'),
+                            position: selectedLocation!,
+                          ),
+                        };
 
-                  _mapController.animateCamera(
-                    CameraUpdate.newLatLng(selectedLocation!),
-                  );
-                });
-              } else {
-                Get.snackbar(
-                  'Location Outside Riyadh',
-                  'Please select a location within Riyadh.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: CustomColors.textColorThree,
-                  colorText: Colors.white,
-                );
-              }
-            },
-          ),
+                        _mapController.animateCamera(
+                          CameraUpdate.newLatLng(selectedLocation!),
+                        );
+                      });
+                    } else {
+                      Get.snackbar(
+                        'Location Outside Riyadh',
+                        'Please select a location within Riyadh.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: CustomColors.textColorThree,
+                        colorText: Colors.white,
+                      );
+                    }
+                  },
+                ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
