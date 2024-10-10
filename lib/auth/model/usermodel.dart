@@ -9,6 +9,7 @@ class UserModel {
   final String image;
   final String password;
   final String phone; // Add phone field
+  final String userId; // Add this line
 
   final List<AddressModel> address;
 
@@ -19,6 +20,7 @@ class UserModel {
     required this.password,
     required this.address,
     required this.phone, // Include phone in the constructor
+    required this.userId,
   });
 
   // Factory method to create a UserModel from Firestore data
@@ -35,6 +37,7 @@ class UserModel {
       password: data['password'],
       address: addresses,
       phone: data['phone'] ?? "", // Get phone from Firestore data
+      userId: data['user_id'] ?? "",
     );
   }
 
@@ -47,6 +50,7 @@ class UserModel {
       'password': password,
       'address': address.map((e) => e.toMap()).toList(),
       'phone': phone, // Include phone in the map
+      'user_id': userId, // Add user_id to the map
     };
   }
 }
@@ -132,7 +136,7 @@ Future<void> saveUserDetailsLocally(String email) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String userJson = jsonEncode(user.toMap());
       await prefs.setString('userDetails', userJson);
-      await prefs.setString('userDocId', docId); // Save the document ID
+      await prefs.setString('userDocId', user.userId); // Save the document ID
       print('this is the data ${userJson}');
       print("User details saved successfully.");
     } else {

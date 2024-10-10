@@ -475,6 +475,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
       password: password ?? '',
       address: addresses,
       phone: phone ?? '',
+      userId: '', // Set to empty initially, will be updated after user creation
     );
 
     // Call the saveUserProfile method in AuthProvider
