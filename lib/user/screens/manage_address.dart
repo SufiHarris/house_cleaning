@@ -4,12 +4,13 @@ import 'package:house_cleaning/user/screens/user_add_address.dart';
 
 import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
-import '../models/address_model.dart';
 import '../widgets/address_widget.dart';
 import '../widgets/custom_button_widget.dart';
 
 class ManageAddress extends StatelessWidget {
   const ManageAddress({Key? key}) : super(key: key);
+
+  get addressList => null;
 
   @override
   Widget build(BuildContext context) {

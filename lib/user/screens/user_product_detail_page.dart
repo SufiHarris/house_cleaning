@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/product_model.dart';
+import 'package:house_cleaning/user/screens/user_select_address.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
+import 'product_select_adress.dart';
 
 class UserProductDetailPage extends StatefulWidget {
   final UserProductModel product;
@@ -40,7 +42,6 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(widget.product.imageUrl),
-                    // fit: BoxFit.fill,
                   ),
                 ),
               ),
@@ -134,23 +135,6 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
                         color: CustomColors.textColorTwo,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    // Row(
-                    //   children: [
-                    //     ...List.generate(
-                    //       5,
-                    //       (index) => Icon(
-                    //         index < widget.product.rating.floor()
-                    //             ? Icons.star
-                    //             : Icons.star_border,
-                    //         color: CustomColors.primaryColor,
-                    //         size: 20,
-                    //       ),
-                    //     ),
-                    //     const SizedBox(width: 8),
-                    //     Text('${widget.product.rating} out of 5'),
-                    //   ],
-                    // ),
                     const SizedBox(height: 20), // Add extra space at the bottom
                   ],
                 ),
@@ -174,14 +158,6 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(
-                //   "${widget.product.rating}% Off",
-                //   style: TextStyle(
-                //     color: CustomColors.textColorFour,
-                //     fontSize: 14,
-                //     fontWeight: FontWeight.w500,
-                //   ),
-                // ),
                 const SizedBox(height: 4),
                 Text(
                   '\$${widget.product.price.toStringAsFixed(2)}',
@@ -196,9 +172,22 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
             const Spacer(),
             ElevatedButton(
               onPressed: () {
-                // Add to cart functionality
-
-                userProvider.addProductToCart(widget.product);
+                // Show bottom sheet with SelectAddressPage
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (context) => SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: ProductSelectAdress(
+                      product: widget.product,
+                    ),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: CustomColors.primaryColor,

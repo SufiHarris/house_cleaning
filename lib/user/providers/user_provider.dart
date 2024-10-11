@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import '../models/address_model.dart';
+import '../../auth/model/usermodel.dart';
 import '../models/bookings_model.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
@@ -24,7 +24,7 @@ class UserProvider extends GetxController {
   var addresses = <AddressModel>[].obs;
   var bookings = <BookingModel>[].obs;
   var cartBookings = <BookingModel>[].obs;
-
+  var employeeBookings = <BookingModel>[].obs;
   // Observable properties
   var selectedDate = Rx<DateTime?>(null);
   var selectedServices = <ServiceSummaryModel>[].obs;
@@ -34,10 +34,14 @@ class UserProvider extends GetxController {
   var profileImage = Rx<File?>(null);
   var selectedCategory = Rx<CategoryModel?>(null);
   final ImagePicker _picker = ImagePicker();
-
+  var userAddresses = <AddressModel>[].obs; // Observable list for addresses
+  // final prefs = await SharedPreferences.getInstance();
+  // final userId = prefs.getString('userDocId') ?? '';
+  var userId = ''.obs;
   @override
   void onInit() {
     super.onInit();
+    _getUserId();
     loadCartFromPrefs();
   }
 
@@ -46,6 +50,36 @@ class UserProvider extends GetxController {
     // Implement your actual pricing logic here
     double basePrice = 100.0; // Base price per service
     return basePrice * quantity * size;
+  }
+
+  Future<void> _getUserId() async {
+    try {
+      // Fetch the current user from Firebase
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Use the Firebase user ID
+        userId.value = user.uid;
+      } else {
+        // Try to retrieve the user ID from SharedPreferences if not signed in with Firebase
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? savedUserId = prefs.getString('userDocId');
+
+        if (savedUserId != null && savedUserId.isNotEmpty) {
+          userId.value = savedUserId;
+        } else {
+          // You can handle missing userId here (e.g., prompt login)
+        }
+      }
+
+      // Save the user ID to SharedPreferences for future use
+      if (userId.value.isNotEmpty) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userDocId', userId.value);
+      }
+    } catch (e) {
+      print("Error fetching user ID: $e");
+    }
   }
 
   // Image picking methods
@@ -86,6 +120,40 @@ class UserProvider extends GetxController {
     }
   }
 
+  Future<void> getUserAddresses() async {
+    try {
+      if (userId.value.isEmpty) {
+        print('User ID is not available');
+        return;
+      }
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users_table')
+          .where('user_id', isEqualTo: userId.value) // Using userId
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        var userData = snapshot.docs.first.data();
+        if (userData.containsKey('address')) {
+          var addressList = userData['address'] as List<dynamic>;
+          userAddresses.value = addressList
+              .map((item) =>
+                  AddressModel.fromFirestore(item as Map<String, dynamic>))
+              .toList();
+
+          print('Fetched ${addresses.length} addresses for user');
+          print(addresses.value.first);
+        } else {
+          print('No addresses found for this user');
+        }
+      } else {
+        print('No user found with the stored user ID');
+      }
+    } catch (e) {
+      print('Error fetching user addresses: $e');
+    }
+  }
+
   Future<void> fetchProducts() async {
     try {
       isLoading.value = true;
@@ -118,14 +186,29 @@ class UserProvider extends GetxController {
     try {
       isLoading.value = true;
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('user_id') ?? 121;
+      final userId =
+          prefs.getString('userDocId'); // Changed to getString and 'userDocId'
+
+      if (userId == null) {
+        print('User ID not found in SharedPreferences');
+        return;
+      }
+
       var snapshot = await FirebaseFirestore.instance
-          .collection('address_table')
-          .where('user_id', isEqualTo: userId)
+          .collection('users_table') // Changed to users_table
+          .doc(userId)
           .get();
-      addresses.value = snapshot.docs
-          .map((doc) => AddressModel.fromJson(doc.data()))
-          .toList();
+
+      if (snapshot.exists && snapshot.data()!.containsKey('address')) {
+        var addressData = snapshot.data()!['address'] as List<dynamic>;
+        addresses.value = addressData
+            .map((data) =>
+                AddressModel.fromFirestore(data as Map<String, dynamic>))
+            .toList();
+        print('Fetched ${addresses.length} addresses for user');
+      } else {
+        print('No addresses found for this user');
+      }
     } catch (e) {
       print("Error fetching addresses: $e");
     } finally {
@@ -136,11 +219,14 @@ class UserProvider extends GetxController {
   Future<void> fetchBookings() async {
     try {
       isLoading.value = true;
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('user_id') ?? 111;
+      if (userId.value.isEmpty) {
+        print('User ID not found');
+        return;
+      }
+
       var snapshot = await FirebaseFirestore.instance
           .collection('size_based_bookings')
-          .where('user_id', isEqualTo: userId)
+          .where('user_id', isEqualTo: userId.value) // Use userId here
           .get();
       bookings.value = snapshot.docs
           .map((doc) => BookingModel.fromFirestore(doc.data()))
@@ -159,7 +245,7 @@ class UserProvider extends GetxController {
           backgroundColor: Colors.red);
       return;
     }
-    final bookingData = createBookingDocument(
+    final bookingData = await createBookingDocument(
       categoryName: selectedCategory.value!.categoryName,
       categoryImage: selectedCategory.value!.categoryImage,
     );
@@ -210,10 +296,9 @@ class UserProvider extends GetxController {
   }
 
   Future<void> addProductToCart(UserProductModel product) async {
-    final bookingData = createBookingDocument(
+    final bookingData = await createBookingDocument(
       products: [product],
-      categoryName:
-          '', // You may want to add a category to products if applicable
+      categoryName: '',
       categoryImage: '',
     );
     final booking = BookingModel.fromFirestore(bookingData);
@@ -224,13 +309,12 @@ class UserProvider extends GetxController {
   }
 
   // Booking processing methods
+  // Updated method to process cart bookings
   Future<void> processCartBookings() async {
     try {
       Map<DateTime, List<BookingModel>> bookingsByDate = {};
       for (var booking in cartBookings) {
-        // Parse the booking date string to DateTime
         DateTime bookingDate = DateTime.parse(booking.bookingDate).toLocal();
-        // Create a new DateTime with only the date part (year, month, day)
         DateTime dateOnly =
             DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
 
@@ -245,14 +329,14 @@ class UserProvider extends GetxController {
           await _processCombinedBookings(entry.value);
         } else {
           await saveBookingToFirestore(
-            bookingData: createBookingDocument(
+            bookingData: await createBookingDocument(
               bookingDate: DateTime.parse(entry.value.first.bookingDate),
               services: entry.value.first.services
                   .map((s) => ServiceSummaryModel(
                         serviceName: s.service_name,
                         totalQuantity: s.quantity,
                         totalSize: s.size,
-                        totalPrice: _calculateServicePrice(s.quantity, s.size),
+                        totalPrice: s.price,
                       ))
                   .toList(),
               products: entry.value.first.products
@@ -268,6 +352,13 @@ class UserProvider extends GetxController {
                   .toList(),
               categoryName: entry.value.first.categoryName,
               categoryImage: entry.value.first.categoryImage,
+              address: AddressModel(
+                building: entry.value.first.building,
+                floor: entry.value.first.floor,
+                geolocation: entry.value.first.geolocation,
+                landmark: entry.value.first.landmark,
+                location: entry.value.first.location,
+              ),
             ),
           );
         }
@@ -289,8 +380,8 @@ class UserProvider extends GetxController {
     List<UserProductModel> combinedProducts = [];
     String categoryName = '';
     String categoryImage = '';
+    AddressModel? address;
 
-    // Use the date from the first booking
     DateTime bookingDate = DateTime.parse(bookings.first.bookingDate).toLocal();
     DateTime dateOnly =
         DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
@@ -300,7 +391,7 @@ class UserProvider extends GetxController {
             serviceName: s.service_name,
             totalQuantity: s.quantity,
             totalSize: s.size,
-            totalPrice: _calculateServicePrice(s.quantity, s.size),
+            totalPrice: s.price,
           )));
 
       combinedProducts.addAll(booking.products.map((p) => UserProductModel(
@@ -311,23 +402,32 @@ class UserProvider extends GetxController {
             imageUrl: p.imageUrl,
           )));
 
-      // Use the category from the first booking that has one
       if (categoryName.isEmpty && booking.categoryName.isNotEmpty) {
         categoryName = booking.categoryName;
         categoryImage = booking.categoryImage;
       }
+
+      if (address == null) {
+        address = AddressModel(
+          building: booking.building,
+          floor: booking.floor,
+          geolocation: booking.geolocation,
+          landmark: booking.landmark,
+          location: booking.location,
+        );
+      }
     }
 
     await saveBookingToFirestore(
-        bookingData: createBookingDocument(
+        bookingData: await createBookingDocument(
       bookingDate: dateOnly,
       services: combinedServices,
       products: combinedProducts,
       categoryName: categoryName,
       categoryImage: categoryImage,
+      address: address,
     ));
   }
-
   // ... existing code ...
 
   Future<void> updateProductQuantity(
@@ -375,16 +475,48 @@ class UserProvider extends GetxController {
   Future<void> saveBookingToFirestore(
       {Map<String, dynamic>? bookingData}) async {
     try {
-      final data = bookingData ?? createBookingDocument();
+      final data = bookingData ?? await createBookingDocument();
       DocumentReference docRef = await FirebaseFirestore.instance
           .collection('size_based_bookings')
           .add(data);
+
+      // Update the booking_id with the Firestore document ID
+      await docRef.update({'booking_id': docRef.id});
+
       clearSelections();
       clearCart();
       print('Booking saved successfully with ID: ${docRef.id}');
     } catch (e) {
       print('Error saving booking: $e');
       rethrow;
+    }
+  }
+
+  Future<void> fetchEmployeeBookings() async {
+    try {
+      // if (userId.value.isEmpty) {
+      //   print('User ID is not available');
+      //   return;
+      // }
+
+      // Fetch bookings from Firestore where employee_id matches the userId
+      var snapshot = await FirebaseFirestore.instance
+          .collection('size_based_bookings')
+          .where('employee_id', isEqualTo: 102) // assuming employee_id is int
+          .get();
+
+      // Map the fetched documents to BookingModel and store in the observable list
+      employeeBookings.value = snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.data()))
+          .toList();
+
+      if (employeeBookings.isNotEmpty) {
+        print('Fetched ${employeeBookings.length} employee bookings');
+      } else {
+        print('No bookings found for this employee');
+      }
+    } catch (e) {
+      print('Error fetching employee bookings: $e');
     }
   }
 
@@ -396,17 +528,16 @@ class UserProvider extends GetxController {
     AddressModel? address,
     String? categoryName,
     String? categoryImage,
-    int? userId,
     String? userPhoneNumber,
   }) {
     final now = DateTime.now();
+
     return {
-      'address':
-          address?.floor ?? selectedAddress.value?.floor ?? 'default address',
+      'address': address?.location ?? selectedAddress.value?.location ?? '',
       'booking_date': bookingDate?.toString() ??
           selectedDate.value?.toString() ??
           now.toString(),
-      'booking_id': now.millisecondsSinceEpoch,
+      'booking_id': '', // This will be updated with the Firestore document ID
       'booking_time': DateFormat('h:mm a').format(bookingDate ?? now),
       'employee_id': 102,
       'end_image': '',
@@ -436,12 +567,22 @@ class UserProvider extends GetxController {
       'status': 'pending',
       'total_price':
           calculateTotalPrice(services: services, products: products),
-      'user_id': userId ?? 111,
+      'user_id': userId.value, // Use userId from the observable here
       'user_phn_number': userPhoneNumber ?? '9999999999',
       'category_name':
           categoryName ?? selectedCategory.value?.categoryName ?? '',
       'category_image':
           categoryImage ?? selectedCategory.value?.categoryImage ?? '',
+      'building': address?.building ?? selectedAddress.value?.building ?? '',
+      'floor': address?.floor ?? selectedAddress.value?.floor ?? 0,
+      'Geolocation': [
+        address?.geolocation.lat ??
+            selectedAddress.value?.geolocation.lat ??
+            '',
+        address?.geolocation.lon ?? selectedAddress.value?.geolocation.lon ?? ''
+      ],
+      'landmark': address?.landmark ?? selectedAddress.value?.landmark ?? '',
+      'location': address?.location ?? selectedAddress.value?.location ?? '',
     };
   }
 
