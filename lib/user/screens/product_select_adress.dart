@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/models/product_model.dart';
 import 'package:house_cleaning/user/screens/product_recommend_screen.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
+import 'package:house_cleaning/user/screens/user_main.dart';
 import '../../auth/model/usermodel.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 import '../widgets/custom_button_widget.dart';
 
-class UserSelectAddress extends StatefulWidget {
-  const UserSelectAddress({Key? key}) : super(key: key);
+class ProductSelectAdress extends StatefulWidget {
+  final UserProductModel product;
+
+  const ProductSelectAdress({Key? key, required this.product})
+      : super(key: key);
 
   @override
-  State<UserSelectAddress> createState() => _UserSelectAddressState();
+  State<ProductSelectAdress> createState() => _ProductSelectAdressState();
 }
 
-class _UserSelectAddressState extends State<UserSelectAddress> {
+class _ProductSelectAdressState extends State<ProductSelectAdress> {
   final userProvider = Get.find<UserProvider>();
 
   @override
@@ -96,10 +101,11 @@ class _UserSelectAddressState extends State<UserSelectAddress> {
                 child: Obx(() {
                   // Disable the Next button if no address is selected
                   return CustomButton(
-                    text: 'Next',
+                    text: 'Add To Cart',
                     onTap: userProvider.selectedAddress.value != null
                         ? () {
-                            Get.to(() => ProductRecommendScreen());
+                            userProvider.addProductToCart(widget.product);
+                            Get.to(() => UserMain());
                           }
                         : () {
                             // Show error message if no address is selected

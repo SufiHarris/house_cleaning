@@ -1,3 +1,5 @@
+import '../../auth/model/usermodel.dart';
+
 class BookingModel {
   final String address;
   final String bookingDate;
@@ -13,8 +15,15 @@ class BookingModel {
   final double total_price;
   final int user_id;
   final String user_phn_number;
-  final String categoryName; // New field
-  final String categoryImage; // New field
+  final String categoryName;
+  final String categoryImage;
+
+  // New fields from AddressModel
+  final String building;
+  final int floor;
+  final GeoLocationModel geolocation;
+  final String landmark;
+  final String location;
 
   BookingModel({
     required this.address,
@@ -31,8 +40,13 @@ class BookingModel {
     required this.total_price,
     required this.user_id,
     required this.user_phn_number,
-    required this.categoryName, // New field
-    required this.categoryImage, // New field
+    required this.categoryName,
+    required this.categoryImage,
+    required this.building,
+    required this.floor,
+    required this.geolocation,
+    required this.landmark,
+    required this.location,
   });
 
   factory BookingModel.fromFirestore(Map<String, dynamic> json) {
@@ -54,8 +68,13 @@ class BookingModel {
       total_price: _parseDouble(json['total_price'], 0.0),
       user_id: _parseInteger(json['user_id'], 0),
       user_phn_number: json['user_phn_number'] ?? '',
-      categoryName: json['category_name'] ?? '', // New field
-      categoryImage: json['category_image'] ?? '', // New field
+      categoryName: json['category_name'] ?? '',
+      categoryImage: json['category_image'] ?? '',
+      building: json['building'] ?? '',
+      floor: _parseInteger(json['floor'], 0),
+      geolocation: GeoLocationModel.fromFirestore(json['Geolocation'] ?? []),
+      landmark: json['landmark'] ?? '',
+      location: json['location'] ?? '',
     );
   }
 
@@ -100,8 +119,13 @@ class BookingModel {
       'total_price': total_price,
       'user_id': user_id,
       'user_phn_number': user_phn_number,
-      'category_name': categoryName, // New field
-      'category_image': categoryImage, // New field
+      'category_name': categoryName,
+      'category_image': categoryImage,
+      'building': building,
+      'floor': floor,
+      'Geolocation': [geolocation.lat, geolocation.lon],
+      'landmark': landmark,
+      'location': location,
     };
   }
 }
@@ -137,6 +161,30 @@ class ServiceBooking {
     };
   }
 }
+
+// class GeoLocationModel {
+//   final String lat;
+//   final String lon;
+
+//   GeoLocationModel({
+//     required this.lat,
+//     required this.lon,
+//   });
+
+//   factory GeoLocationModel.fromFirestore(List<dynamic> data) {
+//     return GeoLocationModel(
+//       lat: data.isNotEmpty ? data[0].toString() : '',
+//       lon: data.length > 1 ? data[1].toString() : '',
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'lat': lat,
+//       'lon': lon,
+//     };
+//   }
+//}
 
 class ProductBooking {
   final String product_name;

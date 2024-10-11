@@ -244,7 +244,7 @@ class ConfirmOrderScreen extends StatelessWidget {
             }),
         const SizedBox(height: 10),
         if (address != null)
-          Text(" ${address.building}, ${address.floor}, ${address.city}")
+          Text(" ${address.building}, ${address.floor}, ${address.landmark}")
         else
           TextButton(
             onPressed: () {

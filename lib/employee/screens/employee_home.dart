@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
-import 'package:house_cleaning/employee/widgets/employee_card.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
+import 'package:house_cleaning/employee/widgets/employee_booking_card.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
+import 'package:house_cleaning/user/widgets/user_booking_widget.dart';
 import '../../theme/custom_colors.dart';
+import '../../user/models/bookings_model.dart';
 import '../../user/providers/user_provider.dart';
+import 'package:intl/intl.dart';
+
+import '../widgets/employee_card.dart';
+import 'employee_booking_detail.dart';
 
 class EmployeeHome extends StatelessWidget {
   const EmployeeHome({super.key});
@@ -15,6 +21,9 @@ class EmployeeHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final userProvider = Get.find<UserProvider>();
     final authProvider = Get.find<AuthProvider>();
+
+    // Fetch all bookings when the widget is built
+    userProvider.fetchEmployeeBookings();
 
     return DefaultTabController(
       length: 2,
@@ -98,9 +107,7 @@ class EmployeeHome extends StatelessWidget {
                 experience: '4 years',
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             Divider(),
 
             // Tab Bar
@@ -108,78 +115,73 @@ class EmployeeHome extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  HeadingText(headingText: "Assigned task"),
-                  TabBar(
-                    tabs: [
-                      Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                shape: BoxShape.circle,
+                  HeadingText(headingText: "Assigned tasks"),
+                  Obx(() {
+                    final todayBookings =
+                        _filterTodayBookings(userProvider.employeeBookings);
+                    final assignedBookings =
+                        _filterAssignedBookings(userProvider.employeeBookings);
+
+                    return TabBar(
+                      tabs: [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text('${todayBookings.length}'),
                               ),
-                              child: Text('3'),
-                            ),
-                            SizedBox(width: 8),
-                            Text('Assigned'),
-                          ],
+                              SizedBox(width: 8),
+                              Text('Today'),
+                            ],
+                          ),
                         ),
-                      ),
-                      Tab(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                shape: BoxShape.circle,
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text('${assignedBookings.length}'),
                               ),
-                              child: Text('0'),
-                            ),
-                            SizedBox(width: 8),
-                            Text('Unassigned'),
-                          ],
+                              SizedBox(width: 8),
+                              Text('Assigned'),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  }),
                 ],
               ),
             ),
 
             // Tab Bar View
             Expanded(
-              child: TabBarView(
-                children: [
-                  // Assigned Tasks
-                  ListView(
-                    padding: EdgeInsets.all(16),
-                    children: [
-                      _buildTaskItem(
-                        "Apartment Cleaning",
-                        "04:20 PM",
-                        "assets/images/apartment_icon.svg",
-                      ),
-                      _buildTaskItem(
-                        "Furniture Cleaning",
-                        "05:00 PM",
-                        "assets/images/furniture_icon.svg",
-                      ),
-                      _buildTaskItem(
-                        "Facades Cleaning",
-                        "06:10 PM",
-                        "assets/images/facades_icon.svg",
-                      ),
-                    ],
-                  ),
-                  // Unassigned Tasks
-                  Center(child: Text("No unassigned tasks")),
-                ],
-              ),
+              child: Obx(() {
+                final todayBookings =
+                    _filterTodayBookings(userProvider.employeeBookings);
+                final assignedBookings =
+                    _filterAssignedBookings(userProvider.employeeBookings);
+
+                return TabBarView(
+                  children: [
+                    // Today's Tasks
+                    _buildBookingsList(todayBookings),
+                    // Assigned Tasks (Non-Today)
+                    _buildBookingsList(assignedBookings),
+                  ],
+                );
+              }),
             ),
           ],
         ),
@@ -187,21 +189,58 @@ class EmployeeHome extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskItem(String title, String time, String iconPath) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      child: ListTile(
-        leading: SvgPicture.asset(iconPath, width: 40, height: 40),
-        title: Text(title),
-        subtitle: Row(
+  // Helper method to filter today's bookings
+  List<BookingModel> _filterTodayBookings(List<BookingModel> bookings) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return bookings.where((booking) {
+      final bookingDate = DateTime.parse(booking.bookingDate);
+      final bookingDayOnly =
+          DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
+      return bookingDayOnly == today;
+    }).toList();
+  }
+
+  // Helper method to filter non-today (assigned) bookings
+  List<BookingModel> _filterAssignedBookings(List<BookingModel> bookings) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    return bookings.where((booking) {
+      final bookingDate = DateTime.parse(booking.bookingDate);
+      final bookingDayOnly =
+          DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
+      return bookingDayOnly.isAfter(today);
+    }).toList();
+  }
+
+  // Widget to display the list of bookings
+  Widget _buildBookingsList(List<BookingModel> bookings) {
+    if (bookings.isEmpty) {
+      return Center(child: Text("No tasks available"));
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.all(16),
+      itemCount: bookings.length,
+      itemBuilder: (context, index) {
+        return Column(
           children: [
-            Icon(Icons.access_time, size: 16),
-            SizedBox(width: 4),
-            Text(time),
+            GestureDetector(
+              onTap: () => {
+                Get.to(
+                  EmployeeBookingDetail(booking: bookings[index]),
+                ),
+              },
+              child: EmployeeBookingCard(
+                booking: bookings[index],
+              ),
+            ),
+            Divider(),
           ],
-        ),
-        trailing: Icon(Icons.chevron_right),
-      ),
+        );
+      },
     );
   }
 }

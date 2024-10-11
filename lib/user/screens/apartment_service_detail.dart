@@ -179,6 +179,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   onDateChanged: (DateTime date) {
                     setState(() {
                       selectedDate = date;
+                      userProvider.setSelectedDate(selectedDate);
                     });
                     Navigator.pop(context);
                   },

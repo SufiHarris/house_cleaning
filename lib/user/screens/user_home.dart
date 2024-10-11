@@ -213,40 +213,37 @@ class UserHome extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: userProvider.categoryList.length,
-                        itemBuilder: (context, index) {
-                          final category = userProvider.categoryList[index];
-                          return ServiceCard(category: category);
-                        },
-                      );
-                    }),
-                    const HeadingText(headingText: "Recommended Products"),
-                    Obx(() {
-                      if (userProvider.products.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: userProvider.categoryList.length,
+                  itemBuilder: (context, index) {
+                    final category = userProvider.categoryList[index];
+                    return ServiceCard(category: category);
+                  },
+                );
+              }),
+              const HeadingText(headingText: "Recommended Products"),
+              Obx(() {
+                if (userProvider.products.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                      return SizedBox(
-                        height: 300,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: userProvider.products.length,
-                          itemBuilder: (context, index) {
-                            final product = userProvider.products[index];
-                            return ProductCard(product: product);
-                          },
-                        ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
-            ),
+                return SizedBox(
+                  height: 300,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: userProvider.products.length,
+                    itemBuilder: (context, index) {
+                      final product = userProvider.products[index];
+                      return ProductCard(product: product);
+                    },
+                  ),
+                );
+              }),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
