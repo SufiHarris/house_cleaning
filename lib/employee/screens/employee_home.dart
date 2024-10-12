@@ -2,28 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
-import 'package:house_cleaning/auth/model/usermodel.dart';
+import 'package:house_cleaning/employee/provider/employee_provider.dart';
 import 'package:house_cleaning/employee/widgets/employee_booking_card.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
-import 'package:house_cleaning/user/widgets/user_booking_widget.dart';
 import '../../theme/custom_colors.dart';
 import '../../user/models/bookings_model.dart';
-import '../../user/providers/user_provider.dart';
-import 'package:intl/intl.dart';
 
 import '../widgets/employee_card.dart';
 import 'employee_booking_detail.dart';
 
 class EmployeeHome extends StatelessWidget {
-  const EmployeeHome({super.key});
+  const EmployeeHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Get.find<UserProvider>();
     final authProvider = Get.find<AuthProvider>();
+    final employeeProvider = Get.find<EmployeeProvider>();
 
-    // Fetch all bookings when the widget is built
-    userProvider.fetchEmployeeBookings();
+    // Load staff details when the widget is built
+    employeeProvider.loadStaffDetails();
+
+    // Fetch employee bookings
+    employeeProvider.fetchEmployeeBookings();
 
     return DefaultTabController(
       length: 2,
@@ -53,28 +53,15 @@ class EmployeeHome extends StatelessWidget {
                                 .labelLarge
                                 ?.copyWith(color: CustomColors.textColorFour),
                           ),
-                          FutureBuilder<UserModel?>(
-                            future: getUserDetailsFromLocal(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Text("Loading...",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge
-                                        ?.copyWith(
-                                            color: CustomColors.textColorTwo));
-                              }
-                              return Text(
-                                snapshot.data?.name ?? "User",
+                          Obx(() => Text(
+                                employeeProvider.staffDetails.value?.name ??
+                                    "Loading...",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyLarge
                                     ?.copyWith(
                                         color: CustomColors.textColorTwo),
-                              );
-                            },
-                          ),
+                              )),
                         ],
                       ),
                     ],
@@ -99,13 +86,16 @@ class EmployeeHome extends StatelessWidget {
             // Employee Card
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: EmployeeCard(
-                name: "haris",
-                imageUrl:
-                    "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-                number: 9988776655,
-                experience: '4 years',
-              ),
+              child: Obx(() => EmployeeCard(
+                    name: employeeProvider.staffDetails.value?.name ??
+                        "Loading...",
+                    imageUrl: employeeProvider.staffDetails.value?.image ??
+                        "https://placeholder.com/150",
+                    number:
+                        employeeProvider.staffDetails.value?.phoneNumber ?? 0,
+                    experience:
+                        '4 years', // You might want to add this to your StaffModel
+                  )),
             ),
             SizedBox(height: 10),
             Divider(),
@@ -118,9 +108,9 @@ class EmployeeHome extends StatelessWidget {
                   HeadingText(headingText: "Assigned tasks"),
                   Obx(() {
                     final todayBookings =
-                        _filterTodayBookings(userProvider.employeeBookings);
-                    final assignedBookings =
-                        _filterAssignedBookings(userProvider.employeeBookings);
+                        _filterTodayBookings(employeeProvider.employeeBookings);
+                    final assignedBookings = _filterAssignedBookings(
+                        employeeProvider.employeeBookings);
 
                     return TabBar(
                       tabs: [
@@ -169,9 +159,9 @@ class EmployeeHome extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 final todayBookings =
-                    _filterTodayBookings(userProvider.employeeBookings);
+                    _filterTodayBookings(employeeProvider.employeeBookings);
                 final assignedBookings =
-                    _filterAssignedBookings(userProvider.employeeBookings);
+                    _filterAssignedBookings(employeeProvider.employeeBookings);
 
                 return TabBarView(
                   children: [
@@ -189,7 +179,7 @@ class EmployeeHome extends StatelessWidget {
     );
   }
 
-  // Helper method to filter today's bookings
+  // Helper methods remain the same...
   List<BookingModel> _filterTodayBookings(List<BookingModel> bookings) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -202,7 +192,6 @@ class EmployeeHome extends StatelessWidget {
     }).toList();
   }
 
-  // Helper method to filter non-today (assigned) bookings
   List<BookingModel> _filterAssignedBookings(List<BookingModel> bookings) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -215,7 +204,6 @@ class EmployeeHome extends StatelessWidget {
     }).toList();
   }
 
-  // Widget to display the list of bookings
   Widget _buildBookingsList(List<BookingModel> bookings) {
     if (bookings.isEmpty) {
       return Center(child: Text("No tasks available"));

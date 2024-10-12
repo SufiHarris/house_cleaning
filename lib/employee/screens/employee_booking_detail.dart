@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
+import 'package:house_cleaning/tracking/tracking_controller.dart';
 import 'package:intl/intl.dart';
 import '../../auth/model/usermodel.dart';
+import '../../tracking/google_map_widget.dart';
 import '../../user/models/bookings_model.dart';
+import '../provider/employee_provider.dart';
 
 class EmployeeBookingDetail extends StatelessWidget {
   final BookingModel booking;
@@ -12,6 +16,8 @@ class EmployeeBookingDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final employeeTrackingController = Get.find<EmployeeTrackingController>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -57,6 +63,8 @@ class EmployeeBookingDetail extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
+                      employeeTrackingController.startTracking();
+                      Get.to(() => EmployeeTrackingMap());
                       // Implement start service functionality
                     },
                     style: ElevatedButton.styleFrom(

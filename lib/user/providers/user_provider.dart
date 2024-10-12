@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import '../../auth/model/staff_model.dart';
 import '../../auth/model/usermodel.dart';
 import '../models/bookings_model.dart';
 import '../models/category_model.dart';
@@ -24,7 +25,7 @@ class UserProvider extends GetxController {
   var addresses = <AddressModel>[].obs;
   var bookings = <BookingModel>[].obs;
   var cartBookings = <BookingModel>[].obs;
-  var employeeBookings = <BookingModel>[].obs;
+
   // Observable properties
   var selectedDate = Rx<DateTime?>(null);
   var selectedServices = <ServiceSummaryModel>[].obs;
@@ -312,19 +313,22 @@ class UserProvider extends GetxController {
   // Updated method to process cart bookings
   Future<void> processCartBookings() async {
     try {
-      Map<DateTime, List<BookingModel>> bookingsByDate = {};
+      Map<String, List<BookingModel>> bookingsByDateAndAddress = {};
       for (var booking in cartBookings) {
         DateTime bookingDate = DateTime.parse(booking.bookingDate).toLocal();
         DateTime dateOnly =
             DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
+        String addressKey =
+            '${booking.location}_${booking.building}_${booking.floor}';
+        String key = '${dateOnly.toIso8601String()}_$addressKey';
 
-        if (!bookingsByDate.containsKey(dateOnly)) {
-          bookingsByDate[dateOnly] = [];
+        if (!bookingsByDateAndAddress.containsKey(key)) {
+          bookingsByDateAndAddress[key] = [];
         }
-        bookingsByDate[dateOnly]!.add(booking);
+        bookingsByDateAndAddress[key]!.add(booking);
       }
 
-      for (var entry in bookingsByDate.entries) {
+      for (var entry in bookingsByDateAndAddress.entries) {
         if (entry.value.length > 1) {
           await _processCombinedBookings(entry.value);
         } else {
@@ -340,15 +344,13 @@ class UserProvider extends GetxController {
                       ))
                   .toList(),
               products: entry.value.first.products
-                  .map(
-                    (p) => UserProductModel(
-                      name: p.product_name,
-                      quantity: p.quantity,
-                      deliveryTime: p.delivery_time,
-                      price: p.price,
-                      imageUrl: p.imageUrl,
-                    ),
-                  )
+                  .map((p) => UserProductModel(
+                        name: p.product_name,
+                        quantity: p.quantity,
+                        deliveryTime: p.delivery_time,
+                        price: p.price,
+                        imageUrl: p.imageUrl,
+                      ))
                   .toList(),
               categoryName: entry.value.first.categoryName,
               categoryImage: entry.value.first.categoryImage,
@@ -449,7 +451,7 @@ class UserProvider extends GetxController {
         name: product.product_name,
         quantity: newQuantity,
         deliveryTime: product.delivery_time,
-        price: product.price,
+        price: product.price * product.quantity,
         imageUrl: product.imageUrl,
       );
 
@@ -489,34 +491,6 @@ class UserProvider extends GetxController {
     } catch (e) {
       print('Error saving booking: $e');
       rethrow;
-    }
-  }
-
-  Future<void> fetchEmployeeBookings() async {
-    try {
-      // if (userId.value.isEmpty) {
-      //   print('User ID is not available');
-      //   return;
-      // }
-
-      // Fetch bookings from Firestore where employee_id matches the userId
-      var snapshot = await FirebaseFirestore.instance
-          .collection('size_based_bookings')
-          .where('employee_id', isEqualTo: 102) // assuming employee_id is int
-          .get();
-
-      // Map the fetched documents to BookingModel and store in the observable list
-      employeeBookings.value = snapshot.docs
-          .map((doc) => BookingModel.fromFirestore(doc.data()))
-          .toList();
-
-      if (employeeBookings.isNotEmpty) {
-        print('Fetched ${employeeBookings.length} employee bookings');
-      } else {
-        print('No bookings found for this employee');
-      }
-    } catch (e) {
-      print('Error fetching employee bookings: $e');
     }
   }
 

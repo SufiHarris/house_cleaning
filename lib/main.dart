@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
 import 'package:house_cleaning/auth/screens/segregation_screen.dart';
+import 'package:house_cleaning/employee/provider/employee_provider.dart';
 import 'package:house_cleaning/notifications/notification_class.dart';
+import 'package:house_cleaning/tracking/tracking_controller.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
 import 'firebase_options.dart';
@@ -20,9 +22,14 @@ void main() async {
   Get.put(
     AuthProvider(),
   );
-
+  Get.put(
+    EmployeeProvider(),
+  );
   Get.put(
     UserProvider(),
+  );
+  Get.put(
+    EmployeeTrackingController(),
   );
   runApp(
     const MyApp(),

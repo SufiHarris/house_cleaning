@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:house_cleaning/user/models/bookings_model.dart';
 import '../../theme/custom_colors.dart';
 
@@ -56,6 +57,7 @@ class EmployeeBookingCard extends StatelessWidget {
               SizedBox(height: 8),
               Row(
                 children: [
+                  SvgPicture.asset("assets/images/time_location.svg"),
                   Text(
                     '${booking.bookingTime}',
                     style: Theme.of(context)
@@ -123,9 +125,13 @@ class EmployeeBookingCard extends StatelessWidget {
                           .textTheme
                           .bodyMedium
                           ?.copyWith(color: CustomColors.textColorTwo)),
-                  //  SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Row(
                     children: [
+                      SvgPicture.asset("assets/images/time_location.svg"),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Text(
                         '${booking.bookingTime}',
                         style: Theme.of(context)
