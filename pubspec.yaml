@@ -50,6 +50,11 @@ dependencies:
   google_maps_flutter: ^2.9.0
   geocoding: ^3.0.0
   flutter_polyline_points: ^2.1.0
+  flutter_local_notifications: ^17.2.1+2
+  permission_handler: ^10.4.3 
+
+
+
   http: ^1.2.2
 
 dev_dependencies:
