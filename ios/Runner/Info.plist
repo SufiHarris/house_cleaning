@@ -66,6 +66,20 @@
 <key>NSLocationAlwaysUsageDescription</key>
 <string>We need your location to provide better services even when the app is in the background.</string>
 
+<key>UIBackgroundModes</key>
+<array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+</array>
+<key>NSUserNotificationAlertUsageDescription</key>
+<string>Allow Us To Send Notification.</string>
+<key>NSUserNotificationSoundUsageDescription</key>
+<string>Allow To Notify You...</string>
+<key>NSUserNotificationBadgeUsageDescription</key>
+<string>Allow To Make You Aware...</string>
+
+
+
 
 </dict>
 </plist>

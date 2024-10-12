@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/notifications/notification_class.dart';
 import 'package:house_cleaning/tracking/google_map_widget.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/tracking/home_file.dart';
@@ -117,7 +118,10 @@ class UserHome extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      Get.to(() => HomeFile());
+                      NotificationService().initNotification();
+                      NotificationService().showNotification(
+                          title: 'Sample title', body: 'It works!');
+                      //Get.to(() => HomeFile());
                     },
                     child: Container(
                       decoration: const BoxDecoration(color: Colors.white),
