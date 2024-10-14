@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -5,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:house_cleaning/user/screens/user_settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddAddressController extends GetxController {
   var locationController = TextEditingController();
@@ -112,36 +116,67 @@ class AddAddressController extends GetxController {
       return;
     }
 
-    String userEmail = user.email ?? '';
-    print("User Email: $userEmail");
+    String userId = user.uid; // Get user ID
+    print("User ID: $userId");
 
     try {
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users_table')
-          .where('email', isEqualTo: userEmail)
-          .get();
+      // Fetch user document based on the user ID
+      DocumentReference userDocRef =
+          FirebaseFirestore.instance.collection('users_table').doc(userId);
+      DocumentSnapshot userDocSnapshot = await userDocRef.get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        String docId = userSnapshot.docs.first.id;
-        print("User Document ID: $docId");
+      if (userDocSnapshot.exists) {
+        // Cast data() to Map<String, dynamic>
+        Map<String, dynamic>? userData =
+            userDocSnapshot.data() as Map<String, dynamic>?;
 
-        DocumentReference addressRef = await FirebaseFirestore.instance
-            .collection('users_table')
-            .doc('SmmKMTVkMvHGEa0BB92I')
-            .collection('addresses')
-            .add({
-          'location': locationController.text,
-          'building': buildingController.text,
-          'floor': floorController.text,
-          'landmark': landmarkController.text,
-          'geolocation': GeoPoint(
+        // Check if the addresses field already exists
+        List<dynamic> existingAddresses = userData?['address'] ?? [];
+
+        // Create the new address object in the format of AddressModel
+        Map<String, dynamic> newAddress = {
+          'Building': buildingController.text,
+          'Floor':
+              int.parse(floorController.text), // Ensure floor is an integer
+          'Geolocation': [
             currentLocation.value!.latitude,
-            currentLocation.value!.longitude,
-          ),
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+            currentLocation.value!.longitude
+          ],
+          'Landmark': landmarkController.text,
+          'Location': locationController.text,
+        };
 
-        print("Address saved successfully: ${addressRef.id}");
+        // Add the new address to the existing addresses list
+        existingAddresses.add(newAddress);
+
+        // Update the user document with the new addresses array
+        await userDocRef.update({'address': existingAddresses});
+
+        print("Address saved successfully: ${newAddress}");
+
+        // Now update SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? userDetails = prefs.getString('userDetails');
+
+        if (userDetails != null) {
+          // Convert the stored data back to Map
+          Map<String, dynamic> userMap = jsonDecode(userDetails);
+
+          // Update the 'address' field in the local user data
+          List<dynamic> localAddresses = userMap['address'] ?? [];
+          localAddresses.add(newAddress);
+
+          // Update the local user map
+          userMap['address'] = localAddresses;
+
+          // Save the updated user details back to SharedPreferences
+          String updatedUserJson = jsonEncode(userMap);
+          await prefs.setString('userDetails', updatedUserJson);
+
+          print('Updated user details in SharedPreferences: $updatedUserJson');
+          Get.to(UserSettings()); // Go back after updating
+        }
+
         Get.snackbar(
           "Success",
           "Address saved successfully.",
