@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
 import '../../theme/custom_colors.dart';
+import '../models/service_summary_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
+import 'user_select_address.dart';
 
 class UserVehicleCleaningServiceScreen extends StatefulWidget {
   final CategoryModel category;
@@ -26,6 +28,7 @@ class _UserVehicleCleaningServiceScreenState
   final userProvider = Get.find<UserProvider>();
 
   Map<int, List<ServiceItem>> selectedServices = {};
+  List<ServiceSummaryModel> bookedServices = [];
   double totalPrice = 0;
   late TabController _tabController;
 
@@ -34,6 +37,8 @@ class _UserVehicleCleaningServiceScreenState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchServices();
+    userProvider.updateMyString(widget.category.categoryImage);
+    userProvider.setSelectedCategory(widget.category);
   }
 
   void _fetchServices() {
@@ -286,10 +291,6 @@ class _UserVehicleCleaningServiceScreenState
                 children: [
                   Container(
                     padding: EdgeInsets.all(8),
-                    // decoration: BoxDecoration(
-                    //   color: Colors.grey[200],
-                    //   shape: BoxShape.circle,
-                    // ),
                     child: Text(
                       '${service.price} SAR',
                       style:
@@ -429,7 +430,8 @@ class _UserVehicleCleaningServiceScreenState
             const Spacer(),
             ElevatedButton(
               onPressed: () {
-                // Handle booking action
+                _generateServiceSummary();
+                Get.to(() => UserSelectAddress());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.brown[700],
@@ -450,6 +452,42 @@ class _UserVehicleCleaningServiceScreenState
         ),
       ),
     );
+  }
+
+  void _generateServiceSummary() {
+    bookedServices.clear();
+    Map<String, Map<String, dynamic>> consolidatedServices = {};
+
+    selectedServices.forEach((serviceId, items) {
+      ServiceModel service =
+          userProvider.services.firstWhere((s) => s.serviceId == serviceId);
+
+      if (!consolidatedServices.containsKey(service.serviceName)) {
+        consolidatedServices[service.serviceName] = {
+          'totalQuantity': 0,
+          'totalPrice': 0.0,
+        };
+      }
+
+      items.forEach((item) {
+        consolidatedServices[service.serviceName]!['totalQuantity'] +=
+            item.quantity;
+        consolidatedServices[service.serviceName]!['totalPrice'] +=
+            item.quantity * service.price;
+      });
+    });
+
+    consolidatedServices.forEach((serviceName, serviceDetails) {
+      bookedServices.add(ServiceSummaryModel(
+        serviceName: serviceName,
+        totalQuantity: serviceDetails['totalQuantity'],
+        totalSize: 0, // Not applicable for vehicle cleaning
+        totalPrice: serviceDetails['totalPrice'],
+      ));
+    });
+
+    userProvider.setSelectedServices(bookedServices);
+    userProvider.fetchAddresses();
   }
 }
 
