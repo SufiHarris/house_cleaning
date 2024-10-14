@@ -4,6 +4,8 @@ class ServiceModel {
   final String category;
   final String image;
   final int price;
+  final int baseSize;
+  final int basePrice;
 
   ServiceModel({
     required this.serviceName,
@@ -11,9 +13,10 @@ class ServiceModel {
     required this.category,
     required this.image,
     required this.price,
+    required this.baseSize,
+    required this.basePrice,
   });
 
-  // Convert Firestore document to ServiceModel object
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
       serviceName: json['service_name'] ?? '',
@@ -21,10 +24,11 @@ class ServiceModel {
       category: json['category'] ?? '',
       image: json['image'] ?? '',
       price: json['price'] ?? 0,
+      baseSize: json['base_size'] ?? 10,
+      basePrice: json['base_price'] ?? 0,
     );
   }
 
-  // Convert ServiceModel to a map (optional)
   Map<String, dynamic> toJson() {
     return {
       'service_name': serviceName,
@@ -32,6 +36,8 @@ class ServiceModel {
       'category': category,
       'image': image,
       'price': price,
+      'base_size': baseSize,
+      'base_price': basePrice,
     };
   }
 }

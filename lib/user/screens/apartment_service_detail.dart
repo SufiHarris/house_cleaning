@@ -470,8 +470,12 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   const Spacer(),
                   _buildCircularButton(
                     icon: Icons.remove,
-                    onPressed: () => _updateServiceQuantity(service, item, -1),
-                    bgColor: Colors.grey[200]!,
+                    onPressed: item.size > service.baseSize
+                        ? () => _updateServiceQuantity(service, item, -1)
+                        : null,
+                    bgColor: item.size > service.baseSize
+                        ? Colors.grey[200]!
+                        : Colors.grey[100]!,
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -503,7 +507,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
 
   Widget _buildCircularButton({
     required IconData icon,
-    required VoidCallback onPressed,
+    VoidCallback? onPressed,
     required Color bgColor,
     Color? iconColor,
   }) {
@@ -523,25 +527,22 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
         selectedServices[service.serviceId] = [];
       }
 
-      // Default size (10 sqm for example) for a new room
-      int defaultSize = 10;
-      int itemPrice = service.price * defaultSize;
+      // Use baseSize and basePrice for the initial service item
+      selectedServices[service.serviceId]!.add(
+        ServiceItem(
+            quantity: 1, size: service.baseSize, price: service.basePrice),
+      );
 
-      // Add new service item to the list
-      selectedServices[service.serviceId]!
-          .add(ServiceItem(quantity: 1, size: defaultSize, price: itemPrice));
-
-      // Update total price
       _updateTotalPrice();
     });
   }
 
   void _updateServiceQuantity(
       ServiceModel service, ServiceItem item, int change) {
-    print(service);
     setState(() {
-      int newSize = (item.size + change).clamp(1, 100);
-      int newPrice = service.price * newSize;
+      int newSize = (item.size + change).clamp(service.baseSize, 100);
+      int additionalSize = newSize - service.baseSize;
+      int newPrice = service.basePrice + (additionalSize * service.price);
 
       item.size = newSize;
       item.price = newPrice;
