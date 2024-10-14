@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/provider/auth_provider.dart';
+import 'package:house_cleaning/auth/screens/fast_register.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/user/screens/apartment_service_detail.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
@@ -16,6 +18,7 @@ class ConfirmOrderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Get.find<UserProvider>();
+    final authProvider = Get.find<AuthProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +51,11 @@ class ConfirmOrderScreen extends StatelessWidget {
                 // const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    userProvider.addToCart();
+                    if (authProvider.user.value != null) {
+                      Get.to(FastRegister());
+                    } else {
+                      userProvider.addToCart();
+                    }
                   },
                   child: Text('Add to Cart'),
                   style: ElevatedButton.styleFrom(
@@ -60,8 +67,14 @@ class ConfirmOrderScreen extends StatelessWidget {
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    userProvider.saveBookingToFirestore();
-                    Get.offAll(() => UserMain());
+                    if (authProvider.user.value != null) {
+                      Get.to(FastRegister());
+                    } else {
+                      userProvider.saveBookingToFirestore();
+                      Get.offAll(
+                        () => UserMain(),
+                      );
+                    }
                   },
                   child: Text('Confirm Order'),
                   style: ElevatedButton.styleFrom(
