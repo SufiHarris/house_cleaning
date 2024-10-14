@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/screens/edit_address_page.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
+import 'package:house_cleaning/user/screens/user_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -60,12 +64,90 @@ class _ManageAddressState extends State<ManageAddress> {
     }
   }
 
+  void editAddress(AddressModel address) {
+    Get.to(() => EditAddressPage(), arguments: {
+      'address': address,
+    }); // Passing address and userId to edit page
+  }
+
+  void removeAddress(AddressModel address) async {
+    print("Removing address: ${address.building}");
+
+    // Get the user ID from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userDocId');
+
+    if (userId == null) {
+      print("User ID not found in SharedPreferences.");
+      return; // Early exit if user ID is not found
+    }
+
+    try {
+      // Fetch the user's addresses from Firestore
+      var snapshot = await FirebaseFirestore.instance
+          .collection('users_table')
+          .doc(userId)
+          .get();
+
+      List<dynamic> addressList = snapshot.data()?['address'] ?? [];
+
+      // Debug: Print all addresses
+      print('Current addresses: $addressList');
+
+      // Find the index of the address to remove based on building and geolocation
+      int indexToRemove = -1;
+      for (int i = 0; i < addressList.length; i++) {
+        var item = addressList[i];
+        if (item['Building'] == address.building &&
+            item['Geolocation'][0].toString() == address.geolocation.lat &&
+            item['Geolocation'][1].toString() == address.geolocation.lon) {
+          indexToRemove = i;
+          break;
+        }
+      }
+
+      if (indexToRemove == -1) {
+        print("Address not found in the list.");
+        return;
+      }
+
+      // Remove the address at the found index
+      addressList.removeAt(indexToRemove);
+
+      // Update the Firestore document with the new address list
+      await FirebaseFirestore.instance
+          .collection('users_table')
+          .doc(userId)
+          .update({'address': addressList});
+
+      print("Address removed successfully from Firestore.");
+
+      // Update SharedPreferences
+      String? userDetailsJson = prefs.getString('userDetails');
+      if (userDetailsJson != null) {
+        Map<String, dynamic> userMap = jsonDecode(userDetailsJson);
+
+        // Debug: Print the current addresses in SharedPreferences
+        print(
+            "Addresses in SharedPreferences before removal: ${userMap['address']}");
+
+        // Remove the address from SharedPreferences by index
+        (userMap['address'] as List).removeAt(indexToRemove);
+
+        // Save updated user details back to SharedPreferences
+        await prefs.setString('userDetails', jsonEncode(userMap));
+        print("User details updated successfully in SharedPreferences.");
+        Get.to(UserSettings()); // Go back after updating
+      }
+    } catch (e) {
+      print("Error removing address: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final AuthProvider authProvider = Get.find<AuthProvider>();
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Address")),
+      appBar: AppBar(title: const Text("Manage Addresses")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Obx(() {
@@ -82,8 +164,9 @@ class _ManageAddressState extends State<ManageAddress> {
                 // Iterate through the address list and build AddressSection for each
                 for (var address in addresses) ...[
                   AddressSection(
-                    addressTitle: address.building,
-                    address: address.building,
+                    addressModel: address, // Pass the full AddressModel
+                    onEdit: () => editAddress(address), // Handle Edit
+                    onRemove: () => removeAddress(address), // Handle Remove
                   ),
                   Divider(color: Colors.grey[300]), // Divider line
                 ],

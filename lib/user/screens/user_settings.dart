@@ -33,10 +33,7 @@ class UserSettings extends StatelessWidget {
 
           final user = snapshot.data;
 
-          if (user == null) {
-            return Center(child: Text('No user details found.'));
-          }
-
+          // Ensure that the page is shown regardless of whether the user is null or not
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -45,8 +42,10 @@ class UserSettings extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundImage:
-                        AssetImage('assets/images/UserProfile-Pic.png'),
+                    backgroundImage: user != null
+                        ? AssetImage('assets/images/UserProfile-Pic.png')
+                        : AssetImage(
+                            'assets/images/placeholder-profile.png'), // Placeholder image
                   ),
                   Positioned(
                     bottom: 0,
@@ -61,7 +60,7 @@ class UserSettings extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                user.name, // Use the user's name from the retrieved data
+                user?.name ?? 'Guest User', // Show 'Guest User' if user is null
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -110,15 +109,16 @@ class UserSettings extends StatelessWidget {
               ),
               const Spacer(),
               ElevatedButton(
-                  style: ButtonStyle(
-                    fixedSize:
-                        MaterialStateProperty.all(Size(double.infinity, 30)),
-                    backgroundColor: MaterialStateProperty.all(Colors.white),
-                  ),
-                  onPressed: () {
-                    authProvider.signOut();
-                  },
-                  child: const Text("Log out"))
+                style: ButtonStyle(
+                  fixedSize:
+                      MaterialStateProperty.all(Size(double.infinity, 30)),
+                  backgroundColor: MaterialStateProperty.all(Colors.white),
+                ),
+                onPressed: () {
+                  authProvider.signOut();
+                },
+                child: const Text("Log out"),
+              ),
             ],
           );
         },

@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:house_cleaning/auth/screens/log_in_screen.dart';
 import 'package:house_cleaning/auth/screens/register_screen.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
+import 'package:house_cleaning/user/screens/user_main.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -116,10 +118,16 @@ class AuthScreen extends StatelessWidget {
                       ),
                     ),
                     // const SizedBox(height: 20),
-                    Text(
-                      "Continue as guest",
-                      style: TextStyle(
-                        color: CustomColors.primaryColor,
+                    GestureDetector(
+                      onTap: () => {Get.offAll(UserMain())},
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Continue as guest",
+                          style: TextStyle(
+                            color: CustomColors.primaryColor,
+                          ),
+                        ),
                       ),
                     ),
                   ],
