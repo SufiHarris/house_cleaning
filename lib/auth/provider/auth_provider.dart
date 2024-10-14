@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
+import 'package:house_cleaning/user/screens/user_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../user/screens/user_main.dart';
@@ -42,11 +43,38 @@ class AuthProvider extends GetxController {
           // Navigate to UserMain if the user is a regular user
           Get.offAll(() => const UserMain());
         } else {
-          // Check if the user exists in staff_table
+          // Check if the user exists in staff_table using email
           bool staffexists = await staffExists(currentUser.email!);
           if (staffexists) {
-            // Navigate to EmployeeHome if the user is staff
-            Get.offAll(() => const EmployeeHome());
+            // Fetch staff data from Firestore using email
+            QuerySnapshot staffSnapshot = await _firestore
+                .collection('staff_table')
+                .where('email', isEqualTo: currentUser.email) // Query by email
+                .get();
+
+            if (staffSnapshot.docs.isNotEmpty) {
+              // Get the first document (since email is unique)
+              DocumentSnapshot staffDoc = staffSnapshot.docs.first;
+
+              Map<String, dynamic> staffData =
+                  staffDoc.data() as Map<String, dynamic>;
+
+              // Check the role of the staff member
+              String role =
+                  staffData['role']; // Assuming 'role' is a field in Firestore
+
+              // Navigate based on role
+              if (role == 'admin') {
+                Get.offAll(() => UserHome()); // Navigate to Admin Page
+                _showSnackBar('Logged in as Admin', false);
+              } else if (role == 'staff') {
+                Get.offAll(
+                    () => const EmployeeHome()); // Navigate to Employee Home
+              } else {
+                _showSnackBar(
+                    'Role not recognized.', true); // Handle unrecognized roles
+              }
+            }
           } else {
             // Handle case when the user is not found in either table
             Get.offAll(() => AuthScreen());
@@ -132,6 +160,8 @@ class AuthProvider extends GetxController {
   Future<void> signIn() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
+
+    // Check for empty fields
     if (email.isEmpty || password.isEmpty) {
       _showSnackBar('Please fill in all fields', true);
       return;
@@ -139,10 +169,10 @@ class AuthProvider extends GetxController {
 
     isLoading.value = true; // Show loader
 
-    // Check for the user in the users_table
-    bool existsuser = await userExists(email);
-    if (existsuser) {
-      // If user exists, attempt to sign in
+    // Check if the email exists in the users_table
+    bool existsUser = await userExists(email);
+    if (existsUser) {
+      // If the user exists, try to sign in
       try {
         UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email,
@@ -150,12 +180,12 @@ class AuthProvider extends GetxController {
         );
 
         // User signed in successfully
-        // Navigate to the user main page
-        // Save user details to local storage
+        // Save user details locally
         await saveUserDetailsLocally(email);
         isLoading.value = false; // Hide loader
         _showSnackBar('Logged in successfully', false);
 
+        // Navigate to the UserMain page
         Get.offAll(() => const UserMain());
       } on FirebaseAuthException catch (e) {
         isLoading.value = false; // Hide loader
@@ -163,10 +193,10 @@ class AuthProvider extends GetxController {
         _showSnackBar(message, true);
       }
     } else {
-      // Check for the staff in the staff_table
-      bool existsstaff = await staffExists(email);
-      if (existsstaff) {
-        // If staff exists, attempt to sign in
+      // Check if the email exists in the staff_table
+      bool existsStaff = await staffExists(email);
+      if (existsStaff) {
+        // If the staff exists, try to sign in
         try {
           UserCredential result = await _auth.signInWithEmailAndPassword(
             email: email,
@@ -174,17 +204,44 @@ class AuthProvider extends GetxController {
           );
 
           if (result.user != null) {
-            // Staff signed in successfully
-            // Navigate to the employee home page
-            await saveStaffDetailsLocally(email); // Call to save staff details
+            // Fetch staff data from Firestore using email (not UID)
+            QuerySnapshot staffSnapshot = await _firestore
+                .collection('staff_table')
+                .where('email', isEqualTo: email) // Query by email
+                .get();
 
-            isLoading.value = false; // Hide loader
-            Get.offAll(() => const EmployeeHome());
-            _showSnackBar('Logged in as staff successfully', false);
+            if (staffSnapshot.docs.isNotEmpty) {
+              // Get the first document (since email is unique)
+              DocumentSnapshot staffDoc = staffSnapshot.docs.first;
+
+              Map<String, dynamic> staffData =
+                  staffDoc.data() as Map<String, dynamic>;
+
+              // Check the role of the staff member
+              String role =
+                  staffData['role']; // Assuming 'role' is stored in Firestore
+
+              // Save staff details locally (if needed)
+              await saveStaffDetailsLocally(email);
+
+              isLoading.value = false; // Hide loader
+
+              // Navigate based on the role
+              if (role == 'admin') {
+                Get.offAll(() => UserHome()); // Navigate to Admin Page
+                _showSnackBar('Logged in as Admin', false);
+              } else if (role == 'staff') {
+                Get.offAll(
+                    () => const EmployeeHome()); // Navigate to Employee Home
+                _showSnackBar('Logged in as Staff', false);
+              } else {
+                _showSnackBar(
+                    'Role not recognized.', true); // Handle unrecognized roles
+              }
+            }
           }
         } on FirebaseAuthException catch (e) {
           isLoading.value = false; // Hide loader
-          print("Staff Auth Erro: $e");
           String message = _getFirebaseErrorMessage(e.code);
           _showSnackBar(message, true);
         }
