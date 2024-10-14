@@ -15,6 +15,7 @@ class FastRegister extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     TextEditingController nameController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
     final AuthProvider authProvider = Get.find<AuthProvider>();
 
     return Scaffold(
@@ -44,6 +45,17 @@ class FastRegister extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextField(
                     controller: emailController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                        hintText: 'Enter your email',
+                        suffixIcon: IconButton(
+                            onPressed: () {},
+                            icon: const Image(
+                                image: AssetImage("assets/images/eye.png")))),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                         hintText: 'Enter your email',
