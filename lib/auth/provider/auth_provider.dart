@@ -9,6 +9,8 @@ import 'package:house_cleaning/admin/screeens/admin_home.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
+import 'package:house_cleaning/user/providers/user_provider.dart';
+import 'package:house_cleaning/user/screens/confirm_order_screen.dart';
 import 'package:house_cleaning/user/screens/user_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -427,6 +429,66 @@ class AuthProvider extends GetxController {
       // Set document ID based on the user's email (or any unique identifier)
       await users.doc(userId).set(data, SetOptions(merge: true));
 
+      // Show success snackbar
+      Get.snackbar("Success", "User profile saved successfully.",
+          snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      print("Error saving user profile: $e");
+      // Show error snackbar
+      Get.snackbar("Error", "Failed to save user profile. Please try again.",
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> saveUserProfileForGuest(
+      UserModel user, bool isCartAction) async {
+    try {
+      UserCredential userCredential;
+      try {
+        print("User details before creating account: ${user.toMap()}");
+
+        print(
+            "Creating user with email: ${user.email} and password: ${user.password}");
+
+        // Create the user in Firebase Authentication
+        userCredential = await _auth.createUserWithEmailAndPassword(
+          email: user.email,
+          password: user.password,
+        );
+      } catch (e) {
+        print("Error creating user: $e");
+        Get.snackbar("Error", "Failed to create user. ${e.toString()}",
+            snackPosition: SnackPosition.BOTTOM);
+        return; // Exit the function if user creation fails
+      }
+
+      // Get the user ID from the userCredential
+      String userId = userCredential.user!.uid;
+
+      CollectionReference users =
+          FirebaseFirestore.instance.collection('users_table');
+
+      // Prepare data for saving, including userId
+      Map<String, dynamic> data = user.toMap();
+      data['user_id'] = userId; // Set user_id here
+      print("Debug line:$data"); // Debugging line
+
+      // Update SharedPreferences with the new user details
+      await _updateUserDetailsInPrefs(userId, user);
+      print("Updated User");
+
+      // Set document ID based on the user's email (or any unique identifier)
+      await users.doc(userId).set(data, SetOptions(merge: true));
+
+      // After successfully saving the user profile, call addToCart from UserProvider
+      UserProvider userProvider = Get.find<UserProvider>();
+      // Call the appropriate method based on the flag
+      if (isCartAction) {
+        await userProvider.addToCart(); // Call addToCart
+      } else {
+        await userProvider
+            .saveBookingToFirestore(); // Call saveBookingToFirestore
+      }
       // Show success snackbar
       Get.snackbar("Success", "User profile saved successfully.",
           snackPosition: SnackPosition.BOTTOM);

@@ -1,15 +1,14 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/auth/screens/register_screen.dart';
-import 'package:house_cleaning/auth/widgets/image_button.dart';
+import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
-
+import 'package:house_cleaning/user/providers/user_provider.dart'; // Import UserProvider
 import '../../theme/custom_colors.dart';
-import '../../user/screens/user_home.dart';
 
 class FastRegister extends StatelessWidget {
-  const FastRegister({super.key});
+  final bool isCartAction; // New flag to differentiate between actions
+
+  const FastRegister({super.key, required this.isCartAction});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +16,8 @@ class FastRegister extends StatelessWidget {
     TextEditingController nameController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     final AuthProvider authProvider = Get.find<AuthProvider>();
+    final UserProvider userProvider =
+        Get.find<UserProvider>(); // Get the UserProvider
 
     return Scaffold(
       appBar: AppBar(
@@ -45,24 +46,25 @@ class FastRegister extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextField(
                     controller: emailController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                        hintText: 'Enter your email',
-                        suffixIcon: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                                image: AssetImage("assets/images/eye.png")))),
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your email',
+                    ),
                   ),
                   const SizedBox(height: 20),
                   TextField(
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText: true, // Mark this as password field
                     decoration: InputDecoration(
-                        hintText: 'Enter your email',
-                        suffixIcon: IconButton(
-                            onPressed: () {},
-                            icon: const Image(
-                                image: AssetImage("assets/images/eye.png")))),
+                      hintText: 'Enter your password', // Update hint text
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          // Implement password visibility toggle if needed
+                        },
+                        icon: const Image(
+                          image: AssetImage("assets/images/eye.png"),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   const Row(children: [
@@ -78,7 +80,40 @@ class FastRegister extends StatelessWidget {
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () async {
-                      await authProvider.staffSignIn();
+                      // Fetch user details from local storage
+                      UserModel? existingUser = await getUserDetailsFromLocal();
+                      List<AddressModel> addressList = [];
+
+                      // Add the selected address from the UserProvider
+                      if (userProvider.selectedAddress.value != null) {
+                        addressList.add(userProvider.selectedAddress.value!);
+                      }
+
+                      // Create a UserModel instance with the collected data
+                      final user = UserModel(
+                        name: nameController.text.isNotEmpty
+                            ? nameController.text
+                            : existingUser?.name ??
+                                '', // Use existing name if empty
+                        email: emailController.text.isNotEmpty
+                            ? emailController.text
+                            : existingUser?.email ??
+                                '', // Use existing email if empty
+                        image: existingUser?.image ??
+                            '', // Use existing image or default
+                        password: passwordController
+                            .text, // Use the new password input
+                        address:
+                            addressList, // Use the selected address from UserProvider
+                        phone: existingUser?.phone ??
+                            '', // Use existing phone or default
+                        userId: existingUser?.userId ??
+                            '', // Use existing userId or default
+                      );
+
+                      // Pass the flag to the save method
+                      await authProvider.saveUserProfileForGuest(
+                          user, isCartAction);
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),

@@ -7,13 +7,35 @@ import 'package:house_cleaning/user/screens/apartment_service_detail.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
 import 'package:house_cleaning/user/widgets/confirm_order_edit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/user_provider.dart';
 import 'package:intl/intl.dart';
 
 import 'user_main.dart';
 
-class ConfirmOrderScreen extends StatelessWidget {
+class ConfirmOrderScreen extends StatefulWidget {
   const ConfirmOrderScreen({super.key});
+
+  @override
+  _ConfirmOrderScreenState createState() => _ConfirmOrderScreenState();
+}
+
+class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
+  String? userId; // Store userId here
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserIdFromPrefs();
+  }
+
+  Future<void> _getUserIdFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs
+          .getString('userDocId'); // Retrieve userId from SharedPreferences
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,9 +73,15 @@ class ConfirmOrderScreen extends StatelessWidget {
                 // const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    if (authProvider.user.value != null) {
-                      Get.to(FastRegister());
+                    print("User ID from SharedPreferences: $userId");
+
+                    // Check if userId exists from SharedPreferences
+                    if (userId == null || userId!.isEmpty) {
+                      // User is not logged in, navigate to FastRegister
+                      Get.to(() => FastRegister(
+                          isCartAction: true)); // Pass a flag for add to cart
                     } else {
+                      // User is logged in, add items to cart
                       userProvider.addToCart();
                     }
                   },
@@ -64,16 +92,19 @@ class ConfirmOrderScreen extends StatelessWidget {
                     minimumSize: Size(double.infinity, 50),
                   ),
                 ),
+
                 SizedBox(height: 10),
+
                 ElevatedButton(
                   onPressed: () {
-                    if (authProvider.user.value != null) {
-                      Get.to(FastRegister());
+                    // Check if userId exists from SharedPreferences
+                    if (userId == null || userId!.isEmpty) {
+                      // User is not logged in, navigate to FastRegister
+                      Get.to(() => FastRegister(
+                          isCartAction: false)); // Pass a flag for add to cart
                     } else {
+                      // User is logged in, proceed to save booking
                       userProvider.saveBookingToFirestore();
-                      Get.offAll(
-                        () => UserMain(),
-                      );
                     }
                   },
                   child: Text('Confirm Order'),
