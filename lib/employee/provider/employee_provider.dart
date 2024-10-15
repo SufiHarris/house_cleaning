@@ -14,8 +14,6 @@ class EmployeeProvider extends GetxController {
   RxString employeeId = ''.obs;
   var employeeBookings = <BookingModel>[].obs;
 
-  // ... other methods ...
-
   Future<void> loadStaffDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? staffDetailsJson = prefs.getString('staffDetails');
@@ -33,13 +31,11 @@ class EmployeeProvider extends GetxController {
       //   return;
       // }
 
-      // Fetch bookings from Firestore where employee_id matches the userId
       var snapshot = await FirebaseFirestore.instance
           .collection('size_based_bookings')
-          .where('employee_id', isEqualTo: 102) // assuming employee_id is int
+          .where('employee_id', isEqualTo: 102)
           .get();
 
-      // Map the fetched documents to BookingModel and store in the observable list
       employeeBookings.value = snapshot.docs
           .map((doc) => BookingModel.fromFirestore(doc.data()))
           .toList();

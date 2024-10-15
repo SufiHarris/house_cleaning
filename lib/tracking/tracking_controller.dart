@@ -17,9 +17,9 @@ class EmployeeTrackingController extends GetxController {
   RxDouble remainingDistance = 0.0.obs;
   RxSet<Marker> markers = <Marker>{}.obs;
   RxString elapsedTime = ''.obs;
+  RxBool hasReachedDestination = false.obs;
   StreamSubscription<Position>? positionStream;
-  final String googleAPIKey =
-      'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs'; // Replace with your API key
+  final String googleAPIKey = 'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs';
   late DateTime startTime;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -89,7 +89,15 @@ class EmployeeTrackingController extends GetxController {
       updateElapsedTime();
       adjustZoomBasedOnSpeed(position.speed);
       saveEmployeeLocationToFirestore(position);
+      checkIfReachedDestination(); // Check if the employee has reached the destination
     });
+  }
+
+  void checkIfReachedDestination() {
+    if (remainingDistance.value <= 1000) {
+      // Threshold to check if within 50 meters
+      hasReachedDestination.value = true; // Enable the "Reached" button
+    }
   }
 
   void calculateDistance() {
