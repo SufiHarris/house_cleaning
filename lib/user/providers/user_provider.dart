@@ -650,4 +650,26 @@ class UserProvider extends GetxController {
       print("----------------------------------------");
     }
   }
+
+  Future<List<AddressModel>?> getAddressFromLocal() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userDetails = prefs.getString('userDetails');
+
+    if (userDetails != null) {
+      // Convert the string back to Map and then to UserModel
+      Map<String, dynamic> userMap = jsonDecode(userDetails);
+      try {
+        UserModel user = UserModel.fromFirestore(userMap);
+        // Return the list of addresses
+        return user.address;
+      } catch (e) {
+        print('Error decoding UserModel: $e');
+        return null;
+      }
+    } else {
+      print('No user details found in SharedPreferences');
+    }
+
+    return null;
+  }
 }

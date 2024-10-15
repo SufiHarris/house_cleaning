@@ -92,6 +92,11 @@ class AddressModel {
       'Location': location,
     };
   }
+
+  @override
+  String toString() {
+    return 'AddressModel(building: $building, floor: $floor, geolocation: $geolocation, landmark: $landmark, location: $location)';
+  }
 }
 
 class GeoLocationModel {
@@ -116,6 +121,11 @@ class GeoLocationModel {
       'lat': lat,
       'lon': lon,
     };
+  }
+
+  @override
+  String toString() {
+    return 'GeoLocationModel(lat: $lat, lon: $lon)';
   }
 }
 
