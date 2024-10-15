@@ -5,12 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/admin/screeens/admin_home.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:house_cleaning/user/screens/user_home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../admin/screeens/admin_main.dart';
 import '../../user/screens/user_main.dart';
 import '../../user/screens/user_create_profile_screen.dart';
 import '../screens/auth_screen.dart';
@@ -65,7 +67,7 @@ class AuthProvider extends GetxController {
 
               // Navigate based on role
               if (role == 'admin') {
-                Get.offAll(() => UserHome()); // Navigate to Admin Page
+                Get.offAll(() => AdminMain()); // Navigate to Admin Page
                 _showSnackBar('Logged in as Admin', false);
               } else if (role == 'staff') {
                 Get.offAll(
@@ -228,7 +230,9 @@ class AuthProvider extends GetxController {
 
               // Navigate based on the role
               if (role == 'admin') {
-                Get.offAll(() => UserHome()); // Navigate to Admin Page
+                Get.offAll(
+                  () => AdminMain(),
+                ); // Navigate to Admin Page
                 _showSnackBar('Logged in as Admin', false);
               } else if (role == 'staff') {
                 Get.offAll(

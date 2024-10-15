@@ -3,10 +3,8 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/tracking/tracking_controller.dart';
 import 'package:intl/intl.dart';
-import '../../auth/model/usermodel.dart';
 import '../../tracking/google_map_widget.dart';
 import '../../user/models/bookings_model.dart';
-import '../provider/employee_provider.dart';
 
 class EmployeeBookingDetail extends StatelessWidget {
   final BookingModel booking;
