@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:house_cleaning/admin/screeens/admin_bookings.dart';
 import 'package:house_cleaning/admin/screeens/admin_home.dart';
 
 import '../../user/screens/user_bookings.dart';
@@ -14,12 +15,11 @@ class AdminMain extends StatefulWidget {
 
 class _AdminMainState extends State<AdminMain> {
   int currentIndex = 0;
-  final List<Widget> screens = const [
-    AdminHome(),
-    UserServiceScreen(),
-    UserProductScreen(),
-    UserBookings(),
-    UserSettings()
+  final List<Widget> screens = [
+    const AdminHome(),
+    BookingManagementScreen(),
+    const UserProductScreen(),
+    const UserBookings(),
   ];
 
   @override
@@ -42,19 +42,15 @@ class _AdminMainState extends State<AdminMain> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sell),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_view_month_outlined),
             label: 'Bookings',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.sell),
+            label: 'Manage',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_view_month_outlined),
+            label: 'Analytics',
           ),
         ],
         type: BottomNavigationBarType.fixed,
