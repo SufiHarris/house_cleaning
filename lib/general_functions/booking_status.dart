@@ -1,34 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookingController extends GetxController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future<void> updateBookingStatus(String bookingId, String status) async {
     try {
-      List<String> validStatuses = [
-        'unassigned',
-        'assigned',
-        'pending',
-        'in-progress',
-        'working',
-        'completed',
-        'cancelled'
-      ];
-
-      if (!validStatuses.contains(status)) {
-        Get.snackbar('Error', 'Invalid status provided.');
-        return;
-      }
-
-      DocumentReference bookingRef = FirebaseFirestore.instance
-          .collection('size_based_bookings') // Your collection
-          .doc(bookingId);
-
-      await bookingRef.update({'status': status});
-
-      Get.snackbar('Success', 'Booking status updated to $status.');
+      await _firestore
+          .collection('size_based_bookings')
+          .doc('0xm1mKrOmvKV2tJL5tUX')
+          .update({
+        'status': status,
+      });
+      print('Status updated to $status for booking ID $bookingId');
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update status: $e');
-      print('Error updating booking status: $e');
+      print('Error updating status: $e');
     }
   }
 }

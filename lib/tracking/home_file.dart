@@ -19,7 +19,7 @@ class HomeFile extends StatelessWidget {
             ElevatedButton(
                 onPressed: () {
                   employeeTrackingController.startTracking();
-                  Get.to(() => EmployeeTrackingMap());
+                  // Get.to(() => EmployeeTrackingMap());
                 },
                 child: Text("Employee View")),
             SizedBox(

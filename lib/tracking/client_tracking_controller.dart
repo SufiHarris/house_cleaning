@@ -1,54 +1,45 @@
 import 'dart:convert';
-import 'dart:async'; // Import Timer
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart'; // Add this import
+import 'package:geolocator/geolocator.dart';
 
 class ClientTrackingController extends GetxController {
-  Rx<LatLng?> employeePosition = Rx<LatLng?>(null); // Employee position
-  Rx<LatLng> clientLocation =
-      LatLng(34.1289468, 74.8416077).obs; // Client's location
-  RxString eta = ''.obs; // To hold ETA value
-  RxList<LatLng> polylineCoordinates =
-      <LatLng>[].obs; // Polyline points for route
-  GoogleMapController? mapController; // Map controller
+  Rx<LatLng?> employeePosition = Rx<LatLng?>(null);
+  Rx<LatLng> clientLocation = LatLng(34.1289468, 74.8416077).obs;
+  RxString eta = ''.obs;
+  RxList<LatLng> polylineCoordinates = <LatLng>[].obs;
+  GoogleMapController? mapController;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final String googleAPIKey =
-      'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs'; // Replace with your Google API key
+  final String googleAPIKey = 'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs';
 
-  RxInt remainingTimeInSeconds = 0.obs; // Remaining time in seconds
-  final double employeeSpeed =
-      1.5; // Example: Speed in m/s (e.g., walking speed)
-
+  RxInt remainingTimeInSeconds = 0.obs;
+  final double employeeSpeed = 1.5;
   @override
   void onInit() {
     super.onInit();
-    listenToEmployeeLocation(); // Start listening to employee location updates
+    listenToEmployeeLocation();
   }
 
-  // Listen to the employee's location from Firestore
   void listenToEmployeeLocation() {
     firestore
         .collection('employee_locations')
-        .doc('ya6nkjEN9IoMmAoL4DJx') // Replace with correct document ID
+        .doc('ya6nkjEN9IoMmAoL4DJx')
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data();
         if (data != null) {
-          GeoPoint geoPoint =
-              data['geolocations']; // Get GeoPoint from Firestore
-          employeePosition.value = LatLng(geoPoint.latitude,
-              geoPoint.longitude); // Convert GeoPoint to LatLng
+          GeoPoint geoPoint = data['geolocations'];
+          employeePosition.value =
+              LatLng(geoPoint.latitude, geoPoint.longitude);
 
-          // Once employee location is loaded, fetch the route
           if (employeePosition.value != null) {
-            fetchRouteForClient(employeePosition.value!,
-                clientLocation.value); // Reverse origin and destination
+            fetchRouteForClient(employeePosition.value!, clientLocation.value);
           }
         }
       } else {
@@ -57,7 +48,6 @@ class ClientTrackingController extends GetxController {
     });
   }
 
-  // Fetch the route between employee and client using Google Directions API
   Future<void> fetchRouteForClient(
       LatLng employeeDestination, LatLng clientOrigin) async {
     final url =
@@ -70,18 +60,14 @@ class ClientTrackingController extends GetxController {
         if (data['routes'].isNotEmpty) {
           final route = data['routes'][0]['overview_polyline']['points'];
           polylineCoordinates.clear();
-          polylineCoordinates
-              .addAll(_decodePolyline(route)); // Decode and set polyline
+          polylineCoordinates.addAll(_decodePolyline(route));
 
-          // Get distance
           final legs = data['routes'][0]['legs'][0];
-          final distance = legs['distance']['value']; // Distance in meters
-          eta.value = legs['duration']['text']; // Set the ETA
+          final distance = legs['distance']['value'];
+          eta.value = legs['duration']['text'];
 
-          // Calculate remaining time based on distance and speed
           calculateRemainingTime(distance);
 
-          // Once we have the route, adjust the camera to fit both points
           updateMapToFitRoute();
         } else {
           print('No routes found');
@@ -94,14 +80,11 @@ class ClientTrackingController extends GetxController {
     }
   }
 
-  // Calculate remaining time based on distance and speed
   void calculateRemainingTime(int distance) {
-    // Calculate time in seconds based on distance and speed
     remainingTimeInSeconds.value = (distance / employeeSpeed).round();
-    startRemainingTimeTimer(); // Start the timer
+    startRemainingTimeTimer();
   }
 
-  // Start the timer for remaining time
   void startRemainingTimeTimer() {
     Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingTimeInSeconds.value > 0) {
@@ -112,7 +95,6 @@ class ClientTrackingController extends GetxController {
     });
   }
 
-  // Method to format remaining time to HR-MM-SS
   String formatRemainingTime(int totalSeconds) {
     final hours = (totalSeconds ~/ 3600);
     final minutes = (totalSeconds % 3600) ~/ 60;
@@ -121,7 +103,6 @@ class ClientTrackingController extends GetxController {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  // Decode the encoded polyline from the Directions API into a list of LatLng points
   List<LatLng> _decodePolyline(String polyline) {
     List<LatLng> decodedCoordinates = [];
     int index = 0, len = polyline.length;
@@ -155,7 +136,6 @@ class ClientTrackingController extends GetxController {
     return decodedCoordinates;
   }
 
-  // Adjust the map to fit both the client and employee locations along with the polyline
   void updateMapToFitRoute() {
     if (mapController != null) {
       LatLngBounds bounds = _boundsFromLatLngList(
@@ -164,7 +144,6 @@ class ClientTrackingController extends GetxController {
     }
   }
 
-  // Calculate LatLngBounds to fit the map view to both locations
   LatLngBounds _boundsFromLatLngList(List<LatLng> list) {
     double x0, x1, y0, y1;
     x0 = x1 = list[0].latitude;

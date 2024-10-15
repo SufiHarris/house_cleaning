@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../employee/screens/employee_address_details.dart';
+import '../general_functions/booking_status.dart';
 import '../theme/custom_colors.dart';
+import '../user/models/bookings_model.dart';
 import 'tracking_controller.dart';
 // import 'upload_complete_page.dart';
 
 class EmployeeTrackingMap extends StatelessWidget {
+  final BookingModel booking; // Required booking parameter
+  // final String status; // Added status parameter
+
+  EmployeeTrackingMap({Key? key, required this.booking}) : super(key: key);
+
+  final BookingController bookingController = Get.put(BookingController());
   final EmployeeTrackingController trackingController =
       Get.put(EmployeeTrackingController());
 
@@ -56,37 +64,37 @@ class EmployeeTrackingMap extends StatelessWidget {
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 8),
-              // Text(
-              //   'Remaining Distance: ${trackingController.remainingDistance.value.toStringAsFixed(2)} km',
-              //   style: TextStyle(fontSize: 16),
-              // ),
-              SizedBox(height: 8),
               Text(
                 'Elapsed Time: ${trackingController.elapsedTime.value}',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 8),
               ElevatedButton(
-                  onPressed: trackingController.hasReachedDestination.value
-                      ? () {
-                          // Navigate to upload screen when "Reached" is clicked
-                          Get.to(() => ClientDetailsPage());
-                        }
-                      : null, // Disable until reached
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: trackingController
-                            .hasReachedDestination.value
-                        ? CustomColors.textColorThree // Normal enabled color
-                        : Colors.grey, // Disabled color
+                onPressed: trackingController.hasReachedDestination.value
+                    ? () {
+                        bookingController.updateBookingStatus(
+                            booking.booking_id.toString(), 'working');
+
+                        Get.to(() => ClientDetailsPage(
+                              booking: booking,
+                            ));
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      trackingController.hasReachedDestination.value
+                          ? CustomColors.textColorThree
+                          : Colors.grey,
+                ),
+                child: Text(
+                  "Reached",
+                  style: TextStyle(
+                    color: trackingController.hasReachedDestination.value
+                        ? Colors.white
+                        : Color(0xFFBDBDBD),
                   ),
-                  child: Text(
-                    "Reached",
-                    style: TextStyle(
-                      color: trackingController.hasReachedDestination.value
-                          ? Colors.white // Normal enabled text color
-                          : Color(0xFFBDBDBD), // Disabled text color
-                    ),
-                  )),
+                ),
+              ),
             ]),
           )),
     );

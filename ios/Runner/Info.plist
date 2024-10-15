@@ -77,6 +77,11 @@
 <string>Allow To Notify You...</string>
 <key>NSUserNotificationBadgeUsageDescription</key>
 <string>Allow To Make You Aware...</string>
+<key>NSCameraUsageDescription</key>
+<string>We need access to your camera for taking photos.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to your photo library for selecting photos.</string>
+
 
 
 

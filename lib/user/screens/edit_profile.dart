@@ -1,15 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../general_functions/user_profile_image.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/custom_button_widget.dart';
 import '../../auth/model/usermodel.dart';
 
 class EditProfile extends StatefulWidget {
   EditProfile({Key? key}) : super(key: key);
+  final ImageController imageController = Get.put(ImageController());
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -20,6 +25,7 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  // File? _image;
 
   bool isLoading = true; // To show a loading indicator while fetching data
 
@@ -143,11 +149,6 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  // Your existing methods to pick images can be implemented here
-  // For example:
-  // Future<void> pickImageFromGallery() async { /* Your logic */ }
-  // Future<void> pickImageFromCamera() async { /* Your logic */ }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,10 +172,17 @@ class _EditProfileState extends State<EditProfile> {
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            CircleAvatar(
-                              radius: 60,
-                              backgroundImage: const AssetImage(
-                                  'assets/images/UserProfile-Pic.png'),
+                            GetBuilder<ImageController>(
+                              builder: (controller) {
+                                return CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: controller.image != null
+                                      ? FileImage(controller.image!)
+                                      : const AssetImage(
+                                              'assets/images/UserProfile-Pic.png')
+                                          as ImageProvider,
+                                );
+                              },
                             ),
                             Positioned(
                               bottom: 0,
@@ -294,7 +302,7 @@ class _EditProfileState extends State<EditProfile> {
                     Center(
                       child: CustomButton(
                         text: 'Update',
-                        onTap: updateUserDetails, // Call the update method
+                        onTap: updateUserDetails,
                       ),
                     ),
                   ],
@@ -304,13 +312,13 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  // Method to show photo options (Gallery or Camera)
   void _showPhotoOptions(BuildContext context) {
+    final ImageController imageController = Get.put(ImageController());
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0),
         decoration: BoxDecoration(
-          color: Colors.white, // Background color of the bottom sheet
+          color: Colors.white,
           borderRadius: BorderRadius.vertical(
               top: Radius.circular(16)), // Rounded corners
         ),
@@ -326,7 +334,7 @@ class _EditProfileState extends State<EditProfile> {
               onTap: () {
                 // Implement your image picking logic here
                 // For example:
-                // userProfileController.pickImageFromGallery();
+                imageController.pickImageFromGallery();
                 Get.back(); // Close bottom sheet
               },
             ),
@@ -339,16 +347,14 @@ class _EditProfileState extends State<EditProfile> {
                 style: TextStyle(color: CustomColors.textColorThree),
               ),
               onTap: () {
-                // Implement your image picking logic here
-                // For example:
-                // userProfileController.pickImageFromCamera();
-                Get.back(); // Close bottom sheet
+                imageController.pickImageFromGallery();
+                Get.back();
               },
             ),
           ],
         ),
       ),
-      isScrollControlled: true, // Allow scrolling if needed
+      isScrollControlled: true,
     );
   }
 }

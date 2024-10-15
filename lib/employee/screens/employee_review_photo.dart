@@ -17,7 +17,7 @@ class ReviewPhotoPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: CustomColors.textColorThree),
           onPressed: () {
-            Get.back(); // Go back to the previous page
+            Get.back();
           },
         ),
       ),
@@ -26,7 +26,6 @@ class ReviewPhotoPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Display the selected image if it exists
             Obx(() => controller.selectedImage.value != ''
                 ? Image.file(
                     File(controller.selectedImage.value),
@@ -36,10 +35,9 @@ class ReviewPhotoPage extends StatelessWidget {
                   )
                 : Text('No image selected', style: TextStyle(fontSize: 16))),
             Spacer(),
-            // Button to retake the photo
             ElevatedButton(
               onPressed: () {
-                controller.retakePhoto(); // Retake the photo
+                controller.retakePhoto();
               },
               child: Text('Retake'),
               style: ElevatedButton.styleFrom(
@@ -53,7 +51,6 @@ class ReviewPhotoPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
-            // Button to upload and complete
             ElevatedButton(
               onPressed: () async {
                 await controller.takePhoto();
