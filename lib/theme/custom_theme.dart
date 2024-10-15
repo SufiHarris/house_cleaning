@@ -16,6 +16,12 @@ class CustomTheme {
       labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
     ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: CustomColors.primaryColor,
+      ),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       prefixIconColor: CustomColors.hintColor,
       filled: true,

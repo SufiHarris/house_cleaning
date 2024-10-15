@@ -217,7 +217,10 @@ class AdminHome extends StatelessWidget {
           final booking = adminProvider.bookings[index];
           return GestureDetector(
             onTap: () => {},
-            child: AdminBookingCard(booking: booking),
+            child: AdminBookingCard(
+              booking: booking,
+              adminProvider: adminProvider,
+            ),
           );
         },
       );
