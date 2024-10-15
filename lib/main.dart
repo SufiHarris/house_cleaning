@@ -1,14 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/admin/provider/admin_provider.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
-import 'package:house_cleaning/employee/provider/employee_provider.dart';
-import 'package:house_cleaning/tracking/tracking_controller.dart';
+import 'package:house_cleaning/auth/screens/auth_screen.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
+import 'employee/provider/employee_provider.dart';
 import 'firebase_options.dart';
 import 'theme/custom_theme.dart';
+import 'tracking/tracking_controller.dart';
 import 'user/providers/user_provider.dart';
 
 void main() async {
@@ -16,12 +16,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   Get.put(
     AuthProvider(),
-  );
-  Get.put(
-    EmployeeProvider(),
   );
   Get.put(
     UserProvider(),
@@ -30,7 +26,7 @@ void main() async {
     EmployeeTrackingController(),
   );
   Get.put(
-    AdminProvider(),
+    EmployeeProvider(),
   );
   runApp(
     const MyApp(),
@@ -50,7 +46,7 @@ class MyApp extends StatelessWidget {
           final authProvider = Get.find<AuthProvider>();
           return authProvider.user.value != null
               ? const UserMain()
-              : UserMain();
+              : AuthScreen();
         }),
       ),
     );

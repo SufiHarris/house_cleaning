@@ -3,14 +3,19 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/tracking/tracking_controller.dart';
 import 'package:intl/intl.dart';
+import '../../general_functions/booking_status.dart';
 import '../../tracking/google_map_widget.dart';
 import '../../user/models/bookings_model.dart';
 
 class EmployeeBookingDetail extends StatelessWidget {
   final BookingModel booking;
 
-  const EmployeeBookingDetail({Key? key, required this.booking})
-      : super(key: key);
+  final BookingController bookingController = Get.put(BookingController());
+
+  EmployeeBookingDetail({super.key, required this.booking});
+  // final String bookingId;
+
+  // BookingPage({required this.bookingId});
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +67,12 @@ class EmployeeBookingDetail extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       employeeTrackingController.startTracking();
-                      Get.to(() => EmployeeTrackingMap());
-                      // Implement start service functionality
+                      bookingController.updateBookingStatus(
+                          booking.booking_id.toString(), 'inprogress');
+
+                      Get.to(() => EmployeeTrackingMap(
+                            booking: booking,
+                          ));
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),

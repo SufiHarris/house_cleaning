@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import '../../auth/provider/auth_provider.dart';
+import '../../general_functions/user_profile_image.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 
@@ -32,7 +33,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   final TextEditingController passwordController =
       TextEditingController(); // Add this line
 
-  final UserProvider userProfileController = Get.put(UserProvider());
+  // final UserProvider userProfileController = Get.put(UserProvider());
   final AuthProvider authProvider = Get.find<AuthProvider>();
 
   @override
@@ -52,6 +53,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   }
 
   void _showPhotoOptions(BuildContext context) {
+    final ImageController imageController = Get.put(ImageController());
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -71,7 +73,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                     color: CustomColors.textColorThree), // Set text color
               ),
               onTap: () {
-                userProfileController.pickImageFromGallery();
+                imageController.pickImageFromGallery();
                 Get.back(); // Close bottom sheet
               },
             ),
@@ -85,7 +87,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                     color: CustomColors.textColorThree), // Set text color
               ),
               onTap: () {
-                userProfileController.pickImageFromCamera();
+                imageController.pickImageFromCamera();
                 Get.back(); // Close bottom sheet
               },
             ),
@@ -137,16 +139,17 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                         child: Stack(
                           children: [
                             Obx(() {
-                              return CircleAvatar(
-                                radius: 70,
-                                backgroundImage: userProfileController
-                                            .profileImage.value !=
-                                        null
-                                    ? FileImage(userProfileController
-                                        .profileImage.value!)
-                                    : const AssetImage(
-                                            'assets/images/UserProfile-Pic.png')
-                                        as ImageProvider,
+                              return GetBuilder<ImageController>(
+                                builder: (controller) {
+                                  return CircleAvatar(
+                                    radius: 60,
+                                    backgroundImage: controller.image != null
+                                        ? FileImage(controller.image!)
+                                        : const AssetImage(
+                                                'assets/images/UserProfile-Pic.png')
+                                            as ImageProvider,
+                                  );
+                                },
                               );
                             }),
                             Positioned(

@@ -84,21 +84,21 @@ class UserProvider extends GetxController {
   }
 
   // Image picking methods
-  Future<void> pickImageFromGallery() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      profileImage.value = File(pickedFile.path);
-    }
-  }
+  // Future<void> pickImageFromGallery() async {
+  //   final XFile? pickedFile =
+  //       await _picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     profileImage.value = File(pickedFile.path);
+  //   }
+  // }
 
-  Future<void> pickImageFromCamera() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      profileImage.value = File(pickedFile.path);
-    }
-  }
+  // Future<void> pickImageFromCamera() async {
+  //   final XFile? pickedFile =
+  //       await _picker.pickImage(source: ImageSource.camera);
+  //   if (pickedFile != null) {
+  //     profileImage.value = File(pickedFile.path);
+  //   }
+  // }
 
   // Fetch methods
   Future<void> fetchServicesByCategory(String category) async {
