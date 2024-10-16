@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
 
+import '../../auth/model/usermodel.dart';
 import '../../user/models/bookings_model.dart';
 
 class AdminProvider extends GetxController {
   var bookings = <BookingModel>[].obs;
   var employees = <StaffModel>[].obs;
+  var usersList = <UserModel>[].obs;
   var isLoading = true.obs;
 
   @override
@@ -48,6 +50,20 @@ class AdminProvider extends GetxController {
       print("Processed ${employees.length} employees");
       print(
           "First employee: ${employees.isNotEmpty ? employees[0].toString() : 'None'}");
+    } catch (e) {
+      print("Error fetching employees: $e");
+    }
+  }
+
+  Future<void> fetchUsers() async {
+    try {
+      var snapshot =
+          await FirebaseFirestore.instance.collection('users_table').get();
+
+      usersList.value = snapshot.docs.map((doc) {
+        return UserModel.fromFirestore(doc.data());
+      }).toList();
+      print("Processed ${usersList.length} employees");
     } catch (e) {
       print("Error fetching employees: $e");
     }

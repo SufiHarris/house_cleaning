@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:house_cleaning/admin/screeens/admin_bookings.dart';
 import 'package:house_cleaning/admin/screeens/admin_home.dart';
+import 'package:house_cleaning/admin/screeens/admin_management.dart';
 
 import '../../user/screens/user_bookings.dart';
 import '../../user/screens/user_product_screen.dart';
@@ -18,13 +19,14 @@ class _AdminMainState extends State<AdminMain> {
   final List<Widget> screens = [
     const AdminHome(),
     BookingManagementScreen(),
-    const UserProductScreen(),
+    const AdminManagement(),
     const UserBookings(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: screens[currentIndex], // Display the current screen
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
