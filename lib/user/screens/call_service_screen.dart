@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
+import 'package:house_cleaning/user/providers/user_provider.dart';
 import 'package:house_cleaning/user/widgets/review_tab.dart';
 import 'package:intl/intl.dart';
 
@@ -18,12 +20,22 @@ class CallServiceScreen extends StatefulWidget {
 
 class _CallServiceScreenState extends State<CallServiceScreen> {
   DateTime? selectedDate;
+  final userProvider = Get.find<UserProvider>();
+
   TimeOfDay? selectedStartTime;
   TimeOfDay? selectedEndTime;
   bool isStartTimeAM = true;
   bool isEndTimeAM = true;
   bool get isTimeSelected =>
       selectedStartTime != null && selectedEndTime != null;
+  // List to hold fetched reviews
+  @override
+  void initState() {
+    super.initState();
+    userProvider.fetchReviewsByCategory(widget
+        .category.categoryName); // Fetch reviews when the screen initializes
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,7 +156,10 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                         child: TabBarView(
                           children: [
                             _buildServiceDetails(context),
-                            ReviewsTab(review: reviews),
+                            ReviewsTab(
+                              review: userProvider.reviews,
+                              category: widget.category,
+                            ),
                           ],
                         ),
                       ),

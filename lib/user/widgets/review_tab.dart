@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
+import 'package:house_cleaning/user/models/category_model.dart';
+import 'package:house_cleaning/user/models/review_model.dart';
+import 'package:house_cleaning/user/providers/user_provider.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
 
 import '../models/service_model.dart';
 
 class ReviewsTab extends StatelessWidget {
+  final CategoryModel category;
   final List<Review> review;
 
   const ReviewsTab({
     super.key,
     required this.review,
+    required this.category,
   });
 
   @override
@@ -55,8 +62,9 @@ class ReviewsTab extends StatelessWidget {
         ),
         HeadingText(headingText: "What customers are saying"),
         ElevatedButton(
-          onPressed: () {
-            // Implement add review functionality
+          onPressed: () async {
+            // Call the method to add a review
+            await _handleAddReview();
           },
           child: Text('+ Add Review'),
           style: ElevatedButton.styleFrom(
@@ -78,6 +86,34 @@ class ReviewsTab extends StatelessWidget {
         )
       ],
     );
+  }
+
+  Future<void> _handleAddReview() async {
+    final userProvider = Get.find<UserProvider>();
+
+    // Fetch user data (like name, profile, userId, email)
+    Map<String, String> userData = await userProvider.fetchUserData();
+
+    if (userData.isNotEmpty) {
+      // Create the review model
+      ReviewModel newReview = ReviewModel(
+        userName: userData['userName'] ?? '',
+        userProfile: userData['userProfile'] ?? '',
+        userId: userData['userId'] ?? '',
+        userEmail: userData['userEmail'] ?? '',
+        reviewMessage:
+            'Working on our mobile app has been an incredible experience. It\'s user-friendly, efficient, and constantly improving. I\'m proud to be part of a team that values creativity and excellence.', // Default review message for now
+        rating: 5.0, // Default rating for now
+        categoryName:
+            category.categoryName, // Use the category from the constructor
+      );
+
+      // Add the review to Firestore
+      await userProvider.addReviewToFirestore(newReview);
+    } else {
+      Get.snackbar('Error', 'Failed to fetch user data',
+          backgroundColor: Colors.red);
+    }
   }
 
   Widget _buildReviewItem(Review review) {

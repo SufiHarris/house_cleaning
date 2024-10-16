@@ -3,9 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
+import 'package:house_cleaning/user/models/service_summary_model.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
 import '../../theme/custom_colors.dart';
-import '../models/service_summary_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +37,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchServices();
+    _fetchReviews(); // Fetch reviews on initialization
+
     if (userProvider.selectedDate.value == null) {
       userProvider.setSelectedDate(DateTime.now());
     }
@@ -46,6 +48,12 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
 
   void _fetchServices() {
     userProvider.fetchServicesByCategory(widget.category.categoryType);
+  }
+
+  Future<void> _fetchReviews() async {
+    // Fetch reviews based on the category and update the local reviews list
+    userProvider.fetchReviewsByCategory(widget.category.categoryName);
+    // Call setState to rebuild the widget with fetched reviews
   }
 
   @override
@@ -63,7 +71,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
         children: [
           _buildTopImageSection(category),
           _buildBackButton(),
-          _buildMainContent(),
+          _buildMainContent(category),
           _buildBottomFixedSection(),
         ],
       ),
@@ -109,7 +117,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(CategoryModel category) {
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.7,
@@ -135,7 +143,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   children: [
                     _buildLayoutSelectionScreen(scrollController),
                     ReviewsTab(
-                      review: reviews,
+                      review: userProvider.reviews,
+                      category: category,
                     ),
                   ],
                 ),

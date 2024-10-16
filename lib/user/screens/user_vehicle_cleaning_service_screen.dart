@@ -37,13 +37,17 @@ class _UserVehicleCleaningServiceScreenState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _fetchServices();
+
     userProvider.updateMyString(widget.category.categoryImage);
     userProvider.setSelectedCategory(widget.category);
+    userProvider.fetchServicesByCategory(widget.category.categoryName);
   }
 
   void _fetchServices() {
     userProvider.fetchServicesByCategory(widget.category.categoryType);
   }
+
+  // Method to fetch reviews based on category
 
   @override
   void dispose() {
@@ -60,7 +64,7 @@ class _UserVehicleCleaningServiceScreenState
         children: [
           _buildTopImageSection(category),
           _buildBackButton(),
-          _buildMainContent(),
+          _buildMainContent(category),
           _buildBottomFixedSection(),
         ],
       ),
@@ -106,7 +110,7 @@ class _UserVehicleCleaningServiceScreenState
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(CategoryModel category) {
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.7,
@@ -132,7 +136,8 @@ class _UserVehicleCleaningServiceScreenState
                   children: [
                     _buildLayoutSelectionScreen(scrollController),
                     ReviewsTab(
-                      review: reviews,
+                      review: userProvider.reviews,
+                      category: category,
                     ),
                   ],
                 ),
