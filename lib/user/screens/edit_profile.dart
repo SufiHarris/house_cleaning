@@ -347,7 +347,7 @@ class _EditProfileState extends State<EditProfile> {
                 style: TextStyle(color: CustomColors.textColorThree),
               ),
               onTap: () {
-                imageController.pickImageFromGallery();
+                imageController.pickImageFromCamera();
                 Get.back();
               },
             ),

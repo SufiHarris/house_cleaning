@@ -13,21 +13,16 @@ class ImageController extends GetxController {
   File? _image;
   File? get image => _image;
 
-  // Method to upload image to Firebase and update Firestore
   Future<String> uploadImageToFirebase(File imageFile, String userId) async {
     try {
-      // Create a reference to the storage bucket
       Reference storageReference = FirebaseStorage.instance.ref().child(
           'user_profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.png');
 
-      // Upload the image
       UploadTask uploadTask = storageReference.putFile(imageFile);
       TaskSnapshot taskSnapshot = await uploadTask;
 
-      // Get the download URL
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
-      // Update Firestore with the new image URL
       await FirebaseFirestore.instance
           .collection('users_table')
           .doc(userId)
@@ -47,7 +42,6 @@ class ImageController extends GetxController {
     }
   }
 
-  // Method to pick image from gallery
   Future<void> pickImageFromGallery() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
@@ -55,7 +49,7 @@ class ImageController extends GetxController {
 
     if (pickedFile != null) {
       _image = File(pickedFile.path);
-      update(); // Notify listeners of image update
+      update();
 
       String userDocId =
           (await SharedPreferences.getInstance()).getString('userDocId')!;
@@ -66,15 +60,13 @@ class ImageController extends GetxController {
         String? userDetails = prefs.getString('userDetails');
         if (userDetails != null) {
           Map<String, dynamic> userMap = jsonDecode(userDetails);
-          userMap['image'] = imageUrl; // Update image URL in local storage
-          await prefs.setString(
-              'userDetails', jsonEncode(userMap)); // Save updated user details
+          userMap['image'] = imageUrl;
+          await prefs.setString('userDetails', jsonEncode(userMap));
         }
       }
     }
   }
 
-  // Method to pick image from camera
   Future<void> pickImageFromCamera() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
@@ -82,7 +74,7 @@ class ImageController extends GetxController {
 
     if (pickedFile != null) {
       _image = File(pickedFile.path);
-      update(); // Notify listeners of image update
+      update();
 
       String userDocId =
           (await SharedPreferences.getInstance()).getString('userDocId')!;
@@ -93,9 +85,8 @@ class ImageController extends GetxController {
         String? userDetails = prefs.getString('userDetails');
         if (userDetails != null) {
           Map<String, dynamic> userMap = jsonDecode(userDetails);
-          userMap['image'] = imageUrl; // Update image URL in local storage
-          await prefs.setString(
-              'userDetails', jsonEncode(userMap)); // Save updated user details
+          userMap['image'] = imageUrl;
+          await prefs.setString('userDetails', jsonEncode(userMap));
         }
       }
     }
