@@ -13,31 +13,30 @@ class ImageController extends GetxController {
   File? _image;
   File? get image => _image;
 
-  Future<String> uploadImageToFirebase(File imageFile, String userId) async {
+  // Method to upload image to Firebase Storage and return the download URL
+  Future<String> uploadImageToFirebase(File imageFile) async {
     try {
+      // Create a reference in Firebase Storage
       Reference storageReference = FirebaseStorage.instance.ref().child(
-          'user_profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.png');
+          'user_profile_images/${DateTime.now().millisecondsSinceEpoch}.png');
 
+      // Upload the file
       UploadTask uploadTask = storageReference.putFile(imageFile);
       TaskSnapshot taskSnapshot = await uploadTask;
 
+      // Get and return the download URL
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-      await FirebaseFirestore.instance
-          .collection('users_table')
-          .doc(userId)
-          .update({
-        'image': downloadUrl,
-      });
-
       return downloadUrl;
     } catch (e) {
       print("Error uploading image: $e");
-      Get.snackbar("Error", "Failed to upload image. Please try again.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-          duration: Duration(seconds: 3));
+      Get.snackbar(
+        "Error",
+        "Failed to upload image. Please try again.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
       return "";
     }
   }
@@ -51,10 +50,7 @@ class ImageController extends GetxController {
       _image = File(pickedFile.path);
       update();
 
-      String userDocId =
-          (await SharedPreferences.getInstance()).getString('userDocId')!;
-      String imageUrl = await uploadImageToFirebase(_image!, userDocId);
-
+      String imageUrl = await uploadImageToFirebase(_image!);
       if (imageUrl.isNotEmpty) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? userDetails = prefs.getString('userDetails');
@@ -76,9 +72,7 @@ class ImageController extends GetxController {
       _image = File(pickedFile.path);
       update();
 
-      String userDocId =
-          (await SharedPreferences.getInstance()).getString('userDocId')!;
-      String imageUrl = await uploadImageToFirebase(_image!, userDocId);
+      String imageUrl = await uploadImageToFirebase(_image!);
 
       if (imageUrl.isNotEmpty) {
         SharedPreferences prefs = await SharedPreferences.getInstance();

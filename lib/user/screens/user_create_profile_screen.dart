@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
+import 'package:house_cleaning/user/screens/controller/user_addaddress_controller.dart';
 import '../../auth/model/usermodel.dart';
 import '../../general_functions/user_profile_image.dart';
 import '../../theme/custom_colors.dart';
@@ -22,18 +23,27 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   late TabController _tabController;
   bool isNextPressed = false;
 
+  final AddAddressController addAddressController =
+      Get.put(AddAddressController());
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController buildingController = TextEditingController();
-  final TextEditingController floorController = TextEditingController();
-  final TextEditingController landmarkController = TextEditingController();
   final TextEditingController passwordController =
       TextEditingController(); // Add this line
 
   final AuthProvider authProvider = Get.find<AuthProvider>();
   final ImageController imageController = Get.put(ImageController());
+
+  final RxBool isAllFieldsFilled = false.obs;
+
+  void checkFields() {
+    isAllFieldsFilled.value =
+        addAddressController.locationController.text.isNotEmpty &&
+            addAddressController.buildingController.text.isNotEmpty &&
+            addAddressController.floorController.text.isNotEmpty &&
+            addAddressController.landmarkController.text.isNotEmpty;
+  }
 
   @override
   void initState() {
@@ -275,6 +285,7 @@ class _CreateProfilePageState extends State<CreateProfilePage>
             ),
           ),
           // Address Details Tab
+          // Address Details Tab
           SingleChildScrollView(
             child: Padding(
               padding:
@@ -286,8 +297,10 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                       style: TextStyle(
                           color: CustomColors.textColorThree, fontSize: 16)),
                   SizedBox(height: 20),
+                  // Location TextField
                   TextField(
-                    controller: locationController,
+                    controller: addAddressController.locationController,
+                    onChanged: (_) => checkFields(),
                     decoration: InputDecoration(
                       hintText: 'Location',
                       labelStyle: const TextStyle(
@@ -306,8 +319,31 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                     ),
                   ),
                   SizedBox(height: 20),
+                  // Use Current Location Button
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await addAddressController.useCurrentLocation();
+                    },
+                    icon: Icon(Icons.location_pin,
+                        color: CustomColors.textColorThree),
+                    label: Text("Use Current Location",
+                        style: TextStyle(color: CustomColors.textColorThree)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: BorderSide(color: CustomColors.textColorThree),
+                      ),
+                      elevation: 0,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 75, vertical: 12),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Building TextField
                   TextField(
-                    controller: buildingController,
+                    controller: addAddressController.buildingController,
+                    onChanged: (_) => checkFields(),
                     decoration: InputDecoration(
                       hintText: 'Building Name',
                       labelStyle: const TextStyle(
@@ -326,8 +362,10 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                     ),
                   ),
                   SizedBox(height: 20),
+                  // Floor TextField
                   TextField(
-                    controller: floorController,
+                    controller: addAddressController.floorController,
+                    onChanged: (_) => checkFields(),
                     decoration: InputDecoration(
                       hintText: 'Floor',
                       labelStyle: const TextStyle(
@@ -346,8 +384,10 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                     ),
                   ),
                   SizedBox(height: 20),
+                  // Landmark TextField
                   TextField(
-                    controller: landmarkController,
+                    controller: addAddressController.landmarkController,
+                    onChanged: (_) => checkFields(),
                     decoration: InputDecoration(
                       hintText: 'Landmark',
                       labelStyle: const TextStyle(
@@ -373,26 +413,28 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                         if (nameController.text.isNotEmpty &&
                             emailController.text.isNotEmpty &&
                             phoneController.text.isNotEmpty &&
-                            passwordController.text.isNotEmpty &&
-                            locationController
-                                .text.isNotEmpty && // Check location
-                            buildingController
-                                .text.isNotEmpty && // Check building
-                            floorController.text.isNotEmpty && // Check floor
-                            landmarkController.text.isNotEmpty) {
+                            passwordController.text.isNotEmpty) {
                           // Check landmark
 
                           // Create the address model from the collected data
                           AddressModel address = AddressModel(
-                            location: locationController.text,
-                            building: buildingController.text,
-                            floor: int.parse(
-                                floorController.text), // Convert floor to int
-                            landmark: landmarkController.text,
+                            building:
+                                addAddressController.buildingController.text,
+                            floor: int.tryParse(addAddressController
+                                    .floorController.text) ??
+                                1,
                             geolocation: GeoLocationModel(
-                              lat: '0.0', // Dummy latitude value for now
-                              lon: '0.0', // Dummy longitude value for now
-                            ), // Pass a GeoLocationModel, not an empty list
+                              lat: addAddressController
+                                  .currentLocation.value!.latitude
+                                  .toString(),
+                              lon: addAddressController
+                                  .currentLocation.value!.longitude
+                                  .toString(),
+                            ),
+                            landmark:
+                                addAddressController.landmarkController.text,
+                            location:
+                                addAddressController.locationController.text,
                           );
 
                           // Call the save profile method
@@ -450,11 +492,19 @@ class _CreateProfilePageState extends State<CreateProfilePage>
     String? image,
     List<AddressModel> addresses = const [],
   }) async {
+    String imageUrl = ''; // Placeholder for image URL
+
+    // Check if an image is selected and upload it to Firebase
+    if (imageController.image != null) {
+      imageUrl =
+          await imageController.uploadImageToFirebase(imageController.image!);
+    }
+
     // Create the UserModel instance
     UserModel user = UserModel(
-      name: name ?? '', // Assign empty string if null
+      name: name ?? '',
       email: email ?? '',
-      image: image ?? '',
+      image: imageUrl, // Assign the uploaded image URL
       password: password ?? '',
       address: addresses,
       phone: phone ?? '',

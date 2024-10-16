@@ -5,7 +5,7 @@ class UserProductModel {
   final String? brand; // Optional fields
   final String? deliveryTime; // Optional fields
   final String? description; // Optional fields
-  final int? productId; // Optional fields
+  final String? productId; // Optional fields
   final int? quantity; // Optional fields
 
   UserProductModel({
