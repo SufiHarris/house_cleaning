@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/employee/provider/employee_provider.dart';
+import 'package:house_cleaning/employee/screens/add_employee_screen.dart';
 import 'package:house_cleaning/employee/widgets/employee_booking_card.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../../theme/custom_colors.dart';
@@ -70,6 +71,7 @@ class EmployeeHome extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       authProvider.signOut();
+                      //Get.to(() => AddEmployeeScreen());
                     },
                     child: Container(
                       decoration: const BoxDecoration(color: Colors.white),

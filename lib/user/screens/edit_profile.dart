@@ -71,6 +71,13 @@ class _EditProfileState extends State<EditProfile> {
       if (userDetails != null && userDocId != null) {
         Map<String, dynamic> userMap = jsonDecode(userDetails);
 
+        // Get the current image from the ImageController
+        String? newImageUrl;
+        if (widget.imageController.image != null) {
+          newImageUrl = await widget.imageController
+              .uploadImageToFirebase(widget.imageController.image!);
+        }
+
         // Get the old email for comparison
         String oldEmail = userMap['email'];
 
@@ -85,7 +92,8 @@ class _EditProfileState extends State<EditProfile> {
           phone: phoneController.text.isNotEmpty
               ? phoneController.text
               : userMap['phone'],
-          image: userMap['image'] ?? '',
+          image:
+              newImageUrl ?? userMap['image'], // Use new image URL if available
           password: userMap['password'] ?? '',
           address: userMap['address'] != null
               ? List<AddressModel>.from((userMap['address'] as List)
