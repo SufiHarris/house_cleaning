@@ -348,7 +348,7 @@ class UserProvider extends GetxController {
                         name: p.product_name,
                         quantity: p.quantity,
                         deliveryTime: p.delivery_time,
-                        price: p.price,
+                        price: p.price * p.quantity,
                         imageUrl: p.imageUrl,
                       ))
                   .toList(),
@@ -396,13 +396,17 @@ class UserProvider extends GetxController {
             totalPrice: s.price,
           )));
 
-      combinedProducts.addAll(booking.products.map((p) => UserProductModel(
+      combinedProducts.addAll(
+        booking.products.map(
+          (p) => UserProductModel(
             name: p.product_name,
             quantity: p.quantity,
             deliveryTime: p.delivery_time,
-            price: p.price,
+            price: p.price * p.quantity,
             imageUrl: p.imageUrl,
-          )));
+          ),
+        ),
+      );
 
       if (categoryName.isEmpty && booking.categoryName.isNotEmpty) {
         categoryName = booking.categoryName;
@@ -421,15 +425,17 @@ class UserProvider extends GetxController {
     }
 
     await saveBookingToFirestore(
-        bookingData: await createBookingDocument(
-      bookingDate: dateOnly,
-      services: combinedServices,
-      products: combinedProducts,
-      categoryName: categoryName,
-      categoryImage: categoryImage,
-      address: address,
-    ));
+      bookingData: await createBookingDocument(
+        bookingDate: dateOnly,
+        services: combinedServices,
+        products: combinedProducts,
+        categoryName: categoryName,
+        categoryImage: categoryImage,
+        address: address,
+      ),
+    );
   }
+
   // ... existing code ...
 
   Future<void> updateProductQuantity(
@@ -451,7 +457,7 @@ class UserProvider extends GetxController {
         name: product.product_name,
         quantity: newQuantity,
         deliveryTime: product.delivery_time,
-        price: product.price * product.quantity,
+        price: product.price,
         imageUrl: product.imageUrl,
       );
 
@@ -538,7 +544,7 @@ class UserProvider extends GetxController {
         }
       ],
       'start_image': '',
-      'status': 'pending',
+      'status': 'unassigned',
       'total_price':
           calculateTotalPrice(services: services, products: products),
       'user_id': userId.value, // Use userId from the observable here
