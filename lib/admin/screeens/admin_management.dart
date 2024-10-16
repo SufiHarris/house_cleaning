@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/admin/screeens/employee_management.dart';
 import 'package:house_cleaning/admin/screeens/user_management.dart';
 import 'package:house_cleaning/admin/widget/management_widget.dart';
 
@@ -26,9 +27,14 @@ class AdminManagement extends StatelessWidget {
                   nameString: "Users"),
             ),
             Divider(),
-            ManagementWidget(
-                iconString: "assets/images/icon_bell.svg",
-                nameString: "Employee"),
+            GestureDetector(
+              onTap: () {
+                Get.to(EmployeeManagement());
+              },
+              child: ManagementWidget(
+                  iconString: "assets/images/icon_bell.svg",
+                  nameString: "Employee"),
+            ),
             Divider(),
             ManagementWidget(
                 iconString: "assets/images/icon_bell.svg",

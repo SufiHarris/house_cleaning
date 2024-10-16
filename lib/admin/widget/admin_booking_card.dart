@@ -123,7 +123,9 @@ class AdminBookingCard extends StatelessWidget {
                         SizedBox(width: 5),
                         Text(
                           booking.status,
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: _getStatusColor(booking.status)),
                         ),
                       ],
                     )
@@ -172,8 +174,8 @@ class AdminBookingCard extends StatelessWidget {
 
 Color _getStatusColor(String status) {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return Colors.yellow;
+    case 'unassigned':
+      return CustomColors.trackButton;
     case 'in progress':
       return Colors.blue;
     case 'completed':

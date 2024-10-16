@@ -5,6 +5,7 @@ import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
+import 'admin/provider/admin_provider.dart';
 import 'employee/provider/employee_provider.dart';
 import 'firebase_options.dart';
 import 'general_functions/user_profile_image.dart';
@@ -28,6 +29,9 @@ void main() async {
   );
   Get.put(
     EmployeeProvider(),
+  );
+  Get.put(
+    AdminProvider(),
   );
   Get.put(ImageController());
   runApp(
