@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:house_cleaning/user/models/review_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../../auth/model/staff_model.dart';
@@ -38,6 +39,8 @@ class UserProvider extends GetxController {
   var userAddresses = <AddressModel>[].obs; // Observable list for addresses
   // final prefs = await SharedPreferences.getInstance();
   // final userId = prefs.getString('userDocId') ?? '';
+  var reviews = <Review>[].obs; // Observable list of reviews
+
   var userId = ''.obs;
   @override
   void onInit() {
@@ -236,6 +239,75 @@ class UserProvider extends GetxController {
       print("Error fetching bookings: $e");
     } finally {
       isLoading.value = false;
+    }
+  }
+
+// Review Related Methods..
+  Future<Map<String, String>> fetchUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userDetails = prefs.getString('userDetails');
+
+    if (userDetails != null) {
+      Map<String, dynamic> userMap = jsonDecode(userDetails);
+      UserModel user = UserModel.fromFirestore(userMap);
+
+      // Return user details like name, profile, email, etc.
+      return {
+        'userName': user.name ?? '',
+        'userProfile': user.image ?? '',
+        'userId': user.userId ?? '',
+        'userEmail': user.email ?? '',
+      };
+    } else {
+      // Handle no user case, maybe navigate to login
+      return {};
+    }
+  }
+
+  Future<void> addReviewToFirestore(ReviewModel review) async {
+    try {
+      CollectionReference reviews =
+          FirebaseFirestore.instance.collection('review_table');
+
+      // Save review to Firestore and retrieve document ID
+      DocumentReference docRef = await reviews.add(review.toMap());
+
+      // Update reviewId with the Firestore-generated document ID
+      await docRef.update({'review_id': docRef.id});
+
+      Get.snackbar('Success', 'Review added successfully',
+          backgroundColor: Colors.green);
+    } catch (e) {
+      print('Error adding review: $e');
+      Get.snackbar('Error', 'Failed to add review',
+          backgroundColor: Colors.red);
+    }
+  }
+
+  // Method to fetch reviews by category name
+  Future<void> fetchReviewsByCategory(String categoryName) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('review_table')
+          .where('category_name', isEqualTo: categoryName)
+          .get();
+
+      List<Review> fetchedReviews = querySnapshot.docs.map((doc) {
+        return Review(
+          userName: doc['user_name'],
+          userImage: doc['user_profile'],
+          rating: doc['rating'],
+          comment: doc['review_message'],
+        );
+      }).toList();
+
+      // Update the observable list
+      reviews.assignAll(fetchedReviews);
+      print('no of review : ${reviews.length}');
+      print('no of review : ${fetchedReviews.length}');
+    } catch (e) {
+      print('Error fetching reviews: $e');
+      reviews.clear(); // Clear the list on error
     }
   }
 

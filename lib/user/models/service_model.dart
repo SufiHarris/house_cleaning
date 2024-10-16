@@ -48,8 +48,16 @@ class Review {
   final double rating;
   final String comment;
 
-  Review(this.userName, this.userImage, this.rating, this.comment);
+  Review({
+    required this.userName,
+    required this.userImage,
+    required this.rating,
+    required this.comment,
+  });
 }
+
+
+
 
 // class Service {
 //   final String name;
@@ -66,14 +74,7 @@ class Review {
 //       this.imageUrl, this.detailImageUrl);
 // }
 
-final List<Review> reviews = [
-  Review('Saad Falah Abdullah', 'assets/images/user1.jpg', 4.2,
-      'Working on our mobile app has been an incredible experience. It\'s user-friendly, efficient, and constantly improving. I\'m proud to be part of a team that values creativity and excellence.'),
-  Review('John Doe', 'assets/images/user2.jpg', 5.0,
-      'Excellent service! My home has never been cleaner.'),
-  Review('Jane Smith', 'assets/images/user3.jpg', 3.8,
-      'Good service overall, but theres room for improvement.'),
-];
+
 
 // final List<Service> services = [
 //   Service(
