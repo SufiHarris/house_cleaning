@@ -7,6 +7,7 @@ import 'package:house_cleaning/user/screens/user_main.dart';
 
 import 'employee/provider/employee_provider.dart';
 import 'firebase_options.dart';
+import 'general_functions/user_profile_image.dart';
 import 'theme/custom_theme.dart';
 import 'tracking/tracking_controller.dart';
 import 'user/providers/user_provider.dart';
@@ -28,6 +29,7 @@ void main() async {
   Get.put(
     EmployeeProvider(),
   );
+  Get.put(ImageController());
   runApp(
     const MyApp(),
   );

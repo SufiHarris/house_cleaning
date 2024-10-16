@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:house_cleaning/auth/model/usermodel.dart';
-import '../../auth/provider/auth_provider.dart';
+import 'package:house_cleaning/auth/provider/auth_provider.dart';
+import '../../auth/model/usermodel.dart';
 import '../../general_functions/user_profile_image.dart';
 import '../../theme/custom_colors.dart';
-import '../providers/user_provider.dart';
+// import '../../controllers/image_controller.dart';
 
 class CreateProfilePage extends StatefulWidget {
   final String email;
@@ -33,8 +32,8 @@ class _CreateProfilePageState extends State<CreateProfilePage>
   final TextEditingController passwordController =
       TextEditingController(); // Add this line
 
-  // final UserProvider userProfileController = Get.put(UserProvider());
   final AuthProvider authProvider = Get.find<AuthProvider>();
+  final ImageController imageController = Get.put(ImageController());
 
   @override
   void initState() {
@@ -52,49 +51,32 @@ class _CreateProfilePageState extends State<CreateProfilePage>
     super.dispose();
   }
 
+  // Show options to pick an image from gallery or take a new one using the camera
   void _showPhotoOptions(BuildContext context) {
-    final ImageController imageController = Get.put(ImageController());
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        decoration: const BoxDecoration(
-          color: Colors.white, // Background color of the bottom sheet
-          borderRadius: BorderRadius.vertical(
-              top: Radius.circular(16)), // Rounded corners
-        ),
-        child: Wrap(
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
           children: [
             ListTile(
-              leading: Icon(Icons.photo_library,
-                  color: CustomColors.textColorThree), // Set icon color
-              title: Text(
-                'Choose from Gallery',
-                style: TextStyle(
-                    color: CustomColors.textColorThree), // Set text color
-              ),
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Pick from Gallery'),
               onTap: () {
+                Get.back(); // Close the modal
                 imageController.pickImageFromGallery();
-                Get.back(); // Close bottom sheet
               },
             ),
-            Divider(), // Divider for better separation
             ListTile(
-              leading: Icon(Icons.camera_alt,
-                  color: CustomColors.textColorThree), // Set icon color
-              title: Text(
-                'Take a Photo',
-                style: TextStyle(
-                    color: CustomColors.textColorThree), // Set text color
-              ),
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a Photo'),
               onTap: () {
+                Get.back(); // Close the modal
                 imageController.pickImageFromCamera();
-                Get.back(); // Close bottom sheet
               },
             ),
           ],
-        ),
-      ),
-      isScrollControlled: true, // Allow scrolling if needed
+        );
+      },
     );
   }
 
@@ -138,20 +120,18 @@ class _CreateProfilePageState extends State<CreateProfilePage>
                       Expanded(
                         child: Stack(
                           children: [
-                            Obx(() {
-                              return GetBuilder<ImageController>(
-                                builder: (controller) {
-                                  return CircleAvatar(
-                                    radius: 60,
-                                    backgroundImage: controller.image != null
-                                        ? FileImage(controller.image!)
-                                        : const AssetImage(
-                                                'assets/images/UserProfile-Pic.png')
-                                            as ImageProvider,
-                                  );
-                                },
-                              );
-                            }),
+                            GetBuilder<ImageController>(
+                              builder: (controller) {
+                                return CircleAvatar(
+                                  radius: 60,
+                                  backgroundImage: controller.image != null
+                                      ? FileImage(controller.image!)
+                                      : const AssetImage(
+                                              'assets/images/UserProfile-Pic.png')
+                                          as ImageProvider,
+                                );
+                              },
+                            ),
                             Positioned(
                               bottom: 0,
                               right: 200,
