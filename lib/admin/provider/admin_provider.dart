@@ -38,8 +38,12 @@ class AdminProvider extends GetxController {
   Future<void> fetchEmployees() async {
     print("Starting fetchEmployees method");
     try {
-      var snapshot =
-          await FirebaseFirestore.instance.collection('staff_table').get();
+      // Adding a filter to only fetch employees whose role is not 'admin'
+      var snapshot = await FirebaseFirestore.instance
+          .collection('staff_table')
+          .where('role', isNotEqualTo: 'admin')
+          .get();
+
       print("Fetched ${snapshot.docs.length} employee documents");
 
       employees.value = snapshot.docs.map((doc) {

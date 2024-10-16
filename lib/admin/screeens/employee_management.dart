@@ -4,8 +4,8 @@ import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import '../provider/admin_provider.dart';
 
-class UserManagement extends StatelessWidget {
-  const UserManagement({super.key});
+class EmployeeManagement extends StatelessWidget {
+  const EmployeeManagement({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +44,12 @@ class UserManagement extends StatelessWidget {
             Icon(Icons.people, size: 24),
             SizedBox(width: 8),
             Text(
-              'Total Users',
+              'Total Employees',
               style: TextStyle(fontSize: 18),
             ),
             Spacer(),
             Obx(() => Text(
-                  '${adminProvider.usersList.length}',
+                  '${adminProvider.employees.length}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 )),
           ],

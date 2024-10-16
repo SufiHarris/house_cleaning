@@ -22,6 +22,10 @@ class CustomColors {
   static Color employeeBgTwo = const Color.fromRGBO(233, 233, 233, 1);
   static Color textColorSix = const Color.fromRGBO(86, 86, 86, 1);
   static Color textColorSeven = const Color.fromRGBO(64, 64, 64, 1);
-  static Color callButtonBg = const Color.fromRGBO(20, 239, 254, 1);
+  static Color textColorEight = const Color.fromRGBO(124, 124, 124, 1);
+  static Color callButtonBg = const Color.fromRGBO(240, 239, 254, 1);
+
   static Color callButton = const Color.fromRGBO(67, 37, 255, 1);
+  static Color trackButtonBg = const Color.fromRGBO(250, 238, 205, 1);
+  static Color trackButton = const Color.fromRGBO(229, 169, 4, 1);
 }

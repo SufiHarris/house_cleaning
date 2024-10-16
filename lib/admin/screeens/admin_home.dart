@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/admin/widget/admin_booking_card.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/employee/provider/employee_provider.dart';
+import 'package:house_cleaning/user/screens/user_bookings_detail_page.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../../theme/custom_colors.dart';
 import '../../user/providers/user_provider.dart';
@@ -168,7 +169,14 @@ class AdminHome extends StatelessWidget {
   Widget _buildBookingsList(AdminProvider adminProvider) {
     return Obx(() {
       if (adminProvider.isLoading.value) {
-        return Center(child: CircularProgressIndicator());
+        return Column(
+          children: [
+            SizedBox(
+              height: 150,
+            ),
+            Center(child: CircularProgressIndicator()),
+          ],
+        );
       }
 
       if (adminProvider.bookings.isEmpty) {
@@ -178,9 +186,6 @@ class AdminHome extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 50,
-                ),
                 Icon(
                   Icons.event_busy,
                   size: 64,
@@ -217,9 +222,14 @@ class AdminHome extends StatelessWidget {
           final booking = adminProvider.bookings[index];
           return GestureDetector(
             onTap: () => {},
-            child: AdminBookingCard(
-              booking: booking,
-              adminProvider: adminProvider,
+            child: GestureDetector(
+              onTap: () {
+                Get.to(UserBookingDetailsPage(booking: booking));
+              },
+              child: AdminBookingCard(
+                booking: booking,
+                adminProvider: adminProvider,
+              ),
             ),
           );
         },
