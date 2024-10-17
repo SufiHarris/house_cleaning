@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
+import 'package:house_cleaning/employee/screens/add_employee_screen.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import '../provider/admin_provider.dart';
 
@@ -19,12 +21,77 @@ class EmployeeManagement extends StatelessWidget {
       body: Column(
         children: [
           _buildTotalUsersCard(adminProvider),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search Employee",
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.white,
+                      prefixIcon: Icon(Icons.search),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: CustomColors.textfieldBorderColor, width: 1),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: CustomColors.textfieldBorderColor, width: 1),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10), // Adds space between TextField and button
+                GestureDetector(
+                  onTap: () {
+                    Get.to(AddEmployeeScreen());
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: CustomColors.primaryColor,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.add,
+                            color: CustomColors.eggPlant,
+                          ),
+                          Text(
+                            'ADD',
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: CustomColors.eggPlant,
+                                    ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+
+          SizedBox(height: 16), // Space between Row and ListView.builder
+
           Expanded(
             child: Obx(() => ListView.builder(
-                  itemCount: adminProvider.usersList.length,
+                  itemCount: adminProvider.employees.length,
                   itemBuilder: (context, index) {
-                    final user = adminProvider.usersList[index];
-                    return _buildUserCard(user);
+                    final employee = adminProvider.employees[index];
+                    return _buildEmployeeCard(employee);
                   },
                 )),
           ),
@@ -34,8 +101,11 @@ class EmployeeManagement extends StatelessWidget {
   }
 
   Widget _buildTotalUsersCard(AdminProvider adminProvider) {
-    return Card(
-      color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(10)),
       margin: EdgeInsets.all(16),
       child: Padding(
         padding: EdgeInsets.all(16),
@@ -58,82 +128,96 @@ class EmployeeManagement extends StatelessWidget {
     );
   }
 
-  Widget _buildUserCard(UserModel user) {
+  Widget _buildEmployeeCard(StaffModel employee) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-
         border: Border.all(
-          // Adding the border
           color: Colors.grey.shade300, // Border color
           width: 1.0, // Border width
         ),
-        borderRadius: BorderRadius.circular(8), // Optional: add rounded corners
+        borderRadius: BorderRadius.circular(8), // Rounded corners
       ),
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: Image.network(
-                    user.image,
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      } else {
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.network(
+                      employee.image,
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        } else {
+                          return Container(
+                            width: 30,
+                            height: 30,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.0,
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      errorBuilder: (context, error, stackTrace) {
                         return Container(
                           width: 30,
                           height: 30,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.0,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[600],
                           ),
                         );
-                      }
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 30,
-                        height: 30,
-                        color: Colors.grey[300],
-                        child: Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey[600],
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(width: 16),
-                Text(
-                  user.name,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
+                  SizedBox(width: 16),
+                  Text(
+                    employee.name,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(AddEmployeeScreen());
+                    },
+                    child: Icon(
+                      Icons.edit,
+                      color: CustomColors.primaryColor,
+                    ),
+                  )
+                ],
+              ),
             ),
             Divider(),
-            SizedBox(height: 16),
-            _buildInfoRow(Icons.email, 'Email', user.email),
+            _buildInfoRow(Icons.email, 'Status', 'Active'),
             Divider(),
-            _buildInfoRow(Icons.phone, 'Phone', user.phone),
+            _buildInfoRow(Icons.email, 'Email', employee.email),
             Divider(),
-            _buildInfoRow(Icons.location_on, 'Address',
-                user.address.isNotEmpty ? user.address.first.landmark : 'N/A'),
+            _buildInfoRow(
+                Icons.phone, 'Phone Number', employee.phoneNumber.toString()),
+            Divider(),
+            _buildInfoRow(Icons.phone, 'Emergency Number',
+                employee.phoneNumber.toString()),
           ],
         ),
       ),
