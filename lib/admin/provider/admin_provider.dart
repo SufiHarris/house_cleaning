@@ -4,11 +4,14 @@ import 'package:house_cleaning/auth/model/staff_model.dart';
 
 import '../../auth/model/usermodel.dart';
 import '../../user/models/bookings_model.dart';
+import '../../user/models/product_model.dart';
 
 class AdminProvider extends GetxController {
   var bookings = <BookingModel>[].obs;
   var employees = <StaffModel>[].obs;
   var usersList = <UserModel>[].obs;
+  var products = <UserProductModel>[].obs;
+
   var isLoading = true.obs;
 
   @override
@@ -70,6 +73,22 @@ class AdminProvider extends GetxController {
       print("Processed ${usersList.length} employees");
     } catch (e) {
       print("Error fetching employees: $e");
+    }
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      isLoading.value = true;
+      var snapshot =
+          await FirebaseFirestore.instance.collection('product_table').get();
+      products.value = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return UserProductModel.fromFirestore(data);
+      }).toList();
+    } catch (e) {
+      print("Error fetching products: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 }
