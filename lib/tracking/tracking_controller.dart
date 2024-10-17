@@ -18,18 +18,38 @@ class EmployeeTrackingController extends GetxController {
   RxSet<Marker> markers = <Marker>{}.obs;
   RxString elapsedTime = ''.obs;
   RxBool hasReachedDestination = false.obs;
+  RxBool isLoading = false.obs; // Loading state
   StreamSubscription<Position>? positionStream;
+  RxBool isLoadingETA = true.obs;
+  RxBool isLoadingRemainingDistance = true.obs;
   final String googleAPIKey = 'AIzaSyAVoVAhzDDnrAY8pT_9v57TN0A0q9B4JGs';
   late DateTime startTime;
+  LatLng previousLatLng = LatLng(0, 0);
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   void onInit() {
     super.onInit();
-    clientLocation.value =
-        LatLng(34.1289468, 74.8416077); // Set client location
+    // Set client location
     checkLocationPermission();
+  }
+
+  // void setClientLocation(double lat, double lon) {
+  //   // Create a LatLng object with the provided latitude and longitude
+  //   LatLng newLocation = LatLng(lat, lon);
+
+  //   // Update the clientLocation variable
+  //   clientLocation.value = newLocation;
+  //   print("Client location set to: $lat, $lon");
+  // }
+  void setClientLocation(LatLng newLocation) {
+    clientLocation.value = newLocation;
+    print(
+        "Client location set to: ${newLocation.latitude}, ${newLocation.longitude}");
+
+    // Call functions after the client location is set
+    startTracking(); // Start tracking when the location is set
   }
 
   void checkLocationPermission() async {
@@ -43,7 +63,7 @@ class EmployeeTrackingController extends GetxController {
     }
     if (permission == LocationPermission.whileInUse ||
         permission == LocationPermission.always) {
-      startTracking();
+      //  startTracking();
     } else {
       print('Location permission not granted.');
     }
@@ -87,21 +107,20 @@ class EmployeeTrackingController extends GetxController {
       fetchRouteForEmployee(
           LatLng(position.latitude, position.longitude), clientLocation.value!);
       updateElapsedTime();
-      adjustZoomBasedOnSpeed(position.speed);
       saveEmployeeLocationToFirestore(position);
-      checkIfReachedDestination(); // Check if the employee has reached the destination
+      checkIfReachedDestination();
     });
   }
 
   void checkIfReachedDestination() {
-    if (remainingDistance.value <= 1000) {
-      // Threshold to check if within 50 meters
-      hasReachedDestination.value = true; // Enable the "Reached" button
+    if (remainingDistance.value <= 100) {
+      hasReachedDestination.value = true;
     }
   }
 
   void calculateDistance() {
     if (currentPosition.value != null && clientLocation.value != null) {
+      isLoadingRemainingDistance.value = true;
       double distanceInMeters = Geolocator.distanceBetween(
         currentPosition.value!.latitude,
         currentPosition.value!.longitude,
@@ -110,6 +129,7 @@ class EmployeeTrackingController extends GetxController {
       );
       remainingDistance.value = distanceInMeters;
       totalDistance.value = distanceInMeters / 1000;
+      isLoadingRemainingDistance.value = false;
     }
   }
 
@@ -129,11 +149,13 @@ class EmployeeTrackingController extends GetxController {
   }
 
   void updateElapsedTime() {
+    isLoadingETA.value = true;
     Duration duration = DateTime.now().difference(startTime);
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     elapsedTime.value = "$twoDigitMinutes:$twoDigitSeconds";
+    isLoadingETA.value = false;
   }
 
   void moveMapToCurrentPosition() {
@@ -142,23 +164,17 @@ class EmployeeTrackingController extends GetxController {
         currentPosition.value!.latitude,
         currentPosition.value!.longitude,
       );
-      mapController!.animateCamera(
-        CameraUpdate.newLatLng(currentLatLng),
-      );
-    }
-  }
 
-  void adjustZoomBasedOnSpeed(double speed) {
-    if (mapController != null) {
-      double zoomLevel;
-      if (speed < 10) {
-        zoomLevel = 18.0;
-      } else if (speed < 15) {
-        zoomLevel = 16.0;
-      } else {
-        zoomLevel = 14.0;
+      // Check if the movement is significant (e.g., greater than 10 meters)
+      if (Geolocator.distanceBetween(
+              previousLatLng.latitude,
+              previousLatLng.longitude,
+              currentLatLng.latitude,
+              currentLatLng.longitude) >
+          10) {
+        mapController!.animateCamera(CameraUpdate.newLatLng(currentLatLng));
+        previousLatLng = currentLatLng; // Update the previous position
       }
-      mapController!.animateCamera(CameraUpdate.zoomTo(zoomLevel));
     }
   }
 
@@ -172,6 +188,9 @@ class EmployeeTrackingController extends GetxController {
             currentPosition.value!.latitude,
             currentPosition.value!.longitude,
           ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          rotation:
+              currentPosition.value!.heading, // Use the heading for direction
         ),
       );
     }
@@ -187,9 +206,11 @@ class EmployeeTrackingController extends GetxController {
 
   Future<void> fetchRouteForEmployee(
       LatLng employeeOrigin, LatLng clientDestination) async {
+    isLoading.value = true; // Show loading
     final url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=${employeeOrigin.latitude},${employeeOrigin.longitude}&destination=${clientDestination.latitude},${clientDestination.longitude}&key=$googleAPIKey';
     try {
+      print('Fetching route with URL: $url'); // Debugging statement
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -202,6 +223,7 @@ class EmployeeTrackingController extends GetxController {
           totalDistance.value = legs['distance']['value'] / 1000;
           updateMarkers();
           updateMapToFitRoute();
+          print("Route fetched successfully"); // Debugging statement
         } else {
           print('No routes found');
         }
@@ -210,6 +232,8 @@ class EmployeeTrackingController extends GetxController {
       }
     } catch (e) {
       print('Error: $e');
+    } finally {
+      isLoading.value = false; // Hide loading
     }
   }
 

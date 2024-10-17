@@ -66,10 +66,11 @@ class EmployeeBookingDetail extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      employeeTrackingController.startTracking();
+                      // employeeTrackingController.startTracking();
                       bookingController.updateBookingStatus(
                           booking.booking_id.toString(), 'inprogress');
 
+                      // Navigate to the EmployeeTrackingMap with lat and lng
                       Get.to(() => EmployeeTrackingMap(
                             booking: booking,
                           ));
