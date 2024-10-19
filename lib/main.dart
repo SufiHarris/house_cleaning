@@ -18,15 +18,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   Get.put(
     AuthProvider(),
   );
+
   Get.put(
     UserProvider(),
   );
+
   Get.put(
     EmployeeTrackingController(),
   );
+
   Get.put(
     EmployeeProvider(),
   );

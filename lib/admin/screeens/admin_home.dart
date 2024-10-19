@@ -22,7 +22,7 @@ class AdminHome extends StatelessWidget {
 
     employeeProvider.loadStaffDetails();
     employeeProvider.fetchEmployeeBookings();
-    adminProvider.fetchBookings();
+    adminProvider.fetchBookings(DateTime.now().year);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
