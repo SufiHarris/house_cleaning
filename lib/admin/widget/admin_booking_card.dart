@@ -265,6 +265,7 @@ Widget _buildButtons(
       break;
     case 'working':
     case 'completed':
+    case 'assigned':
       buttonContent = ElevatedButton(
         onPressed: () => _handleShowDetails(context, booking),
         child: Text('Show Details'),

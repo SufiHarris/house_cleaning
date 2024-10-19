@@ -158,4 +158,35 @@ class AdminProvider extends GetxController {
       print("Error deleting product: $e");
     }
   }
+
+  Map<String, int> getBookingCounts() {
+    int completed = 0;
+    int inProcess = 0;
+    int unAssigned = 0;
+    int cancelled = 0;
+
+    for (var booking in bookings) {
+      switch (booking.status.toLowerCase()) {
+        case 'completed':
+          completed++;
+          break;
+        case 'in-process':
+          inProcess++;
+          break;
+        case 'unassigned':
+          unAssigned++;
+          break;
+        case 'cancelled':
+          cancelled++;
+          break;
+      }
+    }
+
+    return {
+      'completed': completed,
+      'inProcess': inProcess,
+      'unAssigned': unAssigned,
+      'cancelled': cancelled,
+    };
+  }
 }
