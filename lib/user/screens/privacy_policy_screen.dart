@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Privacy Policy")),
+      appBar: AppBar(title: Text(S.of(context).privacyPolicy)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

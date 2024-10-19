@@ -8,6 +8,7 @@ import 'package:house_cleaning/user/screens/privacy_policy_screen.dart';
 import 'package:house_cleaning/user/screens/user_profile.dart';
 import 'package:house_cleaning/user/widgets/setting_widget.dart';
 import '../../auth/provider/auth_provider.dart';
+import '../../generated/l10n.dart';
 
 class UserSettings extends StatelessWidget {
   const UserSettings({super.key});
@@ -18,22 +19,34 @@ class UserSettings extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings"),
+        title: Text(S.of(context).settings),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.language),
+            onPressed: () {
+              // Toggle language between Arabic and English
+              if (Get.locale == Locale('en', '')) {
+                Get.updateLocale(Locale('ar', ''));
+              } else {
+                Get.updateLocale(Locale('en', ''));
+              }
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<UserModel?>(
-        future: getUserDetailsFromLocal(), // Fetch user details
+        future: getUserDetailsFromLocal(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error fetching user details'));
+            return Center(child: Text(S.of(context).errorFetchingUserDetails));
           }
 
           final user = snapshot.data;
 
-          // Ensure that the page is shown regardless of whether the user is null or not
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -60,7 +73,7 @@ class UserSettings extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Text(
-                user?.name ?? 'Guest User', // Show 'Guest User' if user is null
+                user?.name ?? S.of(context).guestUser,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -70,7 +83,7 @@ class UserSettings extends StatelessWidget {
               SizedBox(height: 30),
               ProfileMenuItem(
                 svgIconPath: 'assets/images/Profile-Pic.svg',
-                text: "My Profile",
+                text: S.of(context).myProfile,
                 onTap: () {
                   Get.to(() => UserProfile());
                 },
@@ -78,7 +91,7 @@ class UserSettings extends StatelessWidget {
               Divider(thickness: 0.5, color: Colors.grey[300]),
               ProfileMenuItem(
                 svgIconPath: 'assets/images/Profile-Address.svg',
-                text: "Manage Address",
+                text: S.of(context).manageAddress,
                 onTap: () {
                   Get.to(() => ManageAddress());
                 },
@@ -86,7 +99,7 @@ class UserSettings extends StatelessWidget {
               Divider(thickness: 0.5, color: Colors.grey[300]),
               ProfileMenuItem(
                 svgIconPath: 'assets/images/Profile-Password.svg',
-                text: "Change Password",
+                text: S.of(context).changePassword, // Localized menu item
                 onTap: () {
                   Get.to(() => ChangePassword());
                 },
@@ -94,7 +107,7 @@ class UserSettings extends StatelessWidget {
               Divider(thickness: 0.5, color: Colors.grey[300]),
               ProfileMenuItem(
                 svgIconPath: 'assets/images/Profile-T&C.svg',
-                text: "Terms & Conditions",
+                text: S.of(context).termsAndConditions, // Localized menu item
                 onTap: () {
                   Get.to(() => TermsAndConditionsPage());
                 },
@@ -102,7 +115,7 @@ class UserSettings extends StatelessWidget {
               Divider(thickness: 0.5, color: Colors.grey[300]),
               ProfileMenuItem(
                 svgIconPath: 'assets/images/Profile-Privacy.svg',
-                text: "Privacy Policy",
+                text: S.of(context).privacyPolicy, // Localized menu item
                 onTap: () {
                   Get.to(() => PrivacyPolicyPage());
                 },
@@ -117,7 +130,7 @@ class UserSettings extends StatelessWidget {
                 onPressed: () {
                   authProvider.signOut();
                 },
-                child: const Text("Log out"),
+                child: Text(S.of(context).logOut), // Localized log out button
               ),
             ],
           );

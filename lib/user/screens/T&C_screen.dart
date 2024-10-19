@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../auth/provider/auth_provider.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 
 class TermsAndConditionsPage extends StatelessWidget {
@@ -11,7 +12,7 @@ class TermsAndConditionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final AuthProvider authProvider = Get.find<AuthProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text("Terms & Conditions")),
+      appBar: AppBar(title: Text(S.of(context).termsAndConditions)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

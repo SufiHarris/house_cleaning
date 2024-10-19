@@ -10,19 +10,14 @@ import 'tracking_controller.dart';
 class EmployeeTrackingMap extends StatelessWidget {
   final BookingModel booking;
 
-  // Constructor to accept the booking model
   EmployeeTrackingMap({Key? key, required this.booking}) : super(key: key);
 
-  // Declare your controller here
-  final BookingController bookingController = Get.find<
-      BookingController>(); // Use Get.find() to avoid multiple instances.
+  final BookingController bookingController = Get.find<BookingController>();
 
   @override
   Widget build(BuildContext context) {
-    // Ensure the tracking controller is initialized
     final trackingController = Get.find<EmployeeTrackingController>();
 
-    // Set client location if geolocation is not null
     if (booking.geolocation != null) {
       double clientLat = double.parse(booking.geolocation.lat);
       double clientLon = double.parse(booking.geolocation.lon);

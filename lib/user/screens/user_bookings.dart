@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/screens/user_bookings_detail_page.dart';
-import '../models/bookings_model.dart';
+import '../../generated/l10n.dart';
 import '../providers/user_provider.dart';
 import '../widgets/user_booking_widget.dart';
 
@@ -16,20 +16,20 @@ class UserBookings extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Bookings'),
+          title: Text(S.of(context).bookings),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'In Process'),
-              Tab(text: 'Completed'),
-              Tab(text: 'Cancelled'),
+              Tab(text: S.of(context).inProcess),
+              Tab(text: S.of(context).completed),
+              Tab(text: S.of(context).cancelled),
             ],
           ),
         ),
         body: TabBarView(
           children: [
             _buildBookingsList(userProvider, 'pending'),
-            _buildBookingsList(userProvider, 'Completed'),
-            _buildBookingsList(userProvider, 'Cancelled'),
+            _buildBookingsList(userProvider, 'completed'),
+            _buildBookingsList(userProvider, 'cancelled'),
           ],
         ),
       ),

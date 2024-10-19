@@ -190,14 +190,14 @@
 //     );
 //   }
 // }
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/user/screens/edit_profile.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../theme/custom_colors.dart';
-import '../widgets/custom_button_widget.dart'; // Import the combined widget file
+import '../widgets/custom_button_widget.dart';
+import '../../generated/l10n.dart'; // Import your localization file
 
 class UserProfile extends StatelessWidget {
   const UserProfile({super.key});
@@ -217,7 +217,7 @@ class UserProfile extends StatelessWidget {
           },
         ),
         title: Text(
-          'Profile',
+          S.of(context).profile, // Localized app bar title
           style: TextStyle(color: Color(0xFF6B3F3A)),
         ),
         centerTitle: true,
@@ -232,13 +232,19 @@ class UserProfile extends StatelessWidget {
             }
 
             if (snapshot.hasError) {
-              return Center(child: Text('Error fetching user details'));
+              return Center(
+                  child: Text(S
+                      .of(context)
+                      .errorFetchingUserDetails)); // Localized error message
             }
 
             final user = snapshot.data;
 
             if (user == null) {
-              return Center(child: Text('No user details found.'));
+              return Center(
+                  child: Text(S
+                      .of(context)
+                      .noUserDetailsFound)); // Localized no user message
             }
 
             return SingleChildScrollView(
@@ -279,7 +285,9 @@ class UserProfile extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Personal details',
+                      S
+                          .of(context)
+                          .personalDetails, // Localized personal details title
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF6B3F3A),
@@ -310,7 +318,7 @@ class UserProfile extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Phone Number',
+                      S.of(context).phoneNumber, // Localized phone number title
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF6B3F3A),
@@ -365,7 +373,7 @@ class UserProfile extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Email',
+                      S.of(context).email, // Localized email title
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF6B3F3A),
@@ -395,7 +403,7 @@ class UserProfile extends StatelessWidget {
                   SizedBox(height: 80),
                   Center(
                     child: CustomButton(
-                      text: 'Edit',
+                      text: S.of(context).edit, // Localized edit button text
                       onTap: () {
                         Get.to(() => EditProfile());
                       },

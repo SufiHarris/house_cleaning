@@ -8,9 +8,9 @@ import 'package:house_cleaning/employee/widgets/employee_booking_card.dart';
 import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../../theme/custom_colors.dart';
 import '../../user/models/bookings_model.dart';
-
 import '../widgets/employee_card.dart';
 import 'employee_booking_detail.dart';
+import 'package:house_cleaning/generated/l10n.dart'; // Import the localization file
 
 class EmployeeHome extends StatelessWidget {
   const EmployeeHome({Key? key}) : super(key: key);
@@ -29,6 +29,21 @@ class EmployeeHome extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.language),
+              onPressed: () {
+                // Toggle language between Arabic and English
+                if (Get.locale == Locale('en', '')) {
+                  Get.updateLocale(Locale('ar', ''));
+                } else {
+                  Get.updateLocale(Locale('en', ''));
+                }
+              },
+            ),
+          ],
+        ),
         backgroundColor: Colors.white,
         body: Column(
           children: [
@@ -48,7 +63,7 @@ class EmployeeHome extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Welcome",
+                            S.of(context).welcome, // Localized "Welcome"
                             style: Theme.of(context)
                                 .textTheme
                                 .labelLarge
@@ -56,7 +71,9 @@ class EmployeeHome extends StatelessWidget {
                           ),
                           Obx(() => Text(
                                 employeeProvider.staffDetails.value?.name ??
-                                    "Loading...",
+                                    S
+                                        .of(context)
+                                        .loading, // Localized "Loading..."
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyLarge
@@ -89,13 +106,12 @@ class EmployeeHome extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Obx(() => EmployeeCard(
                     name: employeeProvider.staffDetails.value?.name ??
-                        "Loading...",
+                        S.of(context).loading, // Localized "Loading..."
                     imageUrl: employeeProvider.staffDetails.value?.image ??
                         "https://placeholder.com/150",
                     number:
                         employeeProvider.staffDetails.value?.phoneNumber ?? 0,
-                    experience:
-                        '4 years', // You might want to add this to your StaffModel
+                    experience: '4 ' + S.of(context).years, // Localized "years"
                   )),
             ),
             SizedBox(height: 10),
@@ -106,7 +122,10 @@ class EmployeeHome extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  HeadingText(headingText: "Assigned tasks"),
+                  HeadingText(
+                      headingText: S
+                          .of(context)
+                          .assignedTasks), // Localized "Assigned tasks"
                   Obx(() {
                     final todayBookings =
                         _filterTodayBookings(employeeProvider.employeeBookings);
@@ -128,7 +147,7 @@ class EmployeeHome extends StatelessWidget {
                                 child: Text('${todayBookings.length}'),
                               ),
                               SizedBox(width: 8),
-                              Text('Today'),
+                              Text(S.of(context).today), // Localized "Today"
                             ],
                           ),
                         ),
@@ -145,7 +164,9 @@ class EmployeeHome extends StatelessWidget {
                                 child: Text('${assignedBookings.length}'),
                               ),
                               SizedBox(width: 8),
-                              Text('Assigned'),
+                              Text(S
+                                  .of(context)
+                                  .assigned), // Localized "Assigned"
                             ],
                           ),
                         ),
@@ -167,9 +188,9 @@ class EmployeeHome extends StatelessWidget {
                 return TabBarView(
                   children: [
                     // Today's Tasks
-                    _buildBookingsList(todayBookings),
+                    _buildBookingsList(context, todayBookings),
                     // Assigned Tasks (Non-Today)
-                    _buildBookingsList(assignedBookings),
+                    _buildBookingsList(context, assignedBookings),
                   ],
                 );
               }),
@@ -205,9 +226,10 @@ class EmployeeHome extends StatelessWidget {
     }).toList();
   }
 
-  Widget _buildBookingsList(List<BookingModel> bookings) {
+  Widget _buildBookingsList(BuildContext context, List<BookingModel> bookings) {
     if (bookings.isEmpty) {
-      return Center(child: Text("No tasks available"));
+      return Center(
+          child: Text(S.of(context).noTasks)); // Localized "No tasks available"
     }
 
     return ListView.builder(

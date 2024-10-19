@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import '../models/service_model.dart';
+import '../../generated/l10n.dart';
 import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
 
@@ -13,7 +14,7 @@ class UserServiceScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Services"),
+        title: Text(S.of(context).services),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

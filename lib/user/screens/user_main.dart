@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../generated/l10n.dart';
 import 'user_bookings.dart';
 import 'user_home.dart';
 import 'user_service_screen.dart';
@@ -35,26 +36,26 @@ class _UserMainState extends State<UserMain> {
             });
           }
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: S.of(context).home,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
-            label: 'Services',
+            label: S.of(context).services,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.sell),
-            label: 'Products',
+            label: S.of(context).products,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_view_month_outlined),
-            label: 'Bookings',
+            label: S.of(context).bookings,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Settings',
+            label: S.of(context).settings,
           ),
         ],
         type: BottomNavigationBarType.fixed,

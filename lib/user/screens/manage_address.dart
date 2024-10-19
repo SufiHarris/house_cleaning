@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../auth/model/usermodel.dart';
 import '../../auth/provider/auth_provider.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/address_widget.dart';
 import '../widgets/custom_button_widget.dart';
@@ -147,7 +148,7 @@ class _ManageAddressState extends State<ManageAddress> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Manage Addresses")),
+      appBar: AppBar(title: Text(S.of(context).manageAddresses)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Obx(() {
@@ -159,7 +160,7 @@ class _ManageAddressState extends State<ManageAddress> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (addresses.isEmpty) ...[
-                const Text("No addresses available."),
+                Text(S.of(context).noAddressesAvailable),
               ] else ...[
                 // Iterate through the address list and build AddressSection for each
                 for (var address in addresses) ...[
@@ -174,7 +175,7 @@ class _ManageAddressState extends State<ManageAddress> {
               const Spacer(), // To push the button to the bottom
               Center(
                 child: CustomButton(
-                  text: 'Add New Address',
+                  text: S.of(context).addNewAddress,
                   onTap: () {
                     Get.to(() => UserAddAddressPage());
                   },
