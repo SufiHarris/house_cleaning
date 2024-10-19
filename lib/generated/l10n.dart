@@ -809,6 +809,116 @@ class S {
       args: [],
     );
   }
+
+  /// `Enter Location`
+  String get enterLocation {
+    return Intl.message(
+      'Enter Location',
+      name: 'enterLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter location`
+  String get enterLocationHint {
+    return Intl.message(
+      'Enter location',
+      name: 'enterLocationHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use Current Location`
+  String get useCurrentLocation {
+    return Intl.message(
+      'Use Current Location',
+      name: 'useCurrentLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Building Number`
+  String get buildingNumber {
+    return Intl.message(
+      'Building Number',
+      name: 'buildingNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter building number`
+  String get enterBuildingNumberHint {
+    return Intl.message(
+      'Enter building number',
+      name: 'enterBuildingNumberHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Floor`
+  String get floor {
+    return Intl.message(
+      'Floor',
+      name: 'floor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your floor`
+  String get enterFloorHint {
+    return Intl.message(
+      'Enter your floor',
+      name: 'enterFloorHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter landmark`
+  String get enterLandmarkHint {
+    return Intl.message(
+      'Enter landmark',
+      name: 'enterLandmarkHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Success`
+  String get success {
+    return Intl.message(
+      'Success',
+      name: 'success',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Address saved successfully.`
+  String get addressSaved {
+    return Intl.message(
+      'Address saved successfully.',
+      name: 'addressSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save Address`
+  String get saveAddress {
+    return Intl.message(
+      'Save Address',
+      name: 'saveAddress',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

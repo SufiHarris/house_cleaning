@@ -24,6 +24,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "addNewAddress":
             MessageLookupByLibrary.simpleMessage("Add New Address"),
+        "addressSaved":
+            MessageLookupByLibrary.simpleMessage("Address saved successfully."),
         "am": MessageLookupByLibrary.simpleMessage("AM"),
         "assigned": MessageLookupByLibrary.simpleMessage("Assigned Tasks"),
         "assignedTasks": MessageLookupByLibrary.simpleMessage("Assigned tasks"),
@@ -31,6 +33,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "availableTo": MessageLookupByLibrary.simpleMessage("Available To"),
         "bookings": MessageLookupByLibrary.simpleMessage("Bookings"),
         "broom": MessageLookupByLibrary.simpleMessage("Broom"),
+        "buildingNumber":
+            MessageLookupByLibrary.simpleMessage("Building Number"),
         "cancelled": MessageLookupByLibrary.simpleMessage("Cancelled"),
         "changePassword":
             MessageLookupByLibrary.simpleMessage("Change Password"),
@@ -53,12 +57,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "edit": MessageLookupByLibrary.simpleMessage("Edit"),
         "email": MessageLookupByLibrary.simpleMessage("Email"),
         "employeeNameLabel": MessageLookupByLibrary.simpleMessage("Name"),
+        "enterBuildingNumberHint":
+            MessageLookupByLibrary.simpleMessage("Enter building number"),
+        "enterFloorHint":
+            MessageLookupByLibrary.simpleMessage("Enter your floor"),
+        "enterLandmarkHint":
+            MessageLookupByLibrary.simpleMessage("Enter landmark"),
+        "enterLocation": MessageLookupByLibrary.simpleMessage("Enter Location"),
+        "enterLocationHint":
+            MessageLookupByLibrary.simpleMessage("Enter location"),
         "entryInstructions":
             MessageLookupByLibrary.simpleMessage("Entry Instructions"),
         "entryInstructionsDetail": MessageLookupByLibrary.simpleMessage(
             "Wait outside the gate facing the camera and call me directly."),
         "errorFetchingUserDetails":
             MessageLookupByLibrary.simpleMessage("Error fetching user details"),
+        "floor": MessageLookupByLibrary.simpleMessage("Floor"),
         "guestUser": MessageLookupByLibrary.simpleMessage("Guest User"),
         "home": MessageLookupByLibrary.simpleMessage("Home"),
         "inProcess": MessageLookupByLibrary.simpleMessage("In Process"),
@@ -96,6 +110,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "recommendedProducts":
             MessageLookupByLibrary.simpleMessage("Recommended Products"),
         "reviews": MessageLookupByLibrary.simpleMessage("Reviews"),
+        "saveAddress": MessageLookupByLibrary.simpleMessage("Save Address"),
         "selectDate": MessageLookupByLibrary.simpleMessage("Select Date"),
         "selectTime": MessageLookupByLibrary.simpleMessage("Select Time"),
         "service": MessageLookupByLibrary.simpleMessage("Service"),
@@ -110,12 +125,15 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Subscribe and save."),
         "subscriptionPlans":
             MessageLookupByLibrary.simpleMessage("Subscription Plans"),
+        "success": MessageLookupByLibrary.simpleMessage("Success"),
         "termsAndConditions":
             MessageLookupByLibrary.simpleMessage("Terms & Conditions"),
         "timeAvailability":
             MessageLookupByLibrary.simpleMessage("Time Availability"),
         "today": MessageLookupByLibrary.simpleMessage("Today"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("Tomorrow"),
+        "useCurrentLocation":
+            MessageLookupByLibrary.simpleMessage("Use Current Location"),
         "userLoaded": MessageLookupByLibrary.simpleMessage("User Loaded"),
         "welcome": MessageLookupByLibrary.simpleMessage("Welcome"),
         "workExperienceLabel":

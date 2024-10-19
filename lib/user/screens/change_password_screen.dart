@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../auth/provider/auth_provider.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/changepassword_widget.dart';
 import '../widgets/custom_button_widget.dart';
@@ -17,7 +18,7 @@ class ChangePassword extends StatelessWidget {
   Widget build(BuildContext context) {
     final AuthProvider authProvider = Get.find<AuthProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text("Change Password")),
+      appBar: AppBar(title: Text(S.of(context).changePassword)),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
@@ -25,7 +26,7 @@ class ChangePassword extends StatelessWidget {
           children: [
             SizedBox(height: 50), // Space from top
             Text(
-              "Current Password",
+              S.of(context).currentPassword,
               style: TextStyle(
                 fontSize: 14,
                 color: CustomColors.textColorThree, // Text color
@@ -35,7 +36,7 @@ class ChangePassword extends StatelessWidget {
             PasswordTextField(controller: currentpasswordController),
             SizedBox(height: 20),
             Text(
-              "New Password",
+              S.of(context).newPassword,
               style: TextStyle(
                 fontSize: 14,
                 color: CustomColors.textColorThree,
@@ -45,7 +46,7 @@ class ChangePassword extends StatelessWidget {
             PasswordTextField(controller: newpasswordController),
             SizedBox(height: 20),
             Text(
-              "Re-enter New Password",
+              S.of(context).reEnterNewPassword,
               style: TextStyle(
                 fontSize: 14,
                 color: CustomColors.textColorThree,
@@ -56,7 +57,7 @@ class ChangePassword extends StatelessWidget {
             Spacer(),
             Center(
               child: CustomButton(
-                text: 'Change Password',
+                text: S.of(context).changePassword,
                 onTap: () {},
               ),
             ),
