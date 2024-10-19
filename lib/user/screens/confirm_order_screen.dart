@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/fast_register.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
-import 'package:house_cleaning/user/screens/apartment_service_detail.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
 import 'package:house_cleaning/user/widgets/confirm_order_edit.dart';

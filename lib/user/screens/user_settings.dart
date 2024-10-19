@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/user/screens/T&C_screen.dart';
-import 'package:house_cleaning/user/screens/change_password.dart';
 import 'package:house_cleaning/user/screens/manage_address.dart';
 import 'package:house_cleaning/user/screens/privacy_policy_screen.dart';
 import 'package:house_cleaning/user/screens/user_profile.dart';
 import 'package:house_cleaning/user/widgets/setting_widget.dart';
 import '../../auth/provider/auth_provider.dart';
 import '../../generated/l10n.dart';
+import 'change_password_screen.dart';
 
 class UserSettings extends StatelessWidget {
   const UserSettings({super.key});
