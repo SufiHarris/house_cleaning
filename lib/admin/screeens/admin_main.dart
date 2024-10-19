@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:house_cleaning/admin/screeens/admin_analytics_page.dart';
 import 'package:house_cleaning/admin/screeens/admin_bookings.dart';
 import 'package:house_cleaning/admin/screeens/admin_home.dart';
 import 'package:house_cleaning/admin/screeens/admin_management.dart';
-
-import '../../user/screens/user_bookings.dart';
-import '../../user/screens/user_product_screen.dart';
-import '../../user/screens/user_service_screen.dart';
-import '../../user/screens/user_settings.dart';
 
 class AdminMain extends StatefulWidget {
   const AdminMain({super.key});
@@ -20,7 +16,7 @@ class _AdminMainState extends State<AdminMain> {
     const AdminHome(),
     BookingManagementScreen(),
     const AdminManagement(),
-    const UserBookings(),
+    RevenueGraphPage(),
   ];
 
   @override

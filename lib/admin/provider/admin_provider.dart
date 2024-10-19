@@ -20,17 +20,21 @@ class AdminProvider extends GetxController {
     fetchEmployees();
   }
 
-  Future<void> fetchBookings() async {
+  Future<void> fetchBookings(int year) async {
     try {
       isLoading.value = true;
 
       var snapshot = await FirebaseFirestore.instance
           .collection('size_based_bookings')
-          // Use userId here
+          .where('booking_date', isGreaterThanOrEqualTo: '$year-01-01')
+          .where('booking_date', isLessThan: '${year + 1}-01-01')
           .get();
+
       bookings.value = snapshot.docs
           .map((doc) => BookingModel.fromFirestore(doc.data()))
           .toList();
+
+      print("Fetched ${bookings.length} bookings for year $year");
     } catch (e) {
       print("Error fetching bookings: $e");
     } finally {
