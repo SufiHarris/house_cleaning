@@ -13,6 +13,12 @@ class ImageController extends GetxController {
   File? _image;
   File? get image => _image;
 
+  // Add a setter to reset the image
+  set image(File? file) {
+    _image = file;
+    update(); // Ensure the UI updates
+  }
+
   // Method to upload image to Firebase Storage and return the download URL
   Future<String> uploadImageToFirebase(File imageFile) async {
     try {
