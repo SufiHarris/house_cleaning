@@ -71,7 +71,6 @@ class EmployeeHome extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       authProvider.signOut();
-                      //Get.to(() => AddEmployeeScreen());
                     },
                     child: Container(
                       decoration: const BoxDecoration(color: Colors.white),

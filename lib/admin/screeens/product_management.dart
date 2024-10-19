@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/admin/screeens/add_product_screen.dart';
+import 'package:house_cleaning/admin/screeens/edit_product.dart';
 
 import '../../theme/custom_colors.dart';
 import '../../user/models/product_model.dart';
@@ -199,7 +200,10 @@ class _ProductManagementScreenState extends State<ProductManagementScreen> {
                   ),
                   Spacer(),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(() => EditProductScreen(
+                          product: product)); // Pass the selected product
+                    },
                     child: Icon(
                       Icons.edit,
                       color: CustomColors.primaryColor,
