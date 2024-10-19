@@ -82,7 +82,19 @@
   "pending": "Pending",
   "products": "Products",
    "home": "Home",
-  "settings": "Settings"
+  "settings": "Settings",
+  "addNewAddress": "Add New Address",
+  "enterLocation": "Enter Location",
+  "enterLocationHint": "Enter location",
+  "useCurrentLocation": "Use Current Location",
+  "buildingNumber": "Building Number",
+  "enterBuildingNumberHint": "Enter building number",
+  "floor": "Floor",
+  "enterFloorHint": "Enter your floor",
+  "enterLandmarkHint": "Enter landmark",
+  "success": "Success",
+  "addressSaved": "Address saved successfully.",
+  "saveAddress": "Save Address"
 
  
 }

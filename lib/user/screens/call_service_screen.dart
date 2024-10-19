@@ -9,6 +9,8 @@ import 'package:house_cleaning/user/providers/user_provider.dart';
 import 'package:house_cleaning/user/widgets/review_tab.dart';
 import 'package:intl/intl.dart';
 
+import '../../generated/l10n.dart';
+
 class CallServiceScreen extends StatefulWidget {
   final CategoryModel category;
 
@@ -21,6 +23,7 @@ class CallServiceScreen extends StatefulWidget {
 class _CallServiceScreenState extends State<CallServiceScreen> {
   DateTime? selectedDate;
   final userProvider = Get.find<UserProvider>();
+  String currentLangCode = Get.locale?.languageCode ?? 'en';
 
   TimeOfDay? selectedStartTime;
   TimeOfDay? selectedEndTime;
@@ -95,7 +98,9 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 16.0),
                         child: Text(
-                          widget.category.categoryName,
+                          // widget.category.categoryName,
+                          widget.category
+                              .getLocalizedCategoryName(currentLangCode),
                           style:
                               Theme.of(context).textTheme.titleLarge?.copyWith(
                                     color: CustomColors.primaryColor,
@@ -129,7 +134,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                                 const SizedBox(
                                     width:
                                         8), // Adding space between icon and text
-                                Text("Service"),
+                                Text(S.of(context).service),
                               ],
                             ),
                           ),
@@ -145,7 +150,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                                 const SizedBox(
                                     width:
                                         8), // Adding space between icon and text
-                                Text("Reviews"),
+                                Text(S.of(context).reviews),
                               ],
                             ),
                           ),
@@ -176,7 +181,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
 
   Widget _buildServiceDetails(BuildContext context) {
     String formatTimeOfDay(TimeOfDay? time, bool isAM) {
-      if (time == null) return "Choose";
+      if (time == null) return S.of(context).choose;
       final hour = isAM ? time.hourOfPeriod : time.hour;
       final minute = time.minute.toString().padLeft(2, '0');
       return '$hour:$minute ${isAM ? 'AM' : 'PM'}';
@@ -187,7 +192,8 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.category.description,
+            // widget.category.description,
+            widget.category.getLocalizedDescription(currentLangCode),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: CustomColors.textColorFour,
                 ),
@@ -195,15 +201,15 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
           const SizedBox(height: 32),
           _buildSelectOption(
             context: context,
-            label: "Select Date",
+            label: S.of(context).selectDate,
             value: selectedDate != null
                 ? DateFormat('d MMMM yyyy').format(selectedDate!)
-                : "Choose",
+                : S.of(context).choose,
             onTap: () => _showDatePicker(context),
           ),
           _buildSelectOption(
             context: context,
-            label: "Select Time",
+            label: S.of(context).selectTime,
             value:
                 "${formatTimeOfDay(selectedStartTime, isStartTimeAM)} - ${formatTimeOfDay(selectedEndTime, isEndTimeAM)}",
             onTap: () => _showTimePicker(context),
@@ -275,7 +281,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Select Date',
+                  S.of(context).selectDate,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -301,13 +307,13 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildDateButton('Today', () {
+                    _buildDateButton(S.of(context).today, () {
                       setState(() {
                         selectedDate = DateTime.now();
                       });
                       Navigator.pop(context);
                     }),
-                    _buildDateButton('Tomorrow', () {
+                    _buildDateButton(S.of(context).tomorrow, () {
                       setState(() {
                         selectedDate =
                             DateTime.now().add(const Duration(days: 1));
@@ -457,7 +463,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                     color: Colors.white,
                   ),
                   child: Text(
-                    selectedTime?.format(context) ?? 'Select Time',
+                    selectedTime?.format(context) ?? S.of(context).selectTime,
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -471,7 +477,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
               ),
               child: Row(
                 children: [
-                  _buildAMPMToggle('AM', isAM, () {
+                  _buildAMPMToggle(S.of(context).am, isAM, () {
                     setState(() {
                       if (isStartTime) {
                         isStartTimeAM = true;
@@ -480,7 +486,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                       }
                     });
                   }),
-                  _buildAMPMToggle('PM', !isAM, () {
+                  _buildAMPMToggle(S.of(context).pm, !isAM, () {
                     setState(() {
                       if (isStartTime) {
                         isStartTimeAM = false;
@@ -538,7 +544,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      'Time Availability',
+                      S.of(context).timeAvailability,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -550,9 +556,11 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        _buildTimeSelection('Available From', true, setState),
+                        _buildTimeSelection(
+                            S.of(context).availableFrom, true, setState),
                         const SizedBox(height: 16),
-                        _buildTimeSelection('Available To', false, setState),
+                        _buildTimeSelection(
+                            S.of(context).availableTo, false, setState),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: isTimeSelected
@@ -572,7 +580,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                                 : Colors.grey,
                           ),
                           child: Text(
-                            'Confirm',
+                            S.of(context).confirm,
                             style: TextStyle(
                                 color: isTimeSelected
                                     ? Colors.white

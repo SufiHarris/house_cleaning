@@ -11,6 +11,7 @@ import 'package:house_cleaning/user/screens/product_recommend_screen.dart';
 import 'package:house_cleaning/user/screens/user_googlemap.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 import '../widgets/custom_button_widget.dart';
 
@@ -36,7 +37,7 @@ class UserAddAddressPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add New Address"),
+        title: Text(S.of(context).addNewAddress),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -44,7 +45,7 @@ class UserAddAddressPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Enter Location",
+              Text(S.of(context).enterLocation,
                   style: TextStyle(
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
@@ -52,7 +53,7 @@ class UserAddAddressPage extends StatelessWidget {
                 controller: addAddressController.locationController,
                 onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
-                  hintText: 'Enter location',
+                  hintText: S.of(context).enterLocationHint,
                   labelStyle:
                       const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
                   enabledBorder: OutlineInputBorder(
@@ -79,7 +80,7 @@ class UserAddAddressPage extends StatelessWidget {
                 },
                 icon: Icon(Icons.location_pin,
                     color: CustomColors.textColorThree),
-                label: Text("Use Current Location",
+                label: Text(S.of(context).useCurrentLocation,
                     style: TextStyle(color: CustomColors.textColorThree)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -92,7 +93,7 @@ class UserAddAddressPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 15),
-              Text("Building Number",
+              Text(S.of(context).buildingNumber,
                   style: TextStyle(
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
@@ -100,7 +101,7 @@ class UserAddAddressPage extends StatelessWidget {
                 controller: addAddressController.buildingController,
                 onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
-                  hintText: 'Enter building number',
+                  hintText: S.of(context).enterBuildingNumberHint,
                   labelStyle:
                       const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
                   enabledBorder: OutlineInputBorder(
@@ -116,7 +117,7 @@ class UserAddAddressPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 15),
-              Text("Floor",
+              Text(S.of(context).floor,
                   style: TextStyle(
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
@@ -124,7 +125,7 @@ class UserAddAddressPage extends StatelessWidget {
                 controller: addAddressController.floorController,
                 onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
-                  hintText: 'Enter your floor',
+                  hintText: S.of(context).enterFloorHint,
                   labelStyle:
                       const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
                   enabledBorder: OutlineInputBorder(
@@ -140,7 +141,7 @@ class UserAddAddressPage extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 15),
-              Text("Landmark",
+              Text(S.of(context).landmark,
                   style: TextStyle(
                       color: CustomColors.textColorThree, fontSize: 16)),
               SizedBox(height: 8),
@@ -148,7 +149,7 @@ class UserAddAddressPage extends StatelessWidget {
                 controller: addAddressController.landmarkController,
                 onChanged: (_) => checkFields(),
                 decoration: InputDecoration(
-                  hintText: 'Enter landmark',
+                  hintText: S.of(context).enterLandmarkHint,
                   labelStyle:
                       const TextStyle(color: Color(0xFFDCD7D8), fontSize: 16),
                   enabledBorder: OutlineInputBorder(
@@ -210,8 +211,8 @@ class UserAddAddressPage extends StatelessWidget {
 
                               // Show a success message
                               Get.snackbar(
-                                "Success",
-                                "Address saved successfully.",
+                                S.of(context).success,
+                                S.of(context).addressSaved,
                                 snackPosition: SnackPosition.BOTTOM,
                                 backgroundColor: Colors.greenAccent,
                                 colorText: Colors.white,
@@ -235,7 +236,7 @@ class UserAddAddressPage extends StatelessWidget {
                       side: BorderSide(color: CustomColors.textColorThree),
                     ),
                     child: Text(
-                      'Save Address',
+                      S.of(context).saveAddress,
                       style: TextStyle(
                         color: isAllFieldsFilled.value
                             ? Colors.white

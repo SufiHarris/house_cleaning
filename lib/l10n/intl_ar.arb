@@ -86,5 +86,17 @@
   "pending": "معلق",
   "products": "المنتجات",
    "home": "الرئيسية",
-  "settings": "الإعدادات"
+  "settings": "الإعدادات",
+   "addNewAddress": "أضف عنوان جديد",
+  "enterLocation": "أدخل الموقع",
+  "enterLocationHint": "أدخل الموقع",
+  "useCurrentLocation": "استخدم الموقع الحالي",
+  "buildingNumber": "رقم المبنى",
+  "enterBuildingNumberHint": "أدخل رقم المبنى",
+  "floor": "الطابق",
+  "enterFloorHint": "أدخل طابقك",
+  "enterLandmarkHint": "أدخل المعلم",
+  "success": "نجاح",
+  "addressSaved": "تم حفظ العنوان بنجاح.",
+  "saveAddress": "احفظ العنوان"
 }

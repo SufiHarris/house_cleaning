@@ -22,8 +22,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "addNewAddress":
-            MessageLookupByLibrary.simpleMessage("إضافة عنوان جديد"),
+        "addNewAddress": MessageLookupByLibrary.simpleMessage("أضف عنوان جديد"),
+        "addressSaved":
+            MessageLookupByLibrary.simpleMessage("تم حفظ العنوان بنجاح."),
         "am": MessageLookupByLibrary.simpleMessage("ص"),
         "assigned": MessageLookupByLibrary.simpleMessage("المهام المعينة"),
         "assignedTasks": MessageLookupByLibrary.simpleMessage("المهام المعينة"),
@@ -31,6 +32,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "availableTo": MessageLookupByLibrary.simpleMessage("متاح حتى"),
         "bookings": MessageLookupByLibrary.simpleMessage("الحجوزات"),
         "broom": MessageLookupByLibrary.simpleMessage("المكنسة"),
+        "buildingNumber": MessageLookupByLibrary.simpleMessage("رقم المبنى"),
         "cancelled": MessageLookupByLibrary.simpleMessage("ملغى"),
         "changePassword":
             MessageLookupByLibrary.simpleMessage("تغيير كلمة المرور"),
@@ -52,12 +54,21 @@ class MessageLookup extends MessageLookupByLibrary {
         "edit": MessageLookupByLibrary.simpleMessage("تعديل"),
         "email": MessageLookupByLibrary.simpleMessage("البريد الإلكتروني"),
         "employeeNameLabel": MessageLookupByLibrary.simpleMessage("الاسم"),
+        "enterBuildingNumberHint":
+            MessageLookupByLibrary.simpleMessage("أدخل رقم المبنى"),
+        "enterFloorHint": MessageLookupByLibrary.simpleMessage("أدخل طابقك"),
+        "enterLandmarkHint":
+            MessageLookupByLibrary.simpleMessage("أدخل المعلم"),
+        "enterLocation": MessageLookupByLibrary.simpleMessage("أدخل الموقع"),
+        "enterLocationHint":
+            MessageLookupByLibrary.simpleMessage("أدخل الموقع"),
         "entryInstructions":
             MessageLookupByLibrary.simpleMessage("تعليمات الدخول"),
         "entryInstructionsDetail": MessageLookupByLibrary.simpleMessage(
             "انتظر خارج البوابة وواجه الكاميرا واتصل بي مباشرة."),
         "errorFetchingUserDetails":
             MessageLookupByLibrary.simpleMessage("خطأ في جلب تفاصيل المستخدم"),
+        "floor": MessageLookupByLibrary.simpleMessage("الطابق"),
         "guestUser": MessageLookupByLibrary.simpleMessage("مستخدم ضيف"),
         "home": MessageLookupByLibrary.simpleMessage("الرئيسية"),
         "inProcess": MessageLookupByLibrary.simpleMessage("قيد المعالجة"),
@@ -94,6 +105,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "recommendedProducts":
             MessageLookupByLibrary.simpleMessage("منتجات موصى بها"),
         "reviews": MessageLookupByLibrary.simpleMessage("التعليقات"),
+        "saveAddress": MessageLookupByLibrary.simpleMessage("احفظ العنوان"),
         "selectDate": MessageLookupByLibrary.simpleMessage("اختر التاريخ"),
         "selectTime": MessageLookupByLibrary.simpleMessage("حدد الوقت"),
         "service": MessageLookupByLibrary.simpleMessage("خدمة"),
@@ -106,12 +118,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "subscribeAndsave": MessageLookupByLibrary.simpleMessage("اشترك وحفظ."),
         "subscriptionPlans":
             MessageLookupByLibrary.simpleMessage("خطط الاشتراك"),
+        "success": MessageLookupByLibrary.simpleMessage("نجاح"),
         "termsAndConditions":
             MessageLookupByLibrary.simpleMessage("الشروط والأحكام"),
         "timeAvailability":
             MessageLookupByLibrary.simpleMessage("الوقت المتاح"),
         "today": MessageLookupByLibrary.simpleMessage("اليوم"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("غداً"),
+        "useCurrentLocation":
+            MessageLookupByLibrary.simpleMessage("استخدم الموقع الحالي"),
         "userLoaded": MessageLookupByLibrary.simpleMessage("تم تحميل المستخدم"),
         "welcome": MessageLookupByLibrary.simpleMessage("مرحبا"),
         "workExperienceLabel":

@@ -218,7 +218,7 @@ class _UserVehicleCleaningServiceScreenState
       if (userProvider.isLoading.value) {
         return Center(child: CircularProgressIndicator());
       } else if (userProvider.services.isEmpty) {
-        return Center(child: Text('No services available'));
+        return Center(child: Text(S.of(context).noServices));
       } else {
         return ListView(
           controller: scrollController,

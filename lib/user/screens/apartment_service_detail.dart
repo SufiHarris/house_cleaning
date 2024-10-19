@@ -5,6 +5,7 @@ import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
 import 'package:house_cleaning/user/models/service_summary_model.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
@@ -26,6 +27,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     with SingleTickerProviderStateMixin {
   final userProvider = Get.find<UserProvider>();
   DateTime selectedDate = DateTime.now();
+  String currentLangCode = Get.locale?.languageCode ?? 'en';
 
   Map<int, List<ServiceItem>> selectedServices = {};
   List<ServiceSummaryModel> bookedServices = [];
@@ -172,7 +174,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
-                  'Select Date',
+                  S.of(context).selectDate,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -199,13 +201,13 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildDateButton('Today', () {
+                    _buildDateButton(S.of(context).today, () {
                       setState(() {
                         selectedDate = DateTime.now();
                       });
                       Navigator.pop(context);
                     }),
-                    _buildDateButton('Tomorrow', () {
+                    _buildDateButton(S.of(context).tomorrow, () {
                       setState(() {
                         selectedDate =
                             DateTime.now().add(const Duration(days: 1));
@@ -245,7 +247,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       child: Row(
         children: [
           Text(
-            widget.category.categoryType,
+            widget.category.getLocalizedCategoryName(currentLangCode),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: CustomColors.primaryColor,
                   fontWeight: FontWeight.w500,
@@ -278,7 +280,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                 height: 20,
               ),
               const SizedBox(width: 8),
-              const Text("Service"),
+              Text(S.of(context).service),
             ],
           ),
         ),
@@ -291,7 +293,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                 height: 20,
               ),
               const SizedBox(width: 8),
-              const Text("Reviews"),
+              Text(S.of(context).reviews),
             ],
           ),
         ),
@@ -304,14 +306,15 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       if (userProvider.isLoading.value) {
         return const Center(child: CircularProgressIndicator());
       } else if (userProvider.services.isEmpty) {
-        return const Center(child: Text('No services available'));
+        return Center(child: Text(S.of(context).noServices));
       } else {
         return ListView(
           controller: scrollController,
           padding: const EdgeInsets.all(16.0),
           children: [
             Text(
-              "Experience top-notch home cleaning with our expert team. Quick, reliable, and thorough—making your home sparkle effortlessly!",
+              widget.category.getLocalizedDescription(currentLangCode),
+              // "Experience top-notch home cleaning with our expert team. Quick, reliable, and thorough—making your home sparkle effortlessly!",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: CustomColors.textColorFour,
                     letterSpacing: 0.5,
@@ -329,10 +332,10 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
             // ),
             _buildSelectOption(
               context: context,
-              label: "Select Date",
+              label: S.of(context).selectDate,
               value: selectedDate != null
                   ? DateFormat('d MMMM yyyy').format(selectedDate!)
-                  : "Choose",
+                  : S.of(context).choose,
               onTap: () => _showDatePicker(context),
             ),
             const SizedBox(height: 16),
