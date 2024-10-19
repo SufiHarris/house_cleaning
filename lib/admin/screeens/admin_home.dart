@@ -90,6 +90,7 @@ class AdminHome extends StatelessWidget {
           GestureDetector(
             onTap: () {
               authProvider.signOut();
+              //Get.to(AdminPortal());
             },
             child: Container(
               decoration: const BoxDecoration(color: Colors.white),

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -118,7 +119,6 @@ class UserHome extends StatelessWidget {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
-                      NotificationService().initNotification();
                       NotificationService().showNotification(
                           title: 'Sample title', body: 'It works!');
                       //Get.to(() => HomeFile());

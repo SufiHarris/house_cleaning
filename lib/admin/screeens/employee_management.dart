@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/employee/screens/edit_employee.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
 import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/employee/screens/add_employee_screen.dart';
@@ -12,11 +13,11 @@ class EmployeeManagement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final adminProvider = Get.find<AdminProvider>();
-    adminProvider.fetchUsers();
+    adminProvider.fetchEmployees();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Management'),
+        title: Text('Employee Management'),
       ),
       body: Column(
         children: [
@@ -198,7 +199,9 @@ class EmployeeManagement extends StatelessWidget {
                   Spacer(),
                   GestureDetector(
                     onTap: () {
-                      Get.to(AddEmployeeScreen());
+                      Get.to(() => EditEmployeeScreen(
+                          employee:
+                              employee)); // Navigate to EditEmployeeScreen with employee data
                     },
                     child: Icon(
                       Icons.edit,
