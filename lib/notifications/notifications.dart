@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class PushNotifications {
@@ -6,8 +7,8 @@ class PushNotifications {
   static final FlutterLocalNotificationsPlugin
       _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  // Request notification permission
-  static Future<void> init() async {
+  // request notification permission
+  static Future init() async {
     await _firebaseMessaging.requestPermission(
       alert: true,
       announcement: true,
@@ -18,52 +19,41 @@ class PushNotifications {
       sound: true,
     );
 
-    // Get the device FCM token
+    // get the device fcm token
     final token = await _firebaseMessaging.getToken();
-    print("Device FCM token: $token");
+    print("for android device token: $token");
   }
 
-  // Initialize local notifications
-  static Future<void> localNotiInit() async {
+  // initalize local notifications
+  static Future localNotiInit() async {
+    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
+        AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) => null,
     );
-
     final LinuxInitializationSettings initializationSettingsLinux =
         LinuxInitializationSettings(defaultActionName: 'Open notification');
-
     final InitializationSettings initializationSettings =
         InitializationSettings(
             android: initializationSettingsAndroid,
             iOS: initializationSettingsDarwin,
             linux: initializationSettingsLinux);
 
-    // Initialize the plugin
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: onNotificationTap,
-    );
+    // request notification permissions for android 13 or above
+    _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()!
+        .requestNotificationsPermission();
 
-    // Request notification permissions for Android 13 or above
-    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
-
-    if (androidImplementation != null) {
-      await androidImplementation.requestNotificationsPermission();
-    }
+    _flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: onNotificationTap,
+        onDidReceiveBackgroundNotificationResponse: onNotificationTap);
   }
 
-  // Handle notification tap in foreground
-  static void onNotificationTap(NotificationResponse notificationResponse) {
-    // Handle the notification tap
-    print("Notification tapped: ${notificationResponse.payload}");
-  }
-
-  // You can add more methods here for handling different notification scenarios
-  // For example, displaying a notification, handling foreground messages, etc.
+  // on tap local notification in foreground
+  static void onNotificationTap(NotificationResponse notificationResponse) {}
 }

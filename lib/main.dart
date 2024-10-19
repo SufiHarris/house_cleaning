@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
+import 'package:house_cleaning/notifications/notification_class.dart';
 import 'package:house_cleaning/notifications/notifications.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
@@ -17,10 +18,10 @@ import 'theme/custom_theme.dart';
 import 'tracking/tracking_controller.dart';
 import 'user/providers/user_provider.dart';
 
-// Function to listen to background messages
-Future<void> _firebaseBackgroundMessage(RemoteMessage message) async {
+// function to listen to background changes
+Future _firebaseBackgroundMessage(RemoteMessage message) async {
   if (message.notification != null) {
-    print("Some notification received in background...");
+    print("Some notification Received in background...");
   }
 }
 
@@ -29,24 +30,36 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // Initialize push notifications
+  // NotificationService().initNotification();
+  // initialize firebase messaging
   await PushNotifications.init();
-
-  // Initialize local notifications
   await PushNotifications.localNotiInit();
 
   // Listen to background notifications
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
 
-  Get.put(AuthProvider());
-  Get.put(UserProvider());
-  Get.put(EmployeeTrackingController());
-  Get.put(EmployeeProvider());
-  Get.put(AdminProvider());
-  Get.put(ImageController());
+  Get.put(
+    AuthProvider(),
+  );
 
-  runApp(const MyApp());
+  Get.put(
+    UserProvider(),
+  );
+
+  Get.put(
+    EmployeeTrackingController(),
+  );
+
+  Get.put(
+    EmployeeProvider(),
+  );
+  Get.put(
+    AdminProvider(),
+  );
+  Get.put(ImageController());
+  runApp(
+    const MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {

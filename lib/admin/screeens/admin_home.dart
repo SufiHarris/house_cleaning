@@ -12,7 +12,7 @@ import '../provider/admin_provider.dart';
 import '../widget/hero_cards.dart';
 
 class AdminHome extends StatelessWidget {
-  const AdminHome({super.key});
+  const AdminHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class AdminHome extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      _buildHeroCards(adminProvider),
+                      _buildHeroCards(),
                       SizedBox(height: 20),
                       _buildNewBookingsHeader(context),
                       _buildBookingsList(adminProvider),
@@ -105,41 +105,38 @@ class AdminHome extends StatelessWidget {
     );
   }
 
-  Widget _buildHeroCards(AdminProvider adminProvider) {
-    return Obx(() {
-      final counts = adminProvider.getBookingCounts();
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              HeroCard(
-                  number: counts['completed'].toString(),
-                  status: 'Completed',
-                  iconName: 'assets/images/completed.svg'),
-              HeroCard(
-                  number: counts['inProcess'].toString(),
-                  status: 'In-Process',
-                  iconName: 'assets/images/in_process.svg'),
-            ],
-          ),
-          SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              HeroCard(
-                  number: counts['unAssigned'].toString(),
-                  status: 'Un-Assigned',
-                  iconName: 'assets/images/un_assigned.svg'),
-              HeroCard(
-                  number: counts['cancelled'].toString(),
-                  status: 'Cancelled',
-                  iconName: 'assets/images/cancelled.svg'),
-            ],
-          ),
-        ],
-      );
-    });
+  Widget _buildHeroCards() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            HeroCard(
+                number: '650',
+                status: 'Completed',
+                iconName: 'assets/images/completed.svg'),
+            HeroCard(
+                number: '650',
+                status: 'In-Process',
+                iconName: 'assets/images/in_process.svg'),
+          ],
+        ),
+        SizedBox(height: 5),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            HeroCard(
+                number: '650',
+                status: 'Un-Assigned',
+                iconName: 'assets/images/un_assigned.svg'),
+            HeroCard(
+                number: '650',
+                status: 'Cancelled',
+                iconName: 'assets/images/cancelled.svg'),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildNewBookingsHeader(BuildContext context) {
@@ -225,10 +222,15 @@ class AdminHome extends StatelessWidget {
         itemBuilder: (context, index) {
           final booking = adminProvider.bookings[index];
           return GestureDetector(
-            onTap: () => Get.to(UserBookingDetailsPage(booking: booking)),
-            child: AdminBookingCard(
-              booking: booking,
-              adminProvider: adminProvider,
+            onTap: () => {},
+            child: GestureDetector(
+              onTap: () {
+                Get.to(UserBookingDetailsPage(booking: booking));
+              },
+              child: AdminBookingCard(
+                booking: booking,
+                adminProvider: adminProvider,
+              ),
             ),
           );
         },
