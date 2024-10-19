@@ -10,15 +10,15 @@ class HomeFile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EmployeeTrackingController employeeTrackingController =
-        Get.put(EmployeeTrackingController());
+    // final EmployeeTrackingController employeeTrackingController =
+    //     Get.put(EmployeeTrackingController());
     return Scaffold(
       body: Center(
         child: Column(
           children: [
             ElevatedButton(
                 onPressed: () {
-                  employeeTrackingController.startTracking();
+                  // employeeTrackingController.startTracking();
                   // Get.to(() => EmployeeTrackingMap());
                 },
                 child: Text("Employee View")),

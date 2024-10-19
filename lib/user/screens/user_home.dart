@@ -9,6 +9,7 @@ import 'package:house_cleaning/tracking/home_file.dart';
 import 'package:house_cleaning/user/screens/cart_screen.dart';
 import 'package:house_cleaning/user/screens/notification_page.dart';
 import 'package:house_cleaning/user/screens/user_create_profile_screen.dart';
+import '../../generated/l10n.dart';
 import '../models/notification_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/service_card.dart';
@@ -43,7 +44,7 @@ class UserHome extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Welcome",
+                          Text(S.of(context).welcome,
                               style: Theme.of(context)
                                   .textTheme
                                   .labelLarge
@@ -55,7 +56,7 @@ class UserHome extends StatelessWidget {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return Text(
-                                  "Loading...",
+                                  S.of(context).loading,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyLarge
@@ -66,7 +67,7 @@ class UserHome extends StatelessWidget {
                                   ConnectionState.done) {
                                 if (snapshot.hasData && snapshot.data != null) {
                                   print(
-                                      'User loaded: ${snapshot.data!.name}'); // This should print if user data is successfully loaded
+                                      '${S.of(context).userLoaded}: ${snapshot.data!.name}'); // This should print if user data is successfully loaded
                                   return Text(
                                     snapshot.data!.name,
                                     style: Theme.of(context)
@@ -160,7 +161,7 @@ class UserHome extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "You’re missing out!!!",
+                          S.of(context).youAreMissingout,
                           style: Theme.of(context)
                               .textTheme
                               .labelLarge
@@ -168,7 +169,7 @@ class UserHome extends StatelessWidget {
                         ),
                         const SizedBox(height: 5),
                         Text(
-                          "Subscribe and save.",
+                          S.of(context).subscribeAndsave,
                           style: Theme.of(context)
                               .textTheme
                               .titleLarge
@@ -196,7 +197,7 @@ class UserHome extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  "Subscription Plans",
+                                  S.of(context).subscriptionPlans,
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelLarge
@@ -211,7 +212,7 @@ class UserHome extends StatelessWidget {
                   )
                 ],
               ),
-              const HeadingText(headingText: "Our Services"),
+              HeadingText(headingText: S.of(context).ourServices),
               Obx(() {
                 if (userProvider.categoryList.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
@@ -227,7 +228,7 @@ class UserHome extends StatelessWidget {
                   },
                 );
               }),
-              const HeadingText(headingText: "Recommended Products"),
+              HeadingText(headingText: S.of(context).recommendedProducts),
               Obx(() {
                 if (userProvider.products.isEmpty) {
                   return const Center(child: CircularProgressIndicator());

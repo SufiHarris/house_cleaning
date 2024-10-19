@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 
+import '../../generated/l10n.dart';
+
 class EmployeeCard extends StatelessWidget {
   final String name;
   final String imageUrl;
@@ -71,7 +73,7 @@ class EmployeeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Name",
+                      S.of(context).employeeNameLabel,
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -104,7 +106,7 @@ class EmployeeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Contact Number",
+                      S.of(context).contactNumberLabel,
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -130,7 +132,7 @@ class EmployeeCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Work Experience",
+                      S.of(context).workExperienceLabel,
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge

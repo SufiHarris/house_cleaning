@@ -13,6 +13,7 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String currentLangCode = Get.locale?.languageCode ?? 'en';
     final userProvider = Get.find<UserProvider>();
     return Padding(
       padding: const EdgeInsets.only(bottom: 22),
@@ -75,7 +76,7 @@ class ServiceCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    category.categoryName,
+                    category.getLocalizedCategoryName(currentLangCode),
                     style: Theme.of(context).textTheme.labelLarge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

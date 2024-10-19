@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/screens/user_product_detail_page.dart';
 // import '../models/product_model.dart';
+import '../../generated/l10n.dart';
 import '../providers/user_provider.dart';
 import '../widgets/product_card.dart';
 
@@ -14,7 +15,7 @@ class UserProductScreen extends StatelessWidget {
     // userProvider.fetchProducts();
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Products"),
+        title: Text(S.of(context).products),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

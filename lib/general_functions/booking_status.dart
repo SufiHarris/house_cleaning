@@ -6,10 +6,7 @@ class BookingController extends GetxController {
 
   Future<void> updateBookingStatus(String bookingId, String status) async {
     try {
-      await _firestore
-          .collection('size_based_bookings')
-          .doc('0xm1mKrOmvKV2tJL5tUX')
-          .update({
+      await _firestore.collection('size_based_bookings').doc(bookingId).update({
         'status': status,
       });
       print('Status updated to $status for booking ID $bookingId');

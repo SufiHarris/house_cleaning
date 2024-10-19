@@ -4,6 +4,7 @@ import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/tracking/tracking_controller.dart';
 import 'package:intl/intl.dart';
 import '../../general_functions/booking_status.dart';
+import '../../generated/l10n.dart';
 import '../../tracking/google_map_widget.dart';
 import '../../user/models/bookings_model.dart';
 
@@ -39,14 +40,14 @@ class EmployeeBookingDetail extends StatelessWidget {
                   children: [
                     _buildInfoItem(
                       Icons.calendar_today,
-                      'Due Date',
+                      S.of(context).dueDate,
                       DateFormat('EEEE d MMM')
                           .format(DateTime.parse(booking.bookingDate)),
                     ),
                     const SizedBox(width: 16),
                     _buildInfoItem(
                       Icons.access_time,
-                      'Start Time',
+                      S.of(context).startTime,
                       booking.bookingTime,
                     ),
                   ],
@@ -66,10 +67,11 @@ class EmployeeBookingDetail extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      employeeTrackingController.startTracking();
+                      // employeeTrackingController.startTracking();
                       bookingController.updateBookingStatus(
                           booking.booking_id.toString(), 'inprogress');
 
+                      // Navigate to the EmployeeTrackingMap with lat and lng
                       Get.to(() => EmployeeTrackingMap(
                             booking: booking,
                           ));
@@ -79,7 +81,7 @@ class EmployeeBookingDetail extends StatelessWidget {
                       backgroundColor: CustomColors.primaryColor,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Start Service'),
+                    child: Text(S.of(context).startService),
                   ),
                 ),
               ],
@@ -105,7 +107,7 @@ class EmployeeBookingDetail extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Client Address',
+          S.of(context).clientAddress,
           style: Theme.of(context)
               .textTheme
               .bodyLarge
@@ -126,7 +128,7 @@ class EmployeeBookingDetail extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Landmark',
+                    S.of(context).landmark,
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge
@@ -147,7 +149,7 @@ class EmployeeBookingDetail extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Contact',
+                    S.of(context).contact,
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge
@@ -174,14 +176,14 @@ class EmployeeBookingDetail extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Entry Instructions',
+          S.of(context).entryInstructions,
           style: Theme.of(context)
               .textTheme
               .bodyLarge
               ?.copyWith(color: CustomColors.textColorTwo),
         ),
         Text(
-          'Wait outside the gate facing the camera and call me directly.',
+          S.of(context).entryInstructionsDetail,
           style: Theme.of(context)
               .textTheme
               .labelMedium
@@ -196,7 +198,7 @@ class EmployeeBookingDetail extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Services',
+          S.of(context).services,
           style: Theme.of(context)
               .textTheme
               .bodyLarge
@@ -208,7 +210,7 @@ class EmployeeBookingDetail extends StatelessWidget {
               .map((service) => _buildServiceItem(context, service))
         else
           Text(
-            'No services booked',
+            S.of(context).noServices,
             style: Theme.of(context)
                 .textTheme
                 .labelMedium
@@ -233,7 +235,7 @@ class EmployeeBookingDetail extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Text(
-                  'Size: ${service.size}',
+                  '${S.of(context).size}: ${service.size}',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ],
@@ -262,7 +264,7 @@ class EmployeeBookingDetail extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Products',
+          S.of(context).products,
           style: Theme.of(context)
               .textTheme
               .bodyLarge
@@ -274,7 +276,7 @@ class EmployeeBookingDetail extends StatelessWidget {
               .map((product) => _buildProductItem(context, product))
         else
           Text(
-            'No products ordered',
+            S.of(context).noProducts,
             style: Theme.of(context)
                 .textTheme
                 .labelMedium
@@ -299,7 +301,7 @@ class EmployeeBookingDetail extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 Text(
-                  'Delivery: ${product.delivery_time}',
+                  '${S.of(context).delivery}: ${product.delivery_time}',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
               ],
@@ -328,7 +330,7 @@ class EmployeeBookingDetail extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Make sure to pick',
+          S.of(context).makeSureToPick,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 8),
@@ -336,11 +338,11 @@ class EmployeeBookingDetail extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _buildChip('Mop'),
-            _buildChip('Broom'),
-            _buildChip('Standing Ladder'),
-            _buildChip('Cleaning Liquid'),
-            _buildChip('Cloth'),
+            _buildChip(S.of(context).mop),
+            _buildChip(S.of(context).broom),
+            _buildChip(S.of(context).standingLadder),
+            _buildChip(S.of(context).cleaningLiquid),
+            _buildChip(S.of(context).cloth),
           ],
         ),
       ],

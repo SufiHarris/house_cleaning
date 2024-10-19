@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 import '../models/service_summary_model.dart';
 import '../providers/user_provider.dart';
@@ -26,6 +27,7 @@ class _UserVehicleCleaningServiceScreenState
     extends State<UserVehicleCleaningServiceScreen>
     with SingleTickerProviderStateMixin {
   final userProvider = Get.find<UserProvider>();
+  String currentLangCode = Get.locale?.languageCode ?? 'en';
 
   Map<int, List<ServiceItem>> selectedServices = {};
   List<ServiceSummaryModel> bookedServices = [];
@@ -156,7 +158,8 @@ class _UserVehicleCleaningServiceScreenState
       child: Row(
         children: [
           Text(
-            widget.category.categoryType,
+            // widget.category.categoryType,
+            widget.category.getLocalizedCategoryName(currentLangCode),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: CustomColors.primaryColor,
                   fontWeight: FontWeight.w500,
@@ -189,7 +192,7 @@ class _UserVehicleCleaningServiceScreenState
                 height: 20,
               ),
               const SizedBox(width: 8),
-              Text("Service"),
+              Text(S.of(context).service),
             ],
           ),
         ),
@@ -202,7 +205,7 @@ class _UserVehicleCleaningServiceScreenState
                 height: 20,
               ),
               const SizedBox(width: 8),
-              Text("Reviews"),
+              Text(S.of(context).reviews),
             ],
           ),
         ),
@@ -222,7 +225,8 @@ class _UserVehicleCleaningServiceScreenState
           padding: const EdgeInsets.all(16.0),
           children: [
             Text(
-              "Experience top-notch vehicle cleaning with our expert team. Quick, reliable, and thorough—making your vehicle sparkle effortlessly!",
+              widget.category.getLocalizedDescription(currentLangCode),
+              // "Experience top-notch vehicle cleaning with our expert team. Quick, reliable, and thorough—making your vehicle sparkle effortlessly!",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: CustomColors.textColorFour,
                     letterSpacing: 0.5,
