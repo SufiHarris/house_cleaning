@@ -243,6 +243,7 @@ Widget _buildButtons(
         );
       }
       break;
+
     case 'assigned':
     case 'pending':
       buttonContent = ElevatedButton(

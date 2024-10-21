@@ -4,12 +4,10 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/admin/widget/admin_booking_card.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/employee/provider/employee_provider.dart';
-import 'package:house_cleaning/user/screens/user_bookings_detail_page.dart';
-import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../../theme/custom_colors.dart';
-import '../../user/providers/user_provider.dart';
 import '../provider/admin_provider.dart';
 import '../widget/hero_cards.dart';
+import 'admin_booking_detail_page.dart';
 
 class AdminHome extends StatelessWidget {
   const AdminHome({super.key});
@@ -225,7 +223,7 @@ class AdminHome extends StatelessWidget {
         itemBuilder: (context, index) {
           final booking = adminProvider.bookings[index];
           return GestureDetector(
-            onTap: () => Get.to(UserBookingDetailsPage(booking: booking)),
+            onTap: () => Get.to(AdminBookingDetailPage(booking: booking)),
             child: AdminBookingCard(
               booking: booking,
               adminProvider: adminProvider,
