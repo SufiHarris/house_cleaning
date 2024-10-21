@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:house_cleaning/user/models/bookings_model.dart';
+import 'package:house_cleaning/user/screens/user_bookings_detail_page.dart';
+import 'package:house_cleaning/tracking/client_tracking_map.dart';
 import '../../theme/custom_colors.dart';
 
 class UserBookingWidget extends StatelessWidget {
   final BookingModel booking;
+  // ignore: use_super_parameters
   const UserBookingWidget({Key? key, required this.booking}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withOpacity(0.1),
-        //     spreadRadius: 1,
-        //     blurRadius: 3,
-        //   ),
-        // ],
       ),
-      child: booking.services.isEmpty
-          ? _buildProductCard(context)
-          : _buildServiceCard(context),
+      child: Column(
+        children: [
+          booking.services.isEmpty
+              ? _buildProductCard(context)
+              : _buildServiceCard(context),
+          SizedBox(height: 16),
+          _buildButtons(context, booking),
+        ],
+      ),
     );
   }
 
@@ -39,7 +42,6 @@ class UserBookingWidget extends StatelessWidget {
             product.imageUrl,
             width: 80,
             height: 80,
-            //fit: BoxFi,
           ),
         ),
         SizedBox(width: 16),
@@ -62,9 +64,7 @@ class UserBookingWidget extends StatelessWidget {
                         .bodyLarge
                         ?.copyWith(color: CustomColors.textColorFive),
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
+                  const SizedBox(width: 5),
                   Text(
                     'SAR',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -72,29 +72,24 @@ class UserBookingWidget extends StatelessWidget {
                         ),
                   ),
                   Spacer(),
-                  Row(
-                    children: [
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.remove, color: Colors.grey),
+                        Text(
+                          '${product.quantity}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Icon(Icons.remove, color: Colors.grey),
-                            Text(
-                              '${product.quantity}',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Icon(Icons.add, color: CustomColors.primaryColor),
-                          ],
-                        ),
-                      ),
-                    ],
+                        Icon(Icons.add, color: CustomColors.primaryColor),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -142,9 +137,7 @@ class UserBookingWidget extends StatelessWidget {
                             .bodyLarge
                             ?.copyWith(color: CustomColors.textColorFive),
                       ),
-                      const SizedBox(
-                        width: 5,
-                      ),
+                      const SizedBox(width: 5),
                       Text(
                         'SAR',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -160,7 +153,7 @@ class UserBookingWidget extends StatelessWidget {
         ),
         SizedBox(height: 16),
         SizedBox(
-          height: 80, // Adjust this height as needed
+          height: 80,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: booking.services.length,
@@ -181,7 +174,7 @@ class UserBookingWidget extends StatelessWidget {
   Widget serviceCard(
       String name, int quantity, double price, int size, BuildContext context) {
     return Container(
-      width: 180, // Adjust this width as needed
+      width: 180,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
@@ -219,5 +212,63 @@ class UserBookingWidget extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildButtons(BuildContext context, BookingModel booking) {
+    Widget buttonContent;
+
+    final ButtonStyle commonButtonStyle = ElevatedButton.styleFrom(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: EdgeInsets.symmetric(vertical: 12),
+    );
+
+    switch (booking.status.toLowerCase()) {
+      case 'unassigned':
+      case 'assigned':
+      case 'pending':
+      case 'working':
+      case 'completed':
+        buttonContent = ElevatedButton(
+          onPressed: () => _handleShowDetails(context, booking),
+          child: Text('Show Details'),
+          style: commonButtonStyle.copyWith(
+            backgroundColor: MaterialStateProperty.all(
+                booking.status.toLowerCase() == 'completed'
+                    ? Colors.teal
+                    : CustomColors.primaryColor),
+            foregroundColor: MaterialStateProperty.all(Colors.white),
+          ),
+        );
+        break;
+      case 'inprogress':
+        buttonContent = ElevatedButton(
+          onPressed: () => _handleTrack(context, booking),
+          child: Text('Track'),
+          style: commonButtonStyle.copyWith(
+            backgroundColor:
+                MaterialStateProperty.all(CustomColors.trackButtonBg),
+            foregroundColor:
+                MaterialStateProperty.all(CustomColors.trackButton),
+          ),
+        );
+        break;
+      default:
+        buttonContent = SizedBox();
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: buttonContent,
+    );
+  }
+
+  void _handleShowDetails(BuildContext context, BookingModel booking) {
+    Get.to(() => UserBookingDetailsPage(booking: booking));
+  }
+
+  void _handleTrack(BuildContext context, BookingModel booking) {
+    Get.to(() => ClientTrackingMap());
   }
 }

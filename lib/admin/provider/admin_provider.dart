@@ -170,6 +170,7 @@ class AdminProvider extends GetxController {
         case 'completed':
           completed++;
           break;
+        case 'assigned':
         case 'in-process':
           inProcess++;
           break;

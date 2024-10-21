@@ -10,8 +10,9 @@ class UserBookings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider userProvider = Get.find<UserProvider>();
+    final UserProvider userProvider = Get.find();
     userProvider.fetchBookings();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -19,43 +20,90 @@ class UserBookings extends StatelessWidget {
           title: Text(S.of(context).bookings),
           bottom: TabBar(
             tabs: [
-              Tab(text: S.of(context).inProcess),
-              Tab(text: S.of(context).completed),
-              Tab(text: S.of(context).cancelled),
+              Tab(text: 'Current'),
+              Tab(text: 'Completed'),
+              Tab(text: 'Cancelled'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildBookingsList(userProvider, 'pending'),
-            _buildBookingsList(userProvider, 'completed'),
-            _buildBookingsList(userProvider, 'cancelled'),
+            _buildCurrentBookingsList(userProvider),
+            _buildBookingsList(userProvider, ['completed']),
+            _buildBookingsList(userProvider, ['cancelled']),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBookingsList(UserProvider userProvider, String status) {
+  Widget _buildCurrentBookingsList(UserProvider userProvider) {
     return Obx(() {
       if (userProvider.isLoading.value) {
         return Center(child: CircularProgressIndicator());
       }
+
+      // Filter bookings for "In Progress" section
+      final inProgressBookings = userProvider.bookings
+          .where((booking) =>
+              ['inprogress', 'working'].contains(booking.status.toLowerCase()))
+          .toList();
+
+      // Filter bookings for "Scheduled" section
+      final scheduledBookings = userProvider.bookings
+          .where((booking) =>
+              ['unassigned', 'assigned'].contains(booking.status.toLowerCase()))
+          .toList();
+
+      return ListView(
+        padding: EdgeInsets.all(16),
+        children: [
+          if (inProgressBookings.isNotEmpty) ...[
+            Text('ONGOING', style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            ...inProgressBookings.map(
+              (booking) => GestureDetector(
+                onTap: () => Get.to(UserBookingDetailsPage(booking: booking)),
+                child: UserBookingWidget(booking: booking),
+              ),
+            ),
+            SizedBox(height: 16),
+          ],
+          if (scheduledBookings.isNotEmpty) ...[
+            Text('SCHEDULED', style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            ...scheduledBookings.map(
+              (booking) => GestureDetector(
+                onTap: () => Get.to(UserBookingDetailsPage(booking: booking)),
+                child: UserBookingWidget(booking: booking),
+              ),
+            ),
+          ],
+        ],
+      );
+    });
+  }
+
+  Widget _buildBookingsList(UserProvider userProvider, List<String> statuses) {
+    return Obx(() {
+      if (userProvider.isLoading.value) {
+        return Center(child: CircularProgressIndicator());
+      }
+
       final filteredBookings = userProvider.bookings
-          .where(
-              (booking) => booking.status.toLowerCase() == status.toLowerCase())
+          .where((booking) => statuses.contains(booking.status.toLowerCase()))
           .toList();
 
       return ListView(
         padding: EdgeInsets.all(16),
         children: [
           if (filteredBookings.isNotEmpty) ...[
-            Text(status.toUpperCase(),
+            Text(statuses.first.toUpperCase(),
                 style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 8),
             ...filteredBookings.map(
               (booking) => GestureDetector(
-                onTap: () => {Get.to(UserBookingDetailsPage(booking: booking))},
+                onTap: () => Get.to(UserBookingDetailsPage(booking: booking)),
                 child: UserBookingWidget(booking: booking),
               ),
             )

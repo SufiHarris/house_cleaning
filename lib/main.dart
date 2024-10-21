@@ -44,6 +44,7 @@ void main() async {
   Get.put(EmployeeTrackingController());
   Get.put(EmployeeProvider());
   Get.put(AdminProvider());
+
   Get.put(ImageController());
 
   runApp(const MyApp());
