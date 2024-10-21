@@ -113,7 +113,7 @@ class EmployeeTrackingController extends GetxController {
   }
 
   void checkIfReachedDestination() {
-    if (remainingDistance.value <= 100) {
+    if (remainingDistance.value <= 10000) {
       hasReachedDestination.value = true;
     }
   }

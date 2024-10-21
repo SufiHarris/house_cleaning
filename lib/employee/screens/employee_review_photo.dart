@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/employee/controllers/camera_controller.dart';
 import 'package:house_cleaning/employee/screens/employee_order_overview.dart';
+import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
 
 class ReviewPhotoPage extends StatelessWidget {
@@ -33,13 +34,14 @@ class ReviewPhotoPage extends StatelessWidget {
                     height: 250,
                     fit: BoxFit.cover,
                   )
-                : Text('No image selected', style: TextStyle(fontSize: 16))),
+                : Text(S.of(context).noImageSelected,
+                    style: TextStyle(fontSize: 16))),
             Spacer(),
             ElevatedButton(
               onPressed: () {
                 controller.retakePhoto();
               },
-              child: Text('Retake'),
+              child: Text(S.of(context).retake),
               style: ElevatedButton.styleFrom(
                 foregroundColor: CustomColors.textColorThree,
                 backgroundColor: Colors.white,
@@ -58,14 +60,16 @@ class ReviewPhotoPage extends StatelessWidget {
                   String bookingId = "0xm1mKrOmvKV2tJL5tUX";
                   await controller.uploadPhotoWithStatus(bookingId, 'end');
 
-                  Get.snackbar('Success', 'Photo uploaded successfully');
+                  Get.snackbar(S.of(context).success,
+                      S.of(context).photoUploadedSuccessfully);
                   Get.to(() => OrderOverviewPage());
                 } catch (e) {
-                  Get.snackbar('Error', 'Failed to upload photo: $e');
+                  Get.snackbar(S.of(context).error,
+                      '${S.of(context).failedToUploadPhoto}: $e');
                 }
               },
               child: Text(
-                'Upload & Complete',
+                S.of(context).uploadAndComplete,
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(

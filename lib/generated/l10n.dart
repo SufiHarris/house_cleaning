@@ -919,6 +919,206 @@ class S {
       args: [],
     );
   }
+
+  /// `Reached`
+  String get reached {
+    return Intl.message(
+      'Reached',
+      name: 'reached',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Error`
+  String get error {
+    return Intl.message(
+      'Error',
+      name: 'error',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not launch dialer`
+  String get couldNotLaunchDialer {
+    return Intl.message(
+      'Could not launch dialer',
+      name: 'couldNotLaunchDialer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Photo uploaded successfully`
+  String get photoUploadedSuccessfully {
+    return Intl.message(
+      'Photo uploaded successfully',
+      name: 'photoUploadedSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to upload photo`
+  String get failedToUploadPhoto {
+    return Intl.message(
+      'Failed to upload photo',
+      name: 'failedToUploadPhoto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload & Complete`
+  String get uploadAndComplete {
+    return Intl.message(
+      'Upload & Complete',
+      name: 'uploadAndComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No image selected`
+  String get noImageSelected {
+    return Intl.message(
+      'No image selected',
+      name: 'noImageSelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Retake`
+  String get retake {
+    return Intl.message(
+      'Retake',
+      name: 'retake',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Order Overview`
+  String get orderOverview {
+    return Intl.message(
+      'Order Overview',
+      name: 'orderOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Great Job!`
+  String get greatJob {
+    return Intl.message(
+      'Great Job!',
+      name: 'greatJob',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Service completed successfully.`
+  String get serviceCompletedSuccessfully {
+    return Intl.message(
+      'Service completed successfully.',
+      name: 'serviceCompletedSuccessfully',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back to home`
+  String get backToHome {
+    return Intl.message(
+      'Back to home',
+      name: 'backToHome',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remaining`
+  String get remaining {
+    return Intl.message(
+      'Remaining',
+      name: 'remaining',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Km's`
+  String get kms {
+    return Intl.message(
+      'Km\'s',
+      name: 'kms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ETA Time`
+  String get etaTime {
+    return Intl.message(
+      'ETA Time',
+      name: 'etaTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Location`
+  String get selectLocation {
+    return Intl.message(
+      'Select Location',
+      name: 'selectLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Location Outside Riyadh`
+  String get locationOutsideRiyadh {
+    return Intl.message(
+      'Location Outside Riyadh',
+      name: 'locationOutsideRiyadh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Please select a location within Riyadh.`
+  String get selectLocationMessage {
+    return Intl.message(
+      'Please select a location within Riyadh.',
+      name: 'selectLocationMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No location selected. Please select a location within Riyadh.`
+  String get noLocationSelected {
+    return Intl.message(
+      'No location selected. Please select a location within Riyadh.',
+      name: 'noLocationSelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to get the current location.`
+  String get failedToGetLocation {
+    return Intl.message(
+      'Failed to get the current location.',
+      name: 'failedToGetLocation',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

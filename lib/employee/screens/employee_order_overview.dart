@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
-import 'package:house_cleaning/theme/custom_colors.dart'; // Since you are using GetX for navigation
+import 'package:house_cleaning/theme/custom_colors.dart';
+
+import '../../generated/l10n.dart';
 
 class OrderOverviewPage extends StatelessWidget {
   @override
@@ -17,7 +19,7 @@ class OrderOverviewPage extends StatelessWidget {
           },
         ),
         title: Text(
-          'Order Overview',
+          S.of(context).orderOverview,
           style: TextStyle(
             color: CustomColors.textColorThree,
             fontWeight: FontWeight.bold,
@@ -27,13 +29,13 @@ class OrderOverviewPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Center(
               child: Container(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 70),
                 decoration: BoxDecoration(
                   color: Color(0xFFD9CDBA),
                   borderRadius: BorderRadius.circular(16.0),
@@ -48,7 +50,7 @@ class OrderOverviewPage extends StatelessWidget {
                     ),
                     SizedBox(height: 16.0),
                     Text(
-                      'Great Job!',
+                      S.of(context).greatJob,
                       style: TextStyle(
                         fontSize: 22.0,
                         fontWeight: FontWeight.bold,
@@ -57,7 +59,7 @@ class OrderOverviewPage extends StatelessWidget {
                     ),
                     SizedBox(height: 8.0),
                     Text(
-                      'Service completed successfully.',
+                      S.of(context).serviceCompletedSuccessfully,
                       style: TextStyle(
                         fontSize: 16.0,
                         color: Colors.black54,
@@ -69,7 +71,6 @@ class OrderOverviewPage extends StatelessWidget {
               ),
             ),
             Spacer(),
-
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 foregroundColor: CustomColors.textColorThree,
@@ -78,21 +79,20 @@ class OrderOverviewPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30.0),
                   side: BorderSide(color: CustomColors.textColorThree),
                 ),
-                padding:
-                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 100.0),
+                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 80.0),
               ),
               onPressed: () {
                 Get.to(() => EmployeeHome());
               },
               child: Text(
-                'Back to home',
+                S.of(context).backToHome,
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: 16.0), // Padding at the bottom
+            SizedBox(height: 16.0),
           ],
         ),
       ),

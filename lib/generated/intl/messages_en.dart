@@ -31,6 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "assignedTasks": MessageLookupByLibrary.simpleMessage("Assigned tasks"),
         "availableFrom": MessageLookupByLibrary.simpleMessage("Available From"),
         "availableTo": MessageLookupByLibrary.simpleMessage("Available To"),
+        "backToHome": MessageLookupByLibrary.simpleMessage("Back to home"),
         "bookings": MessageLookupByLibrary.simpleMessage("Bookings"),
         "broom": MessageLookupByLibrary.simpleMessage("Broom"),
         "buildingNumber":
@@ -50,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "contact": MessageLookupByLibrary.simpleMessage("Contact"),
         "contactNumberLabel":
             MessageLookupByLibrary.simpleMessage("Contact Number"),
+        "couldNotLaunchDialer":
+            MessageLookupByLibrary.simpleMessage("Could not launch dialer"),
         "currentPassword":
             MessageLookupByLibrary.simpleMessage("Current Password"),
         "delivery": MessageLookupByLibrary.simpleMessage("Delivery"),
@@ -70,14 +73,24 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Entry Instructions"),
         "entryInstructionsDetail": MessageLookupByLibrary.simpleMessage(
             "Wait outside the gate facing the camera and call me directly."),
+        "error": MessageLookupByLibrary.simpleMessage("Error"),
         "errorFetchingUserDetails":
             MessageLookupByLibrary.simpleMessage("Error fetching user details"),
+        "etaTime": MessageLookupByLibrary.simpleMessage("ETA Time"),
+        "failedToGetLocation": MessageLookupByLibrary.simpleMessage(
+            "Failed to get the current location."),
+        "failedToUploadPhoto":
+            MessageLookupByLibrary.simpleMessage("Failed to upload photo"),
         "floor": MessageLookupByLibrary.simpleMessage("Floor"),
+        "greatJob": MessageLookupByLibrary.simpleMessage("Great Job!"),
         "guestUser": MessageLookupByLibrary.simpleMessage("Guest User"),
         "home": MessageLookupByLibrary.simpleMessage("Home"),
         "inProcess": MessageLookupByLibrary.simpleMessage("In Process"),
+        "kms": MessageLookupByLibrary.simpleMessage("Km\'s"),
         "landmark": MessageLookupByLibrary.simpleMessage("Landmark"),
         "loading": MessageLookupByLibrary.simpleMessage("Loading..."),
+        "locationOutsideRiyadh":
+            MessageLookupByLibrary.simpleMessage("Location Outside Riyadh"),
         "logOut": MessageLookupByLibrary.simpleMessage("Log out"),
         "makeSureToPick":
             MessageLookupByLibrary.simpleMessage("Make sure to pick"),
@@ -89,6 +102,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "newPassword": MessageLookupByLibrary.simpleMessage("New Password"),
         "noAddressesAvailable":
             MessageLookupByLibrary.simpleMessage("No addresses available."),
+        "noImageSelected":
+            MessageLookupByLibrary.simpleMessage("No image selected"),
+        "noLocationSelected": MessageLookupByLibrary.simpleMessage(
+            "No location selected. Please select a location within Riyadh."),
         "noProducts":
             MessageLookupByLibrary.simpleMessage("No products ordered"),
         "noServices":
@@ -96,24 +113,36 @@ class MessageLookup extends MessageLookupByLibrary {
         "noTasks": MessageLookupByLibrary.simpleMessage("No tasks available"),
         "noUserDetailsFound":
             MessageLookupByLibrary.simpleMessage("No user details found."),
+        "orderOverview": MessageLookupByLibrary.simpleMessage("Order Overview"),
         "ourServices": MessageLookupByLibrary.simpleMessage("Our Services"),
         "pending": MessageLookupByLibrary.simpleMessage("Pending"),
         "personalDetails":
             MessageLookupByLibrary.simpleMessage("Personal details"),
         "phoneNumber": MessageLookupByLibrary.simpleMessage("Phone Number"),
+        "photoUploadedSuccessfully":
+            MessageLookupByLibrary.simpleMessage("Photo uploaded successfully"),
         "pm": MessageLookupByLibrary.simpleMessage("PM"),
         "privacyPolicy": MessageLookupByLibrary.simpleMessage("Privacy Policy"),
         "products": MessageLookupByLibrary.simpleMessage("Products"),
         "profile": MessageLookupByLibrary.simpleMessage("Profile"),
         "reEnterNewPassword":
             MessageLookupByLibrary.simpleMessage("Re-enter New Password"),
+        "reached": MessageLookupByLibrary.simpleMessage("Reached"),
         "recommendedProducts":
             MessageLookupByLibrary.simpleMessage("Recommended Products"),
+        "remaining": MessageLookupByLibrary.simpleMessage("Remaining"),
+        "retake": MessageLookupByLibrary.simpleMessage("Retake"),
         "reviews": MessageLookupByLibrary.simpleMessage("Reviews"),
         "saveAddress": MessageLookupByLibrary.simpleMessage("Save Address"),
         "selectDate": MessageLookupByLibrary.simpleMessage("Select Date"),
+        "selectLocation":
+            MessageLookupByLibrary.simpleMessage("Select Location"),
+        "selectLocationMessage": MessageLookupByLibrary.simpleMessage(
+            "Please select a location within Riyadh."),
         "selectTime": MessageLookupByLibrary.simpleMessage("Select Time"),
         "service": MessageLookupByLibrary.simpleMessage("Service"),
+        "serviceCompletedSuccessfully": MessageLookupByLibrary.simpleMessage(
+            "Service completed successfully."),
         "services": MessageLookupByLibrary.simpleMessage("Services"),
         "settings": MessageLookupByLibrary.simpleMessage("Settings"),
         "size": MessageLookupByLibrary.simpleMessage("Size"),
@@ -132,6 +161,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Time Availability"),
         "today": MessageLookupByLibrary.simpleMessage("Today"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("Tomorrow"),
+        "uploadAndComplete":
+            MessageLookupByLibrary.simpleMessage("Upload & Complete"),
         "useCurrentLocation":
             MessageLookupByLibrary.simpleMessage("Use Current Location"),
         "userLoaded": MessageLookupByLibrary.simpleMessage("User Loaded"),

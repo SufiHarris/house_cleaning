@@ -94,7 +94,33 @@
   "enterLandmarkHint": "Enter landmark",
   "success": "Success",
   "addressSaved": "Address saved successfully.",
-  "saveAddress": "Save Address"
+  "saveAddress": "Save Address",
+   "reached": "Reached",
+  "clientAddress": "Client Address",
+  "entryInstructions": "Entry Instructions",
+  "success": "Success",
+  "error": "Error",
+  "couldNotLaunchDialer": "Could not launch dialer",
+  "photoUploadedSuccessfully": "Photo uploaded successfully",
+  "failedToUploadPhoto": "Failed to upload photo",
+  "uploadAndComplete": "Upload & Complete",
+    "noImageSelected": "No image selected",
+  "retake": "Retake",
+    "orderOverview": "Order Overview",
+  "greatJob": "Great Job!",
+  "serviceCompletedSuccessfully": "Service completed successfully.",
+  "backToHome": "Back to home",
+   "remaining": "Remaining",
+  "kms": "Km's",
+  "etaTime": "ETA Time",
+  "reached": "Reached",
+  "selectLocation": "Select Location",
+  "locationOutsideRiyadh": "Location Outside Riyadh",
+  "selectLocationMessage": "Please select a location within Riyadh.",
+  "error": "Error",
+  "noLocationSelected": "No location selected. Please select a location within Riyadh.",
+  "failedToGetLocation": "Failed to get the current location."
+ 
 
  
 }
