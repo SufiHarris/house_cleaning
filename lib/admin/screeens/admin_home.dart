@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import 'package:house_cleaning/admin/widget/admin_booking_card.dart';
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/employee/provider/employee_provider.dart';
+import 'package:house_cleaning/notifications/notifications.dart';
+import 'package:house_cleaning/user/screens/user_bookings_detail_page.dart';
+import 'package:house_cleaning/user/widgets/heading_text.dart';
 import '../../theme/custom_colors.dart';
 import '../provider/admin_provider.dart';
 import '../widget/hero_cards.dart';
@@ -86,9 +89,16 @@ class AdminHome extends StatelessWidget {
           ),
           const Spacer(),
           GestureDetector(
-            onTap: () {
-              authProvider.signOut();
-              //Get.to(AdminPortal());
+            onTap: () async {
+              // print("Bell icon tapped"); // Debugging statement
+              // try {
+              //   // Attempt to send a notification
+              //   await PushNotifications.sendNotificationToUsers(
+              //       "Admin Alert!", "Check out the latest announcement!");
+              //   print("Notification sent successfully!");
+              // } catch (e) {
+              //   print("Error sending notification: $e");
+              // }
             },
             child: Container(
               decoration: const BoxDecoration(color: Colors.white),
