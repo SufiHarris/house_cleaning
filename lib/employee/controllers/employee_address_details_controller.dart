@@ -14,7 +14,7 @@ class ClientDetailsController extends GetxController {
     clientAddress.value = "123 Example Street";
     landmark.value = "Near the mall";
     entryInstructions.value = "Ring the doorbell";
-    contactNumber.value = "+123456789";
+    contactNumber.value = "+1234567890";
 
     // fetchClientDetails();
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
+import '../../generated/l10n.dart';
 import 'controller/user_addaddress_controller.dart';
 
 class SelectLocationOnMapPage extends StatefulWidget {
@@ -51,10 +52,13 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
       }
     } catch (e) {
       print('Error using current location: $e');
-      Get.snackbar("Error", "Failed to get the current location.");
+      Get.snackbar(
+        S.of(context).error,
+        S.of(context).failedToGetLocation,
+      );
     } finally {
       setState(() {
-        isLoading = false; // Set loading to false once done
+        isLoading = false;
       });
     }
   }
@@ -64,7 +68,7 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Select Location',
+          S.of(context).selectLocation,
           style: TextStyle(color: CustomColors.textColorThree),
         ),
         backgroundColor: CustomColors.eggPlant,
@@ -75,7 +79,7 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
               ? Center(child: CircularProgressIndicator())
               : GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: LatLng(24.7136, 46.6753), // Riyadh coordinates
+                    target: LatLng(24.7136, 46.6753),
                     zoom: 14.0,
                   ),
                   onMapCreated: (GoogleMapController controller) {
@@ -99,8 +103,8 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
                       });
                     } else {
                       Get.snackbar(
-                        'Location Outside Riyadh',
-                        'Please select a location within Riyadh.',
+                        S.of(context).locationOutsideRiyadh,
+                        S.of(context).selectLocationMessage,
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: CustomColors.textColorThree,
                         colorText: Colors.white,
@@ -118,8 +122,8 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
                     Get.back(result: selectedLocation);
                   } else {
                     Get.snackbar(
-                      "Error",
-                      "No location selected. Please select a location within Riyadh.",
+                      S.of(context).error, // Use localized string
+                      S.of(context).noLocationSelected, // Use localized string
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.redAccent,
                       colorText: Colors.white,
@@ -168,7 +172,10 @@ class _SelectLocationOnMapPageState extends State<SelectLocationOnMapPage> {
       }
     } catch (e) {
       print('Error using current location: $e');
-      Get.snackbar("Error", "Failed to get the current location.");
+      Get.snackbar(
+        S.of(context).error, // Use localized string
+        S.of(context).failedToGetLocation, // Use localized string
+      );
     }
   }
 

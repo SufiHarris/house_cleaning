@@ -30,6 +30,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "assignedTasks": MessageLookupByLibrary.simpleMessage("المهام المعينة"),
         "availableFrom": MessageLookupByLibrary.simpleMessage("متاح من"),
         "availableTo": MessageLookupByLibrary.simpleMessage("متاح حتى"),
+        "backToHome":
+            MessageLookupByLibrary.simpleMessage("العودة إلى الصفحة الرئيسية"),
         "bookings": MessageLookupByLibrary.simpleMessage("الحجوزات"),
         "broom": MessageLookupByLibrary.simpleMessage("المكنسة"),
         "buildingNumber": MessageLookupByLibrary.simpleMessage("رقم المبنى"),
@@ -47,6 +49,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "contact": MessageLookupByLibrary.simpleMessage("اتصال"),
         "contactNumberLabel":
             MessageLookupByLibrary.simpleMessage("رقم الاتصال"),
+        "couldNotLaunchDialer":
+            MessageLookupByLibrary.simpleMessage("تعذر فتح المتصل"),
         "currentPassword":
             MessageLookupByLibrary.simpleMessage("كلمة المرور الحالية"),
         "delivery": MessageLookupByLibrary.simpleMessage("التسليم"),
@@ -66,14 +70,24 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("تعليمات الدخول"),
         "entryInstructionsDetail": MessageLookupByLibrary.simpleMessage(
             "انتظر خارج البوابة وواجه الكاميرا واتصل بي مباشرة."),
+        "error": MessageLookupByLibrary.simpleMessage("خطأ"),
         "errorFetchingUserDetails":
             MessageLookupByLibrary.simpleMessage("خطأ في جلب تفاصيل المستخدم"),
+        "etaTime": MessageLookupByLibrary.simpleMessage("وقت الوصول المقدر"),
+        "failedToGetLocation": MessageLookupByLibrary.simpleMessage(
+            "فشل في الحصول على الموقع الحالي."),
+        "failedToUploadPhoto":
+            MessageLookupByLibrary.simpleMessage("فشل في تحميل الصورة"),
         "floor": MessageLookupByLibrary.simpleMessage("الطابق"),
+        "greatJob": MessageLookupByLibrary.simpleMessage("عمل رائع!"),
         "guestUser": MessageLookupByLibrary.simpleMessage("مستخدم ضيف"),
         "home": MessageLookupByLibrary.simpleMessage("الرئيسية"),
         "inProcess": MessageLookupByLibrary.simpleMessage("قيد المعالجة"),
+        "kms": MessageLookupByLibrary.simpleMessage("كم"),
         "landmark": MessageLookupByLibrary.simpleMessage("معلم بارز"),
         "loading": MessageLookupByLibrary.simpleMessage("جار التحميل..."),
+        "locationOutsideRiyadh":
+            MessageLookupByLibrary.simpleMessage("الموقع خارج الرياض"),
         "logOut": MessageLookupByLibrary.simpleMessage("تسجيل الخروج"),
         "makeSureToPick": MessageLookupByLibrary.simpleMessage("تأكد من أخذ"),
         "manageAddress": MessageLookupByLibrary.simpleMessage("إدارة العنوان"),
@@ -85,6 +99,10 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("كلمة المرور الجديدة"),
         "noAddressesAvailable":
             MessageLookupByLibrary.simpleMessage("لا توجد عناوين متاحة."),
+        "noImageSelected":
+            MessageLookupByLibrary.simpleMessage("لم يتم اختيار صورة"),
+        "noLocationSelected": MessageLookupByLibrary.simpleMessage(
+            "لم يتم اختيار موقع. يرجى اختيار موقع داخل الرياض."),
         "noProducts":
             MessageLookupByLibrary.simpleMessage("لم يتم طلب أي منتجات"),
         "noServices":
@@ -92,23 +110,35 @@ class MessageLookup extends MessageLookupByLibrary {
         "noTasks": MessageLookupByLibrary.simpleMessage("لا توجد مهام متاحة"),
         "noUserDetailsFound":
             MessageLookupByLibrary.simpleMessage("لا توجد تفاصيل مستخدم."),
+        "orderOverview":
+            MessageLookupByLibrary.simpleMessage("نظرة عامة على الطلب"),
         "ourServices": MessageLookupByLibrary.simpleMessage("خدماتنا"),
         "pending": MessageLookupByLibrary.simpleMessage("معلق"),
         "personalDetails": MessageLookupByLibrary.simpleMessage("تفاصيل شخصية"),
         "phoneNumber": MessageLookupByLibrary.simpleMessage("رقم الهاتف"),
+        "photoUploadedSuccessfully":
+            MessageLookupByLibrary.simpleMessage("تم تحميل الصورة بنجاح"),
         "pm": MessageLookupByLibrary.simpleMessage("م"),
         "privacyPolicy": MessageLookupByLibrary.simpleMessage("سياسة الخصوصية"),
         "products": MessageLookupByLibrary.simpleMessage("المنتجات"),
         "profile": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
         "reEnterNewPassword": MessageLookupByLibrary.simpleMessage(
             "أعد إدخال كلمة المرور الجديدة"),
+        "reached": MessageLookupByLibrary.simpleMessage("وصلت"),
         "recommendedProducts":
             MessageLookupByLibrary.simpleMessage("منتجات موصى بها"),
+        "remaining": MessageLookupByLibrary.simpleMessage("المتبقي"),
+        "retake": MessageLookupByLibrary.simpleMessage("إعادة التقاط"),
         "reviews": MessageLookupByLibrary.simpleMessage("التعليقات"),
         "saveAddress": MessageLookupByLibrary.simpleMessage("احفظ العنوان"),
         "selectDate": MessageLookupByLibrary.simpleMessage("اختر التاريخ"),
+        "selectLocation": MessageLookupByLibrary.simpleMessage("اختر الموقع"),
+        "selectLocationMessage": MessageLookupByLibrary.simpleMessage(
+            "يرجى اختيار موقع داخل الرياض."),
         "selectTime": MessageLookupByLibrary.simpleMessage("حدد الوقت"),
         "service": MessageLookupByLibrary.simpleMessage("خدمة"),
+        "serviceCompletedSuccessfully":
+            MessageLookupByLibrary.simpleMessage("تم إكمال الخدمة بنجاح."),
         "services": MessageLookupByLibrary.simpleMessage("الخدمات"),
         "settings": MessageLookupByLibrary.simpleMessage("الإعدادات"),
         "size": MessageLookupByLibrary.simpleMessage("الحجم"),
@@ -125,6 +155,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("الوقت المتاح"),
         "today": MessageLookupByLibrary.simpleMessage("اليوم"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("غداً"),
+        "uploadAndComplete":
+            MessageLookupByLibrary.simpleMessage("تحميل وإكمال"),
         "useCurrentLocation":
             MessageLookupByLibrary.simpleMessage("استخدم الموقع الحالي"),
         "userLoaded": MessageLookupByLibrary.simpleMessage("تم تحميل المستخدم"),

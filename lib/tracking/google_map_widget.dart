@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../employee/screens/employee_address_details.dart';
 import '../general_functions/booking_status.dart';
+import '../generated/l10n.dart';
 import '../theme/custom_colors.dart';
 import '../user/models/bookings_model.dart';
 import 'tracking_controller.dart';
@@ -39,13 +40,7 @@ class EmployeeTrackingMap extends StatelessWidget {
             return GoogleMap(
               initialCameraPosition: CameraPosition(
                 target: employeeLocation,
-                // target: LatLng(
-                //   double.parse(booking.geolocation.lat),
-                //   double.parse(booking.geolocation.lon),
-                // ),
                 zoom: 18,
-                // tilt: 20,
-                // bearing: trackingController.currentPosition.value,
               ),
               polylines: {
                 Polyline(
@@ -62,8 +57,6 @@ class EmployeeTrackingMap extends StatelessWidget {
               },
             );
           }),
-
-          // Landmark and address
           Positioned(
             top: 40,
             left: 20,
@@ -107,8 +100,6 @@ class EmployeeTrackingMap extends StatelessWidget {
               ),
             ),
           ),
-
-          // Remaining Distance and ETA
           Positioned(
             bottom: 90,
             left: 30,
@@ -116,7 +107,6 @@ class EmployeeTrackingMap extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Remaining distance container
                 Obx(() => Container(
                       width: MediaQuery.of(context).size.width * 0.4,
                       padding: EdgeInsets.all(12),
@@ -140,13 +130,13 @@ class EmployeeTrackingMap extends StatelessWidget {
                           trackingController.isLoadingRemainingDistance.value
                               ? Center(child: CircularProgressIndicator())
                               : Text(
-                                  'Remaining',
+                                  S.of(context).remaining,
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.grey),
                                 ),
                           SizedBox(height: 4),
                           Text(
-                            '${trackingController.totalDistance.value.toStringAsFixed(2)} Km\'s',
+                            '${trackingController.totalDistance.value.toStringAsFixed(2)} ${S.of(context).kms}', // Localized 'Km\'s'
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -156,7 +146,6 @@ class EmployeeTrackingMap extends StatelessWidget {
                         ],
                       ),
                     )),
-                // ETA container
                 Obx(() => Container(
                       width: MediaQuery.of(context).size.width * 0.4,
                       padding: EdgeInsets.all(12),
@@ -180,7 +169,7 @@ class EmployeeTrackingMap extends StatelessWidget {
                           trackingController.isLoadingETA.value
                               ? Center(child: CircularProgressIndicator())
                               : Text(
-                                  'ETA Time',
+                                  S.of(context).etaTime,
                                   style: TextStyle(
                                       fontSize: 12, color: Colors.grey),
                                 ),
@@ -201,8 +190,6 @@ class EmployeeTrackingMap extends StatelessWidget {
           ),
         ],
       ),
-
-      // Bottom sheet for "Reached" button
       bottomSheet: Obx(() => Container(
             color: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -227,7 +214,7 @@ class EmployeeTrackingMap extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  "Reached",
+                  S.of(context).reached,
                   style: TextStyle(
                     fontSize: 16,
                     color: trackingController.hasReachedDestination.value
