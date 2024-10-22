@@ -29,7 +29,9 @@ class _UserVehicleCleaningServiceScreenState
   final userProvider = Get.find<UserProvider>();
   String currentLangCode = Get.locale?.languageCode ?? 'en';
 
-  Map<int, List<ServiceItem>> selectedServices = {};
+  // Map<int, List<ServiceItem>> selectedServices = {};
+  Map<String, List<ServiceItem>> selectedServices = {};
+
   List<ServiceSummaryModel> bookedServices = [];
   double totalPrice = 0;
   late TabController _tabController;

@@ -90,6 +90,7 @@ class AdminHome extends StatelessWidget {
           const Spacer(),
           GestureDetector(
             onTap: () async {
+              authProvider.signOut();
               // print("Bell icon tapped"); // Debugging statement
               // try {
               //   // Attempt to send a notification

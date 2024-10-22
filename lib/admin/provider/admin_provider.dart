@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/auth/model/staff_model.dart';
+import 'package:house_cleaning/user/models/category_model.dart';
+import 'package:house_cleaning/user/models/service_model.dart';
 
 import '../../auth/model/usermodel.dart';
 import '../../user/models/bookings_model.dart';
@@ -11,6 +13,8 @@ class AdminProvider extends GetxController {
   var employees = <StaffModel>[].obs;
   var usersList = <UserModel>[].obs;
   var products = <UserProductModel>[].obs;
+  var categories = <CategoryModel>[].obs;
+  var services = <ServiceModel>[].obs;
 
   var isLoading = true.obs;
 
@@ -19,6 +23,8 @@ class AdminProvider extends GetxController {
     super.onInit();
     fetchEmployees();
   }
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> fetchBookings(int year) async {
     try {
@@ -189,5 +195,156 @@ class AdminProvider extends GetxController {
       'unAssigned': unAssigned,
       'cancelled': cancelled,
     };
+  }
+
+  //Mark:- Category Methods...
+
+// Fetch categories from Firestore
+  Future<void> fetchCategories() async {
+    try {
+      var snapshot =
+          await FirebaseFirestore.instance.collection('category_table').get();
+
+      categories.value = snapshot.docs.map((doc) {
+        // Convert Firestore document data to CategoryModel
+        return CategoryModel.fromJson(doc.data() as Map<String, dynamic>);
+      }).toList();
+
+      print("Fetched ${categories.length} categories");
+    } catch (e) {
+      print("Error fetching categories: $e");
+    }
+  }
+
+//Add Categor Method..
+  Future<void> addCategory(CategoryModel newCategory) async {
+    try {
+      // Convert the category object to JSON without the categoryId
+      Map<String, dynamic> categoryData = newCategory.toJson();
+
+      // Add the category to Firestore collection 'category_table' and get the document reference
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('category_table')
+          .add(categoryData);
+
+      // Now, update the category data with the generated ID
+      newCategory = CategoryModel(
+        categoryId: docRef.id, // Use the generated ID from Firestore
+        categoryName: newCategory.categoryName,
+        categoryNameAr: newCategory.categoryNameAr,
+        categoryType: newCategory.categoryType,
+        imageUrl: newCategory.imageUrl,
+        categoryImage: newCategory.categoryImage,
+        description: newCategory.description,
+        descriptionAr: newCategory.descriptionAr,
+      );
+
+      // Update the Firestore document with the categoryId
+      await docRef.update(
+          {'id': newCategory.categoryId}); // Set the id field in Firestore
+
+      // Optionally, update the local list after adding to Firestore
+      categories.add(newCategory);
+
+      print("Category added successfully: $newCategory");
+    } catch (e) {
+      print("Error adding category: $e");
+      Get.snackbar("Error", "Failed to add category.");
+    }
+  }
+
+// Update category method
+  Future<void> updateCategory(
+      String categoryId, CategoryModel updatedCategory) async {
+    try {
+      await _firestore
+          .collection('category_table')
+          .doc(categoryId)
+          .update(updatedCategory.toJson());
+      print("Category updated successfully.");
+    } catch (e) {
+      print("Error updating category: $e");
+      throw e; // Propagate error for further handling if necessary
+    }
+  }
+
+  // Delete category method
+  Future<void> deleteCategory(String categoryId) async {
+    try {
+      await _firestore.collection('category_table').doc(categoryId).delete();
+      print("Category deleted successfully.");
+    } catch (e) {
+      print("Error deleting category: $e");
+      throw e; // Propagate error for further handling if necessary
+    }
+  }
+
+//Mark:- Service Methods..
+
+  // Fetch Services
+  Future<void> fetchServices() async {
+    try {
+      var snapshot =
+          await FirebaseFirestore.instance.collection('services_table').get();
+
+      // Safely map Firestore documents to ServiceModel
+      services.value = snapshot.docs.map((doc) {
+        // Ensure that if some fields are missing or of the wrong type, it still maps correctly
+        return ServiceModel.fromJson(doc.data() as Map<String, dynamic>);
+      }).toList();
+
+      print("Fetched ${services.length} services.");
+    } catch (e) {
+      print("Error fetching services: $e");
+    }
+  }
+
+//Adding Service.
+  Future<void> addService(ServiceModel newService) async {
+    try {
+      Map<String, dynamic> serviceData = newService.toJson();
+      serviceData.remove('service_id'); // Remove serviceId for now
+
+      DocumentReference docRef = await FirebaseFirestore.instance
+          .collection('services_table')
+          .add(serviceData);
+
+      String generatedDocId = docRef.id;
+      await FirebaseFirestore.instance
+          .collection('services_table')
+          .doc(generatedDocId)
+          .update({'service_id': generatedDocId});
+
+      print("Service added successfully with ID: $generatedDocId");
+    } catch (e) {
+      print("Error adding service: $e");
+    }
+  }
+
+// In AdminProvider class
+  Future<void> updateService(ServiceModel updatedService) async {
+    try {
+      await _firestore
+          .collection('services_table')
+          .doc(updatedService.serviceId) // Use the serviceId as document ID
+          .update(updatedService.toJson());
+
+      print("Service updated successfully!");
+      Get.snackbar("Success", "Service updated successfully!");
+    } catch (e) {
+      print("Error updating service: $e");
+      Get.snackbar("Error", "Failed to update service.");
+    }
+  }
+
+  Future<void> deleteService(String serviceId) async {
+    try {
+      await _firestore.collection('services_table').doc(serviceId).delete();
+      print("Service deleted successfully!");
+      Get.snackbar("Success", "Service deleted successfully!");
+    } catch (e) {
+      print("Error deleting service: $e");
+      Get.snackbar("Error", "Failed to delete service.");
+    }
   }
 }

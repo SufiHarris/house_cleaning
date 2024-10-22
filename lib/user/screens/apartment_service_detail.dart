@@ -32,7 +32,9 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   String currentLangCode = Get.locale?.languageCode ?? 'en';
   String? selectedShift;
   List<String> availableShifts = [];
-  Map<int, List<ServiceItem>> selectedServices = {};
+//  Map<int, List<ServiceItem>> selectedServices = {};
+  Map<String, List<ServiceItem>> selectedServices = {};
+
   List<ServiceSummaryModel> bookedServices = [];
   double totalPrice = 0;
   late TabController _tabController;

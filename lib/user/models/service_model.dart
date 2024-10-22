@@ -1,27 +1,35 @@
 class ServiceModel {
-  final String serviceName;
-  final int serviceId;
-  final String category;
-  final String image;
-  final int price;
-  final int baseSize;
-  final int basePrice;
+  final String serviceName; // English service name
+  final String serviceNameAr; // Arabic service name
+  final String serviceId; // Change to String (ensured)
+  final String category; // English category name
+  final String categoryAr; // Arabic category name
+  final String image; // Image URL
+  final int price; // Service price
+  final int baseSize; // Base size
+  final int basePrice; // Base price
 
   ServiceModel({
     required this.serviceName,
-    required this.serviceId,
+    required this.serviceNameAr, // Arabic service name
+    required this.serviceId, // String serviceId
     required this.category,
+    required this.categoryAr, // Arabic category
     required this.image,
     required this.price,
     required this.baseSize,
     required this.basePrice,
   });
 
+  // From JSON
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
       serviceName: json['service_name'] ?? '',
-      serviceId: json['service_id'] ?? 0,
+      serviceNameAr: json['service_name_ar'] ?? '',
+      serviceId: (json['service_id'] ?? '')
+          .toString(), // Ensure serviceId is String, even if Firestore stores it as int
       category: json['category'] ?? '',
+      categoryAr: json['category_ar'] ?? '',
       image: json['image'] ?? '',
       price: json['price'] ?? 0,
       baseSize: json['base_size'] ?? 10,
@@ -29,11 +37,24 @@ class ServiceModel {
     );
   }
 
+  // Get localized service name based on language code
+  String getLocalizedServiceName(String langCode) {
+    return langCode == 'ar' ? serviceNameAr : serviceName;
+  }
+
+  // Get localized category name based on language code
+  String getLocalizedCategoryName(String langCode) {
+    return langCode == 'ar' ? categoryAr : category;
+  }
+
+  // To JSON
   Map<String, dynamic> toJson() {
     return {
       'service_name': serviceName,
+      'service_name_ar': serviceNameAr,
       'service_id': serviceId,
       'category': category,
+      'category_ar': categoryAr,
       'image': image,
       'price': price,
       'base_size': baseSize,
@@ -55,51 +76,3 @@ class Review {
     required this.comment,
   });
 }
-
-
-
-
-// class Service {
-//   final String name;
-//   final IconData icon;
-//   final Color color;
-//   final double price;
-//   final double rating;
-//   final detailImageUrl;
-//   final String imageUrl;
-
-//   // final List<Review> reviews;
-
-//   Service(this.name, this.icon, this.color, this.price, this.rating,
-//       this.imageUrl, this.detailImageUrl);
-// }
-
-
-
-// final List<Service> services = [
-//   Service(
-//       'Home Cleaning',
-//       Icons.home,
-//       Colors.orange,
-//       100.0,
-//       4.2,
-//       'assets/images/apartment_service.png',
-//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-//   Service(
-//       'Home Cleaning',
-//       Icons.home,
-//       Colors.orange,
-//       100.0,
-//       4.2,
-//       'assets/images/furniture_service.png',
-//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-//   Service(
-//       'Home Cleaning',
-//       Icons.home,
-//       Colors.orange,
-//       100.0,
-//       4.2,
-//       'assets/images/car_service.png',
-//       'https://images.pexels.com/photos/186077/pexels-photo-186077.jpeg?cs=srgb&dl=pexels-binyaminmellish-186077.jpg&fm=jpg'),
-//   // Add more services with reviews...
-// ];

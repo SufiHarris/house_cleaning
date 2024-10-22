@@ -1,32 +1,36 @@
 class CategoryModel {
+  final String categoryId; // Add this field
   final String categoryName;
   final String categoryNameAr;
   final String categoryType;
   final String imageUrl;
-  final String categoryImage; // New field
+  final String categoryImage;
   final String description;
-  final String descriptionAr; // New field
+  final String descriptionAr;
 
-  CategoryModel(
-      {required this.categoryName,
-      required this.categoryNameAr,
-      required this.categoryType,
-      required this.imageUrl,
-      required this.categoryImage,
-      required this.description,
-      required this.descriptionAr});
+  CategoryModel({
+    required this.categoryId, // Include categoryId in the constructor
+    required this.categoryName,
+    required this.categoryNameAr,
+    required this.categoryType,
+    required this.imageUrl,
+    required this.categoryImage,
+    required this.description,
+    required this.descriptionAr,
+  });
 
-  // From JSON (Firestore document)
+  // From JSON
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-        categoryName: json['Category_Name'] ?? '',
-        categoryNameAr: json['Category_Name(ar)'] ?? '',
-        categoryType: json['Category_Type'],
-        imageUrl: json['ImageUrl'],
-        categoryImage: json['categoryImage'], // New field
-        description: json['description'],
-        descriptionAr: json['description(ar)'] // New field
-        );
+      categoryId: json['id'], // Extract the ID from the JSON
+      categoryName: json['Category_Name'] ?? '',
+      categoryNameAr: json['Category_Name(ar)'] ?? '',
+      categoryType: json['Category_Type'] ?? '',
+      imageUrl: json['ImageUrl'] ?? '',
+      categoryImage: json['categoryImage'] ?? '',
+      description: json['description'] ?? '',
+      descriptionAr: json['description(ar)'] ?? '',
+    );
   }
   String getLocalizedCategoryName(String langCode) {
     if (langCode == 'ar') {
@@ -47,12 +51,13 @@ class CategoryModel {
   // To JSON (if needed)
   Map<String, dynamic> toJson() {
     return {
-      'Category_Name(en)': categoryName, // English category name
+      'Category_Name': categoryName, // English category name
       'Category_Name(ar)': categoryNameAr,
       'Category_Type': categoryType,
       'ImageUrl': imageUrl,
       'categoryImage': categoryImage, // New field
       'description': description, // New field
+      'description(ar)': descriptionAr, // Add Arabic description here
     };
   }
 }
