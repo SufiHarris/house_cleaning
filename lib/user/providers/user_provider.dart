@@ -26,6 +26,7 @@ class UserProvider extends GetxController {
   var addresses = <AddressModel>[].obs;
   var bookings = <BookingModel>[].obs;
   var cartBookings = <BookingModel>[].obs;
+  List<StaffModel> allEmployees = [];
 
   // Observable properties
   var selectedDate = Rx<DateTime?>(null);
@@ -54,6 +55,30 @@ class UserProvider extends GetxController {
     // Implement your actual pricing logic here
     double basePrice = 100.0; // Base price per service
     return basePrice * quantity * size;
+  }
+
+  Future<void> fetchEmployees() async {
+    print("Starting fetchEmployees method");
+    try {
+      // Adding a filter to only fetch employees whose role is not 'admin'
+      var snapshot = await FirebaseFirestore.instance
+          .collection('staff_table')
+          .where('role', isNotEqualTo: 'admin')
+          .get();
+
+      print("Fetched ${snapshot.docs.length} employee documents");
+
+      allEmployees = snapshot.docs.map((doc) {
+        print("Processing document: ${doc.id}");
+        return StaffModel.fromFirestore(doc.data());
+      }).toList();
+
+      print("Processed ${allEmployees.length} employees");
+      print(
+          "First employee: ${allEmployees.isNotEmpty ? allEmployees[0].toString() : 'None'}");
+    } catch (e) {
+      print("Error fetching employees: $e");
+    }
   }
 
   Future<void> _getUserId() async {
@@ -453,14 +478,18 @@ class UserProvider extends GetxController {
     List<ServiceSummaryModel> combinedServices = [];
     List<UserProductModel> combinedProducts = [];
     String categoryName = '';
+    String categoryNameArabic = ''; // Added Arabic category name
     String categoryImage = '';
     AddressModel? address;
+    List<String> employeeIds = []; // Updated to store multiple employee IDs
+    List<String> shiftNames = []; // Added shift names
 
     DateTime bookingDate = DateTime.parse(bookings.first.bookingDate).toLocal();
     DateTime dateOnly =
         DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
 
     for (var booking in bookings) {
+      // Combine services
       combinedServices.addAll(booking.services.map((s) => ServiceSummaryModel(
             serviceName: s.service_name,
             totalQuantity: s.quantity,
@@ -468,6 +497,7 @@ class UserProvider extends GetxController {
             totalPrice: s.price,
           )));
 
+      // Combine products
       combinedProducts.addAll(
         booking.products.map(
           (p) => UserProductModel(
@@ -480,11 +510,14 @@ class UserProvider extends GetxController {
         ),
       );
 
+      // Take first non-empty category details
       if (categoryName.isEmpty && booking.categoryName.isNotEmpty) {
         categoryName = booking.categoryName;
+        categoryNameArabic = booking.categoryNameArabic;
         categoryImage = booking.categoryImage;
       }
 
+      // Take first address
       if (address == null) {
         address = AddressModel(
           building: booking.building,
@@ -494,60 +527,72 @@ class UserProvider extends GetxController {
           location: booking.location,
         );
       }
+
+      // Combine employee IDs and shift names
+      employeeIds.addAll(booking.employee_ids);
+      shiftNames.addAll(booking.shift_names);
     }
 
-    await saveBookingToFirestore(
-      bookingData: await createBookingDocument(
-        bookingDate: dateOnly,
-        services: combinedServices,
-        products: combinedProducts,
-        categoryName: categoryName,
-        categoryImage: categoryImage,
-        address: address,
-      ),
+    // Create and save combined booking
+    Map<String, dynamic> combinedBookingData = await createBookingDocument(
+      bookingDate: dateOnly,
+      services: combinedServices,
+      products: combinedProducts,
+      categoryName: categoryName,
+      categoryImage: categoryImage,
+      address: address,
     );
-  }
 
+    // Add the combined employee IDs and shift names
+    combinedBookingData['employee_ids'] =
+        employeeIds.toSet().toList(); // Remove duplicates
+    combinedBookingData['shift_names'] =
+        shiftNames.toSet().toList(); // Remove duplicates
+    combinedBookingData['category_name_arabic'] = categoryNameArabic;
+
+    await saveBookingToFirestore(bookingData: combinedBookingData);
+  }
   // ... existing code ...
 
   Future<void> updateProductQuantity(
       BookingModel booking, bool increment) async {
     int index = cartBookings.indexOf(booking);
     if (index != -1 && booking.products.isNotEmpty) {
-      var updatedBooking = booking;
-      var product = updatedBooking.products.first;
+      var product = booking.products.first;
 
       // Update quantity
-      int newQuantity =
-          increment ? (product.quantity ?? 1) + 1 : (product.quantity ?? 1) - 1;
-
-      // Ensure quantity doesn't go below 1
+      int newQuantity = increment ? product.quantity + 1 : product.quantity - 1;
       if (newQuantity < 1) newQuantity = 1;
 
-      // Create updated product
-      var updatedProduct = UserProductModel(
-        name: product.product_name,
+      // Create updated product booking
+      var updatedProduct = ProductBooking(
+        product_name: product.product_name,
+        product_name_arabic: product.product_name_arabic, // Include Arabic name
         quantity: newQuantity,
-        deliveryTime: product.delivery_time,
+        delivery_time: product.delivery_time,
         price: product.price,
         imageUrl: product.imageUrl,
       );
 
-      // Create updated booking with new total price
+      // Create updated booking data
       var updatedBookingData = createBookingDocument(
-        products: [updatedProduct],
-        categoryName: updatedBooking.categoryName,
-        categoryImage: updatedBooking.categoryImage,
-        bookingDate: DateTime.parse(updatedBooking.bookingDate),
+        products: [
+          UserProductModel(
+            name: updatedProduct.product_name,
+            quantity: updatedProduct.quantity,
+            deliveryTime: updatedProduct.delivery_time,
+            price: updatedProduct.price,
+            imageUrl: updatedProduct.imageUrl,
+          )
+        ],
+        categoryName: booking.categoryName,
+        categoryImage: booking.categoryImage,
+        bookingDate: DateTime.parse(booking.bookingDate),
       );
 
       // Update booking in cart
       cartBookings[index] = BookingModel.fromFirestore(updatedBookingData);
-
-      // Save updated cart to SharedPreferences
       await saveCartToPrefs();
-
-      // Trigger UI update
       cartBookings.refresh();
     }
   }
@@ -589,14 +634,16 @@ class UserProvider extends GetxController {
       'booking_date': bookingDate?.toString() ??
           selectedDate.value?.toString() ??
           now.toString(),
-      'booking_id': '', // This will be updated with the Firestore document ID
+      'booking_id': '',
       'booking_time': DateFormat('h:mm a').format(bookingDate ?? now),
-      'employee_id': 102,
+      'employee_ids': [], // Updated to List<String>
+      'shift_names': [], // Added shift names list
       'end_image': '',
       'payment_status': 'Pending',
       'products': (products ?? selectedProducts)
           .map((product) => {
                 'product_name': product.name,
+                'product_name_arabic': '', // Added Arabic name
                 'quantity': product.quantity ?? 1,
                 'delivery_time': product.deliveryTime ?? '1-2 Days',
                 'price': product.price,
@@ -609,6 +656,7 @@ class UserProvider extends GetxController {
               .map((service) => {
                     'quantity': service.totalQuantity,
                     'service_name': service.serviceName,
+                    'service_name_arabic': '', // Added Arabic name
                     'size': service.totalSize,
                     'price': service.totalPrice,
                   })
@@ -619,10 +667,11 @@ class UserProvider extends GetxController {
       'status': 'unassigned',
       'total_price':
           calculateTotalPrice(services: services, products: products),
-      'user_id': userId.value, // Use userId from the observable here
+      'user_id': userId.value,
       'user_phn_number': userPhoneNumber ?? '9999999999',
       'category_name':
           categoryName ?? selectedCategory.value?.categoryName ?? '',
+      'category_name_arabic': '', // Added Arabic category name
       'category_image':
           categoryImage ?? selectedCategory.value?.categoryImage ?? '',
       'building': address?.building ?? selectedAddress.value?.building ?? '',
@@ -722,7 +771,6 @@ class UserProvider extends GetxController {
 
       print("  User ID: ${booking.user_id}");
       print("  User Phone: ${booking.user_phn_number}");
-      print("  Employee ID: ${booking.employee_id}");
       print("  Category Name: ${booking.categoryName}");
       print("  Category Image: ${booking.categoryImage}");
       print("----------------------------------------");
