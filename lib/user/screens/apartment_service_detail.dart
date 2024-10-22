@@ -5,8 +5,10 @@ import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
 import 'package:house_cleaning/user/models/service_summary_model.dart';
 import 'package:house_cleaning/user/screens/user_select_address.dart';
+import '../../auth/model/staff_model.dart';
 import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
+import '../models/bookings_model.dart';
 import '../providers/user_provider.dart';
 import '../widgets/review_tab.dart';
 import 'package:intl/intl.dart';
@@ -28,7 +30,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
   final userProvider = Get.find<UserProvider>();
   DateTime selectedDate = DateTime.now();
   String currentLangCode = Get.locale?.languageCode ?? 'en';
-
+  String? selectedShift;
+  List<String> availableShifts = [];
   Map<int, List<ServiceItem>> selectedServices = {};
   List<ServiceSummaryModel> bookedServices = [];
   double totalPrice = 0;
@@ -40,6 +43,8 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     _tabController = TabController(length: 2, vsync: this);
     _fetchServices();
     _fetchReviews(); // Fetch reviews on initialization
+    userProvider.fetchEmployees();
+    userProvider.fetchBookings();
 
     if (userProvider.selectedDate.value == null) {
       userProvider.setSelectedDate(DateTime.now());
@@ -191,6 +196,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                     setState(() {
                       selectedDate = date;
                       userProvider.setSelectedDate(selectedDate);
+                      _updateAvailableShifts(selectedDate);
                     });
                     Navigator.pop(context);
                   },
@@ -338,6 +344,9 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
                   : S.of(context).choose,
               onTap: () => _showDatePicker(context),
             ),
+            const SizedBox(height: 16),
+            _buildShiftSelection(),
+            const SizedBox(height: 16),
             const SizedBox(height: 16),
             Text(
               "Add Rooms & Size",
@@ -514,6 +523,126 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
           iconColor: Colors.red,
         ),
       ],
+    );
+  }
+
+  Widget _buildShiftSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Select Shift",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: CustomColors.textColorTwo,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children:
+              availableShifts.map((shift) => _buildShiftChip(shift)).toList(),
+        ),
+      ],
+    );
+  }
+
+  void _updateAvailableShifts(DateTime selectedDate) {
+    // Reset available shifts
+    availableShifts = [];
+
+    // Format the selected date to match the timestamp format in bookings
+    String selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+
+    // Get data from provider
+    List<StaffModel> allEmployees = userProvider.allEmployees;
+    List<BookingModel> bookings = userProvider.bookings;
+
+    // Get today's bookings - modify the comparison to handle timestamp format
+    List<BookingModel> todaysBookings = bookings.where((booking) {
+      // Parse the booking date which is in timestamp format
+      DateTime bookingDate = DateTime.parse(booking.bookingDate);
+      // Compare only the date part
+      String bookingDateStr = DateFormat('yyyy-MM-dd').format(bookingDate);
+      return bookingDateStr == selectedDateStr;
+    }).toList();
+
+    // Rest of the logic remains the same
+    Set<String> morningEmployees = Set<String>();
+    Set<String> afternoonEmployees = Set<String>();
+
+    for (var booking in todaysBookings) {
+      for (var shiftName in booking.shift_names) {
+        if (shiftName == "Morning") {
+          morningEmployees.addAll(booking.employee_ids);
+        } else if (shiftName == "Afternoon") {
+          afternoonEmployees.addAll(booking.employee_ids);
+        }
+      }
+    }
+
+    // Calculate available employees for each shift
+    List<StaffModel> availableMorningStaff = allEmployees
+        .where((employee) => !morningEmployees.contains(employee.employeeId))
+        .toList();
+
+    List<StaffModel> availableAfternoonStaff = allEmployees
+        .where((employee) => !afternoonEmployees.contains(employee.employeeId))
+        .toList();
+
+    // Debug prints to help identify issues
+    print("Selected date: $selectedDateStr");
+    print(
+        "Booking dates available: ${bookings.map((b) => b.bookingDate).toList()}");
+    print("Today's bookings found: ${todaysBookings.length}");
+    print("Available morning staff: ${availableMorningStaff.length}");
+    print("Available afternoon staff: ${availableAfternoonStaff.length}");
+
+    // Add shifts only if staff is available
+    if (availableMorningStaff.isNotEmpty) {
+      availableShifts.add("Morning");
+    }
+    if (availableAfternoonStaff.isNotEmpty) {
+      availableShifts.add("Afternoon");
+    }
+
+    // Reset selected shift if it's no longer available
+    if (selectedShift != null && !availableShifts.contains(selectedShift)) {
+      selectedShift = null;
+    }
+
+    // Show message if no shifts are available
+    if (availableShifts.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              "No shifts available for this date - all employees are booked."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
+  Widget _buildShiftChip(String shift) {
+    bool isSelected = selectedShift == shift;
+    return FilterChip(
+      label: Text(shift),
+      selected: isSelected,
+      onSelected: (bool selected) {
+        setState(() {
+          selectedShift = selected ? shift : null;
+        });
+      },
+      backgroundColor: Colors.grey[200],
+      selectedColor: CustomColors.primaryColor.withOpacity(0.2),
+      labelStyle: TextStyle(
+        color: isSelected ? CustomColors.primaryColor : Colors.black,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      checkmarkColor: CustomColors.primaryColor,
     );
   }
 
