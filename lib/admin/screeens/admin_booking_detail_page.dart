@@ -6,11 +6,12 @@ import '../../user/models/bookings_model.dart';
 class AdminBookingDetailPage extends StatelessWidget {
   final BookingModel booking;
 
-  const AdminBookingDetailPage({Key? key, required this.booking})
-      : super(key: key);
+  const AdminBookingDetailPage({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context) {
+    final hasServices = booking.services.isNotEmpty;
+    final hasProducts = booking.products.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
         title: Text('Booking Details'),
@@ -24,7 +25,7 @@ class AdminBookingDetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildProductHeader(context),
+              _buildProductHeader(context, hasProducts, hasProducts),
               SizedBox(height: 8),
               Divider(),
               SizedBox(height: 8),
@@ -45,7 +46,11 @@ class AdminBookingDetailPage extends StatelessWidget {
               SizedBox(height: 8),
               Divider(),
               SizedBox(height: 8),
-              OrderStatusTimeline(status: booking.status),
+              OrderStatusTimeline(
+                status: booking.status,
+                beforeImage: booking.start_image,
+                afterImage: booking.endImage,
+              ),
               //    _buildLiveTrackingButton(),
             ],
           ),
@@ -120,13 +125,16 @@ class AdminBookingDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProductHeader(BuildContext context) {
+  Widget _buildProductHeader(
+      BuildContext context, bool hasServices, bool hasProducts) {
     return Row(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
-            booking.products.first.imageUrl,
+            hasServices
+                ? booking.categoryImage
+                : booking.products.first.imageUrl,
             width: 80,
             height: 80,
             fit: BoxFit.cover,
@@ -138,7 +146,9 @@ class AdminBookingDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                booking.products.first.product_name,
+                hasServices
+                    ? booking.categoryName
+                    : booking.products.first.product_name,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
@@ -148,7 +158,8 @@ class AdminBookingDetailPage extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${booking.products.first.price} ',
+                  Text(
+                      '${hasServices ? booking.total_price.toString() : booking.products.first.price} ',
                       style: Theme.of(context)
                           .textTheme
                           .titleLarge
@@ -315,41 +326,242 @@ Widget _buildServiceItem(BuildContext context, ServiceBooking service) {
 
 class OrderStatusTimeline extends StatelessWidget {
   final String status;
+  final String? beforeImage;
+  final String? afterImage;
 
-  const OrderStatusTimeline({Key? key, required this.status}) : super(key: key);
+  const OrderStatusTimeline({
+    Key? key,
+    required this.status,
+    this.beforeImage,
+    this.afterImage,
+  }) : super(key: key);
+
+  bool isFirstStepActive() => true;
+
+  bool isSecondStepActive() {
+    return status == 'inprocess' ||
+        status == 'working' ||
+        status == 'completed' ||
+        status == 'review';
+  }
+
+  bool isThirdStepActive() {
+    return status == 'completed' || status == 'review';
+  }
+
+  bool shouldShowBeforeImage() {
+    return status == 'working' ||
+        status == 'inprocess' ||
+        status == 'completed' ||
+        status == 'review';
+  }
+
+  bool shouldShowAfterImage() {
+    return status == 'completed' || status == 'review';
+  }
+
+  bool get hasAnyImage => beforeImage != null || afterImage != null;
+
+  Widget _buildWaitingForImages() {
+    return Container(
+      height: 120,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.hourglass_empty,
+            color: Colors.grey.shade400,
+            size: 32,
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Waiting for Images',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Order Status',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 16),
-        Row(
+        // Timeline Section
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
+            Text(
+              'Booking Status',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildTimelineStep('Order Placed', true),
-                _buildTimelineConnector(true),
-                _buildTimelineStep('Left for delivery', status == 'In Process'),
-                _buildTimelineConnector(false),
-                _buildTimelineStep('Delivered', status == 'Delivered'),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          _buildTimelineStep('Booked', isFirstStepActive()),
+                          Expanded(
+                            child: _buildTimelineConnector(
+                                isFirstStepActive() && isSecondStepActive()),
+                          ),
+                          _buildTimelineStep('Started', isSecondStepActive()),
+                          Expanded(
+                            child: _buildTimelineConnector(
+                                isSecondStepActive() && isThirdStepActive()),
+                          ),
+                          _buildTimelineStep('Completed', isThirdStepActive()),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child:
+                                _buildStepLabel('Booked', isFirstStepActive()),
+                          ),
+                          Expanded(
+                            child: _buildStepLabel(
+                                'Started', isSecondStepActive()),
+                          ),
+                          Expanded(
+                            child: _buildStepLabel(
+                                'Completed', isThirdStepActive()),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-            SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStepLabel('Order Placed', true),
-                SizedBox(height: 20),
-                _buildStepLabel('Left for delivery', status == 'In Process'),
-                SizedBox(height: 20),
-                _buildStepLabel('Delivered', status == 'Delivered'),
-              ],
+          ],
+        ),
+
+        // Images Section
+        //  if (shouldShowBeforeImage() || shouldShowAfterImage())
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 24),
+            Text(
+              'Pictures',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
             ),
+            SizedBox(height: 12),
+            if (!hasAnyImage)
+              _buildWaitingForImages()
+            else
+              Row(
+                children: [
+                  if (shouldShowBeforeImage())
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: beforeImage != null
+                                  ? Image.network(
+                                      beforeImage!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    )
+                                  : Center(
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey.shade400,
+                                        size: 40,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Before',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (shouldShowBeforeImage() && shouldShowAfterImage())
+                    SizedBox(width: 12),
+                  if (shouldShowAfterImage())
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: afterImage != null
+                                  ? Image.network(
+                                      afterImage!,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                    )
+                                  : Center(
+                                      child: Icon(
+                                        Icons.image,
+                                        color: Colors.grey.shade400,
+                                        size: 40,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'After',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
           ],
         ),
       ],
@@ -373,8 +585,7 @@ class OrderStatusTimeline extends StatelessWidget {
 
   Widget _buildTimelineConnector(bool isActive) {
     return Container(
-      width: 2,
-      height: 30,
+      height: 2,
       color: isActive ? CustomColors.primaryColor : Colors.grey.shade300,
     );
   }
@@ -382,9 +593,11 @@ class OrderStatusTimeline extends StatelessWidget {
   Widget _buildStepLabel(String label, bool isActive) {
     return Text(
       label,
+      textAlign: TextAlign.center,
       style: TextStyle(
         color: isActive ? CustomColors.primaryColor : Colors.grey.shade500,
         fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+        fontSize: 12,
       ),
     );
   }

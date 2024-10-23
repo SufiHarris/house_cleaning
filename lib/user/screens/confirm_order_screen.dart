@@ -102,6 +102,7 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
                       Get.to(() => FastRegister(
                           isCartAction: false)); // Pass a flag for add to cart
                     } else {
+                      print(userProvider.selectedServices.value);
                       // User is logged in, proceed to save booking
                       userProvider.saveBookingToFirestore();
                     }

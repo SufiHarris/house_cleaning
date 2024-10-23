@@ -5,8 +5,8 @@ class BookingModel {
   final String bookingDate;
   final String booking_id;
   final String bookingTime;
-  final List<String> employee_ids; // Changed to List<String>
-  final List<String> shift_names; // Added shift names
+  final List<String> employee_ids;
+  final List<String> shift_names;
   final String endImage;
   final String payment_status;
   final List<ProductBooking> products;
@@ -17,7 +17,7 @@ class BookingModel {
   final int user_id;
   final String user_phn_number;
   final String categoryName;
-  final String categoryNameArabic; // Added Arabic category name
+  final String categoryNameArabic;
   final String categoryImage;
 
   // Address model fields
@@ -55,63 +55,75 @@ class BookingModel {
 
   factory BookingModel.fromFirestore(Map<String, dynamic> json) {
     return BookingModel(
-      address: json['address'] ?? '',
-      bookingDate: json['booking_date'] ?? '',
+      address: json['address']?.toString() ?? '',
+      bookingDate: json['booking_date']?.toString() ?? '',
       booking_id: json['booking_id']?.toString() ?? '',
-      bookingTime: json['booking_time'] ?? '',
+      bookingTime: json['booking_time']?.toString() ?? '',
       employee_ids: _parseStringList(json['employee_ids']),
       shift_names: _parseStringList(json['shift_names']),
-      endImage: json['end_image'] ?? '',
-      payment_status: json['payment_status'] ?? '',
-      products: (json['products'] as List<dynamic>?)
-              ?.map((p) => ProductBooking.fromJson(p))
-              .toList() ??
-          [],
+      endImage: json['end_image']?.toString() ?? '',
+      payment_status: json['payment_status']?.toString() ?? '',
+      products: _parseProducts(json['products']),
       services: _parseServices(json['services']),
-      start_image: json['start_image'] ?? '',
-      status: json['status'] ?? '',
-      total_price: _parseDouble(json['total_price'], 0.0),
-      user_id: _parseInteger(json['user_id'], 0),
-      user_phn_number: json['user_phn_number'] ?? '',
-      categoryName: json['category_name'] ?? '',
-      categoryNameArabic: json['category_name_arabic'] ?? '',
-      categoryImage: json['category_image'] ?? '',
-      building: json['building'] ?? '',
-      floor: _parseInteger(json['floor'], 0),
+      start_image: json['start_image']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+      total_price: _parseDouble(json['total_price']),
+      user_id: _parseInteger(json['user_id']),
+      user_phn_number: json['user_phn_number']?.toString() ?? '',
+      categoryName: json['category_name']?.toString() ?? '',
+      categoryNameArabic: json['category_name_arabic']?.toString() ?? '',
+      categoryImage: json['category_image']?.toString() ?? '',
+      building: json['building']?.toString() ?? '',
+      floor: _parseInteger(json['floor']),
       geolocation: GeoLocationModel.fromFirestore(json['Geolocation'] ?? []),
-      landmark: json['landmark'] ?? '',
-      location: json['location'] ?? '',
+      landmark: json['landmark']?.toString() ?? '',
+      location: json['location']?.toString() ?? '',
     );
   }
 
   static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
     if (value is List) {
       return value.map((e) => e.toString()).toList();
     }
+    if (value is String) return [value];
     return [];
   }
 
   static List<ServiceBooking> _parseServices(dynamic servicesData) {
-    if (servicesData is List && servicesData.isNotEmpty) {
-      var serviceNames = servicesData[0]['service_names'] as List?;
-      if (serviceNames != null) {
-        return serviceNames.map((s) => ServiceBooking.fromJson(s)).toList();
-      }
+    if (servicesData == null) return [];
+    if (servicesData is List) {
+      return servicesData
+          .map((service) => ServiceBooking.fromJson(service))
+          .toList();
     }
     return [];
   }
 
-  static int _parseInteger(dynamic value, int defaultValue) {
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value) ?? defaultValue;
-    return defaultValue;
+  static List<ProductBooking> _parseProducts(dynamic productsData) {
+    if (productsData == null) return [];
+    if (productsData is List) {
+      return productsData
+          .map((product) => ProductBooking.fromJson(product))
+          .toList();
+    }
+    return [];
   }
 
-  static double _parseDouble(dynamic value, double defaultValue) {
+  static int _parseInteger(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    if (value is double) return value.toInt();
+    return 0;
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
     if (value is double) return value;
     if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? defaultValue;
-    return defaultValue;
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
   }
 
   Map<String, dynamic> toJson() {
@@ -125,9 +137,7 @@ class BookingModel {
       'end_image': endImage,
       'payment_status': payment_status,
       'products': products.map((p) => p.toJson()).toList(),
-      'services': [
-        {'service_names': services.map((s) => s.toJson()).toList()}
-      ],
+      'services': services.map((s) => s.toJson()).toList(),
       'start_image': start_image,
       'status': status,
       'total_price': total_price,
@@ -148,7 +158,7 @@ class BookingModel {
 class ServiceBooking {
   final int quantity;
   final String service_name;
-  final String service_name_arabic; // Added Arabic service name
+  final String service_name_arabic;
   final int size;
   final double price;
 
@@ -162,11 +172,11 @@ class ServiceBooking {
 
   factory ServiceBooking.fromJson(Map<String, dynamic> json) {
     return ServiceBooking(
-      quantity: BookingModel._parseInteger(json['quantity'], 0),
-      service_name: json['service_name'] ?? '',
-      service_name_arabic: json['service_name_arabic'] ?? '',
-      size: BookingModel._parseInteger(json['size'], 0),
-      price: BookingModel._parseDouble(json['price'], 0.0),
+      quantity: BookingModel._parseInteger(json['quantity']),
+      service_name: json['service_name']?.toString() ?? '',
+      service_name_arabic: json['service_name_arabic']?.toString() ?? '',
+      size: BookingModel._parseInteger(json['size']),
+      price: BookingModel._parseDouble(json['price']),
     );
   }
 
@@ -183,7 +193,7 @@ class ServiceBooking {
 
 class ProductBooking {
   final String product_name;
-  final String product_name_arabic; // Added Arabic product name
+  final String product_name_arabic;
   final int quantity;
   final String delivery_time;
   final double price;
@@ -200,12 +210,12 @@ class ProductBooking {
 
   factory ProductBooking.fromJson(Map<String, dynamic> json) {
     return ProductBooking(
-      product_name: json['product_name'] ?? '',
-      product_name_arabic: json['product_name_arabic'] ?? '',
-      quantity: BookingModel._parseInteger(json['quantity'], 0),
-      delivery_time: json['delivery_time'] ?? '',
-      price: BookingModel._parseDouble(json['price'], 0.0),
-      imageUrl: json['image_url'] ?? '',
+      product_name: json['product_name']?.toString() ?? '',
+      product_name_arabic: json['product_name_arabic']?.toString() ?? '',
+      quantity: BookingModel._parseInteger(json['quantity']),
+      delivery_time: json['delivery_time']?.toString() ?? '',
+      price: BookingModel._parseDouble(json['price']),
+      imageUrl: json['image_url']?.toString() ?? '',
     );
   }
 
@@ -216,7 +226,7 @@ class ProductBooking {
       'quantity': quantity,
       'delivery_time': delivery_time,
       'price': price,
-      'image_url': imageUrl
+      'image_url': imageUrl,
     };
   }
 }
