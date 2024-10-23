@@ -83,6 +83,36 @@
 <string>We need access to your photo library for selecting photos.</string>
 
 
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <!-- Replace with your actual Facebook App ID -->
+      <string>fb1213917799663758</string>
+    </array>
+  </dict>
+</array>
+
+<key>FacebookAppID</key>
+<!-- Replace with your actual Facebook App ID -->
+<string>1213917799663758</string>
+
+<key>FacebookDisplayName</key>
+<!-- The display name of your app -->
+<string>HouseCleaning</string>
+
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <!-- These schemes allow interaction with the Facebook app if installed -->
+  <string>fbapi</string>
+  <string>fb-messenger-api</string>
+  <string>fbauth2</string>
+  <string>fbshareextension</string>
+</array>
+
+
+
 
 
 

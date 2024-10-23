@@ -22,14 +22,18 @@ class _EditCategoryScreenState extends State<EditCategoryScreen> {
   String? categoryType;
   String? description;
   String? descriptionAr;
+  String? categoryUsageType; // New variable for usage type
 
   final imageController = Get.put(ImageController());
   final adminProvider = Get.find<AdminProvider>();
+
+  final List<String> usageTypes = ['Call Based', 'Size Based'];
 
   @override
   void initState() {
     super.initState();
     imageController.image = null;
+    categoryUsageType = widget.category.type; // Default value for spinner
 
     // Initialize fields with current category data
     categoryName = widget.category.categoryName;
@@ -59,6 +63,7 @@ class _EditCategoryScreenState extends State<EditCategoryScreen> {
         categoryImage: imageUrl,
         description: description!,
         descriptionAr: descriptionAr!,
+        type: categoryUsageType!, // Add the usage type here
       );
 
       try {
@@ -185,6 +190,35 @@ class _EditCategoryScreenState extends State<EditCategoryScreen> {
                 },
                 onSaved: (value) {
                   categoryType = value;
+                },
+              ),
+              SizedBox(height: 16),
+              // Spinner for Usage Type
+              DropdownButtonFormField<String>(
+                value: categoryUsageType,
+                decoration: InputDecoration(
+                  labelText: 'Usage Type',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                items: usageTypes.map((String usageType) {
+                  return DropdownMenuItem<String>(
+                    value: usageType,
+                    child: Text(usageType),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    categoryUsageType =
+                        newValue; // Update the selected usage type
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a usage type';
+                  }
+                  return null;
                 },
               ),
               SizedBox(height: 16),

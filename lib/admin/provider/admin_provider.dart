@@ -267,6 +267,7 @@ class AdminProvider extends GetxController {
         categoryImage: newCategory.categoryImage,
         description: newCategory.description,
         descriptionAr: newCategory.descriptionAr,
+        type: newCategory.type,
       );
 
       // Update the Firestore document with the categoryId

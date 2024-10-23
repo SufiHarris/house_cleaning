@@ -116,12 +116,14 @@ class LogInScreen extends StatelessWidget {
                     children: [
                       ImageButton(
                         imageUrl: "assets/images/fb.svg",
-                        onPressed: () {},
+                        onPressed: () {
+                          authProvider.signInWithFacebook();
+                        },
                       ),
                       ImageButton(
                         imageUrl: "assets/images/google.svg",
                         onPressed: () {
-                          //authProvider.initiateGoogleSignIn();
+                          authProvider.initiateGoogleSignIn();
                         },
                       ),
                       ImageButton(
