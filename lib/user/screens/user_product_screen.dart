@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/user/screens/user_product_detail_page.dart';
-// import '../models/product_model.dart';
+import 'package:shimmer/shimmer.dart';
+
 import '../../generated/l10n.dart';
 import '../providers/user_provider.dart';
 import '../widgets/product_card.dart';
@@ -12,7 +13,7 @@ class UserProductScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserProvider userProvider = Get.put(UserProvider());
-    // userProvider.fetchProducts();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(S.of(context).products),
@@ -33,9 +34,36 @@ class UserProductScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Expanded(
               child: Obx(() {
-                if (userProvider.products.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
+                if (userProvider.isLoading.value) {
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 0,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.8,
+                    ),
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 }
+
+                if (userProvider.products.isEmpty) {
+                  return const Center(child: Text("No products found"));
+                }
+
                 return GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,

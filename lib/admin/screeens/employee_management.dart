@@ -135,10 +135,10 @@ class EmployeeManagement extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
-          color: Colors.grey.shade300, // Border color
-          width: 1.0, // Border width
+          color: Colors.grey.shade300,
+          width: 1.0,
         ),
-        borderRadius: BorderRadius.circular(8), // Rounded corners
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: EdgeInsets.all(16),

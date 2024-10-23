@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/user/models/product_model.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth/model/staff_model.dart';
@@ -15,6 +15,7 @@ class EmployeeProvider extends GetxController {
   Rx<StaffModel?> staffDetails = Rx<StaffModel?>(null);
   RxString employeeId = ''.obs;
   var employeeBookings = <BookingModel>[].obs;
+  var isLoading = true.obs;
 
   Future<void> loadStaffDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,6 +29,7 @@ class EmployeeProvider extends GetxController {
 
   Future<void> fetchEmployeeBookings() async {
     try {
+      isLoading.value = true;
       // if (userId.value.isEmpty) {
       //   print('User ID is not available');
       //   return;
@@ -49,6 +51,8 @@ class EmployeeProvider extends GetxController {
       }
     } catch (e) {
       print('Error fetching employee bookings: $e');
+    } finally {
+      isLoading.value = false; // Stop loading after fetch
     }
   }
 
