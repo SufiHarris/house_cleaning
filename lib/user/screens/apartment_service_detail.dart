@@ -533,7 +533,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Select Shift",
+          "Select Shifts", // Updated to plural
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -541,36 +541,41 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children:
-              availableShifts.map((shift) => _buildShiftChip(shift)).toList(),
-        ),
+        Obx(() => Wrap(
+              spacing: 8,
+              children: userProvider.availableShifts
+                  .map((shift) => _buildShiftChip(shift))
+                  .toList(),
+            )),
+        if (userProvider.selectedShifts.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            "Selected shifts: ${userProvider.selectedShifts.join(', ')}",
+            style: TextStyle(
+              color: CustomColors.textColorFour,
+              fontSize: 14,
+            ),
+          ),
+        ],
       ],
     );
   }
 
   void _updateAvailableShifts(DateTime selectedDate) {
     // Reset available shifts
-    availableShifts = [];
+    List<String> newAvailableShifts = [];
 
-    // Format the selected date to match the timestamp format in bookings
     String selectedDateStr = DateFormat('yyyy-MM-dd').format(selectedDate);
 
-    // Get data from provider
     List<StaffModel> allEmployees = userProvider.allEmployees;
     List<BookingModel> bookings = userProvider.bookings;
 
-    // Get today's bookings - modify the comparison to handle timestamp format
     List<BookingModel> todaysBookings = bookings.where((booking) {
-      // Parse the booking date which is in timestamp format
       DateTime bookingDate = DateTime.parse(booking.bookingDate);
-      // Compare only the date part
       String bookingDateStr = DateFormat('yyyy-MM-dd').format(bookingDate);
       return bookingDateStr == selectedDateStr;
     }).toList();
 
-    // Rest of the logic remains the same
     Set<String> morningEmployees = Set<String>();
     Set<String> afternoonEmployees = Set<String>();
 
@@ -584,7 +589,6 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
       }
     }
 
-    // Calculate available employees for each shift
     List<StaffModel> availableMorningStaff = allEmployees
         .where((employee) => !morningEmployees.contains(employee.employeeId))
         .toList();
@@ -593,29 +597,21 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
         .where((employee) => !afternoonEmployees.contains(employee.employeeId))
         .toList();
 
-    // Debug prints to help identify issues
-    print("Selected date: $selectedDateStr");
-    print(
-        "Booking dates available: ${bookings.map((b) => b.bookingDate).toList()}");
-    print("Today's bookings found: ${todaysBookings.length}");
-    print("Available morning staff: ${availableMorningStaff.length}");
-    print("Available afternoon staff: ${availableAfternoonStaff.length}");
-
-    // Add shifts only if staff is available
     if (availableMorningStaff.isNotEmpty) {
-      availableShifts.add("Morning");
+      newAvailableShifts.add("Morning");
     }
     if (availableAfternoonStaff.isNotEmpty) {
-      availableShifts.add("Afternoon");
+      newAvailableShifts.add("Afternoon");
     }
 
-    // Reset selected shift if it's no longer available
-    if (selectedShift != null && !availableShifts.contains(selectedShift)) {
-      selectedShift = null;
-    }
+    // Update shifts in provider
+    userProvider.updateAvailableShifts(newAvailableShifts);
 
-    // Show message if no shifts are available
-    if (availableShifts.isEmpty) {
+    // Clear selected shifts that are no longer available
+    userProvider.selectedShifts
+        .removeWhere((shift) => !newAvailableShifts.contains(shift));
+
+    if (newAvailableShifts.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -624,28 +620,27 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
         ),
       );
     }
-
-    setState(() {});
   }
 
   Widget _buildShiftChip(String shift) {
-    bool isSelected = selectedShift == shift;
-    return FilterChip(
-      label: Text(shift),
-      selected: isSelected,
-      onSelected: (bool selected) {
-        setState(() {
-          selectedShift = selected ? shift : null;
-        });
-      },
-      backgroundColor: Colors.grey[200],
-      selectedColor: CustomColors.primaryColor.withOpacity(0.2),
-      labelStyle: TextStyle(
-        color: isSelected ? CustomColors.primaryColor : Colors.black,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-      ),
-      checkmarkColor: CustomColors.primaryColor,
-    );
+    return Obx(() => FilterChip(
+          label: Text(shift),
+          selected: userProvider.selectedShifts.contains(shift),
+          onSelected: (bool selected) {
+            userProvider.toggleShift(shift);
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: CustomColors.primaryColor.withOpacity(0.2),
+          labelStyle: TextStyle(
+            color: userProvider.selectedShifts.contains(shift)
+                ? CustomColors.primaryColor
+                : Colors.black,
+            fontWeight: userProvider.selectedShifts.contains(shift)
+                ? FontWeight.bold
+                : FontWeight.normal,
+          ),
+          checkmarkColor: CustomColors.primaryColor,
+        ));
   }
 
   Widget _buildCircularButton({

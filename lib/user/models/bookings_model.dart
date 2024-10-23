@@ -3,7 +3,7 @@ import '../../auth/model/usermodel.dart';
 class BookingModel {
   final String address;
   final String bookingDate;
-  final int booking_id;
+  final String booking_id;
   final String bookingTime;
   final List<String> employee_ids; // Changed to List<String>
   final List<String> shift_names; // Added shift names
@@ -57,7 +57,7 @@ class BookingModel {
     return BookingModel(
       address: json['address'] ?? '',
       bookingDate: json['booking_date'] ?? '',
-      booking_id: _parseInteger(json['booking_id'], 0),
+      booking_id: json['booking_id']?.toString() ?? '',
       bookingTime: json['booking_time'] ?? '',
       employee_ids: _parseStringList(json['employee_ids']),
       shift_names: _parseStringList(json['shift_names']),

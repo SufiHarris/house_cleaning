@@ -35,7 +35,7 @@ class EmployeeProvider extends GetxController {
 
       var snapshot = await FirebaseFirestore.instance
           .collection('size_based_bookings')
-          .where('employee_id', isEqualTo: 102)
+          //   .where('employee_id', isEqualTo: 102)
           .get();
 
       employeeBookings.value = snapshot.docs
