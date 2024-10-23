@@ -34,6 +34,8 @@ class UserProvider extends GetxController {
   var selectedAddress = Rx<AddressModel?>(null);
   var selectedProducts = <UserProductModel>[].obs;
   var imageString = ''.obs;
+  final RxList<String> selectedShifts = <String>[].obs;
+  final RxList<String> availableShifts = <String>[].obs;
   var profileImage = Rx<File?>(null);
   var selectedCategory = Rx<CategoryModel?>(null);
   final ImagePicker _picker = ImagePicker();
@@ -48,6 +50,18 @@ class UserProvider extends GetxController {
     super.onInit();
     _getUserId();
     loadCartFromPrefs();
+  }
+
+  void toggleShift(String shift) {
+    if (selectedShifts.contains(shift)) {
+      selectedShifts.remove(shift);
+    } else {
+      selectedShifts.add(shift);
+    }
+  }
+
+  void updateAvailableShifts(List<String> shifts) {
+    availableShifts.value = shifts;
   }
 
   // Helper method for service price calculation
@@ -343,10 +357,20 @@ class UserProvider extends GetxController {
           backgroundColor: Colors.red);
       return;
     }
+
+    // Validate shifts
+    if (selectedShifts.isEmpty) {
+      Get.snackbar('Error', 'Please select at least one shift',
+          backgroundColor: Colors.red);
+      return;
+    }
+
     final bookingData = await createBookingDocument(
       categoryName: selectedCategory.value!.categoryName,
       categoryImage: selectedCategory.value!.categoryImage,
+      shifts: selectedShifts.toList(), // Pass selected shifts
     );
+    print("selectedShifts.value ${selectedShifts.value}");
     final booking = BookingModel.fromFirestore(bookingData);
     cartBookings.add(booking);
     await saveCartToPrefs();
@@ -458,6 +482,8 @@ class UserProvider extends GetxController {
                 landmark: entry.value.first.landmark,
                 location: entry.value.first.location,
               ),
+              shifts:
+                  entry.value.first.shift_names, // Add shifts from the booking
             ),
           );
         }
@@ -478,37 +504,36 @@ class UserProvider extends GetxController {
     List<ServiceSummaryModel> combinedServices = [];
     List<UserProductModel> combinedProducts = [];
     String categoryName = '';
-    String categoryNameArabic = ''; // Added Arabic category name
+    String categoryNameArabic = '';
     String categoryImage = '';
     AddressModel? address;
-    List<String> employeeIds = []; // Updated to store multiple employee IDs
-    List<String> shiftNames = []; // Added shift names
-
+    Set<String> employeeIds = {}; // Using Set to avoid duplicates
+    Set<String> shiftNames = {}; // Using Set to avoid duplicates
     DateTime bookingDate = DateTime.parse(bookings.first.bookingDate).toLocal();
     DateTime dateOnly =
         DateTime(bookingDate.year, bookingDate.month, bookingDate.day);
 
     for (var booking in bookings) {
       // Combine services
-      combinedServices.addAll(booking.services.map((s) => ServiceSummaryModel(
-            serviceName: s.service_name,
-            totalQuantity: s.quantity,
-            totalSize: s.size,
-            totalPrice: s.price,
-          )));
+      for (var service in booking.services) {
+        combinedServices.add(ServiceSummaryModel(
+          serviceName: service.service_name,
+          totalQuantity: service.quantity,
+          totalSize: service.size,
+          totalPrice: service.price,
+        ));
+      }
 
       // Combine products
-      combinedProducts.addAll(
-        booking.products.map(
-          (p) => UserProductModel(
-            name: p.product_name,
-            quantity: p.quantity,
-            deliveryTime: p.delivery_time,
-            price: p.price * p.quantity,
-            imageUrl: p.imageUrl,
-          ),
-        ),
-      );
+      for (var product in booking.products) {
+        combinedProducts.add(UserProductModel(
+          name: product.product_name,
+          quantity: product.quantity,
+          deliveryTime: product.delivery_time,
+          price: product.price,
+          imageUrl: product.imageUrl,
+        ));
+      }
 
       // Take first non-empty category details
       if (categoryName.isEmpty && booking.categoryName.isNotEmpty) {
@@ -528,7 +553,7 @@ class UserProvider extends GetxController {
         );
       }
 
-      // Combine employee IDs and shift names
+      // Add employee IDs and shift names to sets
       employeeIds.addAll(booking.employee_ids);
       shiftNames.addAll(booking.shift_names);
     }
@@ -541,13 +566,12 @@ class UserProvider extends GetxController {
       categoryName: categoryName,
       categoryImage: categoryImage,
       address: address,
+      shifts: shiftNames.toList(),
     );
 
     // Add the combined employee IDs and shift names
-    combinedBookingData['employee_ids'] =
-        employeeIds.toSet().toList(); // Remove duplicates
-    combinedBookingData['shift_names'] =
-        shiftNames.toSet().toList(); // Remove duplicates
+    combinedBookingData['employee_ids'] = employeeIds.toList();
+    combinedBookingData['shift_names'] = shiftNames.toList();
     combinedBookingData['category_name_arabic'] = categoryNameArabic;
 
     await saveBookingToFirestore(bookingData: combinedBookingData);
@@ -626,8 +650,34 @@ class UserProvider extends GetxController {
     String? categoryName,
     String? categoryImage,
     String? userPhoneNumber,
+    List<String>? shifts,
   }) {
     final now = DateTime.now();
+
+    // Handle products list
+    final List<Map<String, dynamic>> productsList =
+        (products ?? selectedProducts)
+            .map((product) => {
+                  'product_name': product.name,
+                  'product_name_arabic': '',
+                  'quantity': product.quantity ?? 1,
+                  'delivery_time': product.deliveryTime ?? '1-2 Days',
+                  'price': product.price,
+                  'image_url': product.imageUrl ?? ''
+                })
+            .toList();
+
+    // Handle services list
+    final List<Map<String, dynamic>> servicesList =
+        (services ?? selectedServices)
+            .map((service) => {
+                  'quantity': service.totalQuantity,
+                  'service_name': service.serviceName,
+                  'service_name_arabic': '',
+                  'size': service.totalSize,
+                  'price': service.totalPrice,
+                })
+            .toList();
 
     return {
       'address': address?.location ?? selectedAddress.value?.location ?? '',
@@ -636,33 +686,12 @@ class UserProvider extends GetxController {
           now.toString(),
       'booking_id': '',
       'booking_time': DateFormat('h:mm a').format(bookingDate ?? now),
-      'employee_ids': [], // Updated to List<String>
-      'shift_names': [], // Added shift names list
+      'employee_ids': [],
+      'shift_names': shifts ?? selectedShifts.toList(),
       'end_image': '',
-      'payment_status': 'Pending',
-      'products': (products ?? selectedProducts)
-          .map((product) => {
-                'product_name': product.name,
-                'product_name_arabic': '', // Added Arabic name
-                'quantity': product.quantity ?? 1,
-                'delivery_time': product.deliveryTime ?? '1-2 Days',
-                'price': product.price,
-                'image_url': product.imageUrl ?? ''
-              })
-          .toList(),
-      'services': [
-        {
-          'service_names': (services ?? selectedServices)
-              .map((service) => {
-                    'quantity': service.totalQuantity,
-                    'service_name': service.serviceName,
-                    'service_name_arabic': '', // Added Arabic name
-                    'size': service.totalSize,
-                    'price': service.totalPrice,
-                  })
-              .toList(),
-        }
-      ],
+      'payment_status': 'unassigned',
+      'products': productsList, // Updated to use the correct list structure
+      'services': servicesList, // Updated to use the correct list structure
       'start_image': '',
       'status': 'unassigned',
       'total_price':
@@ -671,7 +700,7 @@ class UserProvider extends GetxController {
       'user_phn_number': userPhoneNumber ?? '9999999999',
       'category_name':
           categoryName ?? selectedCategory.value?.categoryName ?? '',
-      'category_name_arabic': '', // Added Arabic category name
+      'category_name_arabic': '',
       'category_image':
           categoryImage ?? selectedCategory.value?.categoryImage ?? '',
       'building': address?.building ?? selectedAddress.value?.building ?? '',
@@ -734,6 +763,8 @@ class UserProvider extends GetxController {
     selectedProducts.clear();
     imageString.value = '';
     selectedCategory.value = null;
+    selectedShifts.clear();
+    availableShifts.clear();
   }
 
   double calculateTotalCartPrice() {

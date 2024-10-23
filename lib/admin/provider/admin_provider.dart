@@ -198,6 +198,36 @@ class AdminProvider extends GetxController {
   }
 
   //Mark:- Category Methods...
+  Future<void> assignEmployeesToBooking(
+      String bookingId, List<String> employeeIds) async {
+    print("Booking ID is here: $bookingId");
+    try {
+      // Query the document with the provided bookingId
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('size_based_bookings')
+          .where('booking_id', isEqualTo: bookingId)
+          .get();
+
+      // If the document is found, update it
+      if (querySnapshot.docs.isNotEmpty) {
+        String docId = querySnapshot.docs.first.id;
+
+        // Update the document with new employee IDs
+        await FirebaseFirestore.instance
+            .collection('size_based_bookings')
+            .doc(docId)
+            .update({'employee_ids': employeeIds, 'status': 'assigned'});
+
+        print('Successfully assigned employees to booking.');
+      } else {
+        print('Booking not found for bookingId: $bookingId');
+        throw Exception('Booking not found');
+      }
+    } catch (e) {
+      print('Error assigning employees: $e');
+      throw e;
+    }
+  }
 
 // Fetch categories from Firestore
   Future<void> fetchCategories() async {
