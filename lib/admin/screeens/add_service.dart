@@ -153,10 +153,18 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
               SizedBox(height: 16),
 
               // Category Dropdown (GetX)
+              // Category Dropdown (GetX)
               Obx(() {
+                // Check if categories are loaded
                 if (adminProvider.categories.isEmpty) {
                   return Center(child: CircularProgressIndicator());
                 } else {
+                  // Filter categories where type is 'Size Based'
+                  List<CategoryModel> filteredCategories = adminProvider
+                      .categories
+                      .where((category) => category.type == 'Size Based')
+                      .toList();
+
                   return DropdownButtonFormField<CategoryModel>(
                     decoration: InputDecoration(
                       labelText: 'Select Category',
@@ -164,18 +172,20 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    items: adminProvider.categories.map((category) {
+                    // Map filtered categories to DropdownMenuItems
+                    items: filteredCategories.map((category) {
                       return DropdownMenuItem<CategoryModel>(
                         value: category,
                         child: Text(
-                          category.categoryType,
+                          category.categoryType, // Display categoryType
                           style: TextStyle(fontSize: 14),
                         ),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        selectedCategory = value!;
+                        selectedCategory =
+                            value; // Update the selected category
                       });
                     },
                     value: selectedCategory,

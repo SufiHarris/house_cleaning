@@ -7,6 +7,7 @@ class CategoryModel {
   final String categoryImage;
   final String description;
   final String descriptionAr;
+  final String type;
 
   CategoryModel({
     required this.categoryId, // Include categoryId in the constructor
@@ -17,6 +18,7 @@ class CategoryModel {
     required this.categoryImage,
     required this.description,
     required this.descriptionAr,
+    required this.type,
   });
 
   // From JSON
@@ -30,6 +32,7 @@ class CategoryModel {
       categoryImage: json['categoryImage'] ?? '',
       description: json['description'] ?? '',
       descriptionAr: json['description(ar)'] ?? '',
+      type: json['Type'] ?? '',
     );
   }
   String getLocalizedCategoryName(String langCode) {
@@ -58,6 +61,7 @@ class CategoryModel {
       'categoryImage': categoryImage, // New field
       'description': description, // New field
       'description(ar)': descriptionAr, // Add Arabic description here
+      'Type': type, // Add Arabic description here
     };
   }
 }

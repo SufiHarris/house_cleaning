@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -259,110 +260,200 @@ class AuthProvider extends GetxController {
     }
   }
 
-  // Future<void> initiateGoogleSignIn() async {
-  //   try {
-  //     isLoading.value = true; // Show loader
+  Future<void> initiateGoogleSignIn() async {
+    try {
+      isLoading.value = true; // Show loader
 
-  //     // Trigger Google Sign-In
-  //     final GoogleSignInAccount? googleSignInAccount =
-  //         await GoogleSignIn().signIn();
-  //     if (googleSignInAccount == null) {
-  //       isLoading.value = false; // Hide loader
-  //       _showSnackBar('Google Sign-In was canceled.', true);
-  //       return;
-  //     }
+      // Trigger Google Sign-In
+      final GoogleSignInAccount? googleSignInAccount =
+          await GoogleSignIn().signIn();
+      if (googleSignInAccount == null) {
+        isLoading.value = false; // Hide loader
+        _showSnackBar('Google Sign-In was canceled.', true);
+        return;
+      }
 
-  //     final String googleEmail = googleSignInAccount.email;
+      final String googleEmail = googleSignInAccount.email;
 
-  //     // Check if the email exists in the Firestore user table
-  //     bool userExists = await this.userExists(googleEmail);
-  //     if (userExists) {
-  //       // If user exists, perform the Google authentication
-  //       await _signInWithGoogleAuth(googleSignInAccount);
-  //     } else {
-  //       // Check if the email exists in the staff table
-  //       bool staffExists = await this.staffExists(googleEmail);
-  //       if (staffExists) {
-  //         // If staff exists, perform the Google authentication
-  //         await _signInWithGoogleAuth(googleSignInAccount);
-  //       } else {
-  //         // If user does not exist in both tables, navigate to Create Profile Page
-  //         isLoading.value = false; // Hide loader
-  //         Get.to(() => CreateProfilePage(
-  //             account: googleSignInAccount // Pass only the email
-  //             ));
-  //       }
-  //     }
-  //   } catch (e) {
-  //     isLoading.value = false; // Hide loader
-  //     _showSnackBar('Google Sign-In failed. Please try again.', true);
-  //   }
-  // }
+      // Check if the email exists in either the users_table or staff_table
+      bool userExistsInUsers = await userExists(googleEmail);
+      bool userExistsInStaff = await staffExists(googleEmail);
 
-  // Future<void> _signInWithGoogleAuth(
-  //     GoogleSignInAccount googleSignInAccount) async {
-  //   try {
-  //     final GoogleSignInAuthentication googleSignInAuthentication =
-  //         await googleSignInAccount.authentication;
+      if (userExistsInUsers || userExistsInStaff) {
+        // If the user exists in either table, perform the Google authentication
+        await _signInWithGoogleAuth(googleSignInAccount, googleEmail);
+      } else {
+        // If user does not exist in both tables, navigate to Create Profile Page
+        isLoading.value = false; // Hide loader
+        Get.to(
+            () => CreateProfilePage(email: googleEmail, password: googleEmail));
+      }
+    } catch (e) {
+      isLoading.value = false; // Hide loader
+      print("Error Google $e");
+      _showSnackBar('Google Sign-In failed. Please try again.', true);
+    }
+  }
 
-  //     final AuthCredential credential = GoogleAuthProvider.credential(
-  //       idToken: googleSignInAuthentication.idToken,
-  //       accessToken: googleSignInAuthentication.accessToken,
-  //     );
+  Future<void> _signInWithGoogleAuth(
+      GoogleSignInAccount googleSignInAccount, String email) async {
+    try {
+      final GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount.authentication;
 
-  //     // Authenticate with Firebase using Google credentials
-  //     UserCredential result =
-  //         await FirebaseAuth.instance.signInWithCredential(credential);
-  //     User? userDetails = result.user;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken,
+      );
 
-  //     if (userDetails != null) {
-  //       final String email = userDetails.email!;
+      // Authenticate with Firebase using Google credentials
+      UserCredential result =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      User? userDetails = result.user;
 
-  //       // Check if user exists in users_table
-  //       bool userexists = await userExists(email);
-  //       if (userexists) {
-  //         // User exists in users_table
-  //         DocumentSnapshot userDoc = await _firestore
-  //             .collection('users_table')
-  //             .where('email', isEqualTo: email)
-  //             .get()
-  //             .then((snapshot) => snapshot.docs.first);
+      if (userDetails != null) {
+        // Check if user exists in users_table
+        if (await userExists(email)) {
+          await saveUserDetailsLocally(email);
 
-  //         Map<String, dynamic> userData =
-  //             userDoc.data() as Map<String, dynamic>;
-  //         await _saveUserData(userData); // Save user data
-  //         Get.offAll(() => const UserMain()); // Navigate to User Main Page
-  //         _showSnackBar('Logged in successfully', false);
-  //       } else {
-  //         // Check if user exists in staff_table
-  //         bool staffexists = await staffExists(email);
-  //         if (staffexists) {
-  //           // Staff exists in staff_table
-  //           DocumentSnapshot staffDoc = await _firestore
-  //               .collection('staff_table')
-  //               .where('email', isEqualTo: email)
-  //               .get()
-  //               .then((snapshot) => snapshot.docs.first);
+          Get.offAll(() => const UserMain()); // Navigate to User Main Page
+          _showSnackBar('Logged in successfully', false);
+        } else if (await staffExists(email)) {
+          // Fetch staff data from Firestore using email
+          QuerySnapshot staffSnapshot = await _firestore
+              .collection('staff_table')
+              .where('email', isEqualTo: email)
+              .get();
 
-  //           Map<String, dynamic> staffData =
-  //               staffDoc.data() as Map<String, dynamic>;
-  //           // You can save staff-specific data if needed
-  //           Get.offAll(
-  //               () => const EmployeeHome()); // Navigate to Employee Home Page
-  //           _showSnackBar('Logged in as staff successfully', false);
-  //         } else {
-  //           // If user does not exist in either table, navigate to Create Profile Page
-  //           Get.to(() => CreateProfilePage(
-  //                 account: googleSignInAccount, // Pass only the email
-  //               ));
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     isLoading.value = false; // Hide loader
-  //     _showSnackBar('Authentication failed. Please try again.', true);
-  //   }
-  // }
+          if (staffSnapshot.docs.isNotEmpty) {
+            // Get the first document (since email is unique)
+            DocumentSnapshot staffDoc = staffSnapshot.docs.first;
+
+            Map<String, dynamic> staffData =
+                staffDoc.data() as Map<String, dynamic>;
+
+            // Check the role of the staff member
+            String role =
+                staffData['role']; // Assuming 'role' is stored in Firestore
+
+            // Navigate based on the role
+            if (role == 'admin') {
+              // Save staff details locally (if needed)
+              await saveStaffDetailsLocally(email);
+              Get.offAll(() => AdminMain()); // Navigate to Admin Page
+              _showSnackBar('Logged in as Admin', false);
+            } else if (role == 'staff') {
+              // Save staff details locally (if needed)
+              await saveStaffDetailsLocally(email);
+              Get.offAll(
+                  () => const EmployeeHome()); // Navigate to Employee Home
+              _showSnackBar('Logged in as Staff', false);
+            } else {
+              _showSnackBar('Role not recognized.', true);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      isLoading.value = false; // Hide loader
+      _showSnackBar('Authentication failed. Please try again.', true);
+    }
+  }
+
+  // Facebook Login with Firebase
+  Future<void> signInWithFacebook() async {
+    try {
+      isLoading.value = true; // Show loader
+
+      // Trigger Facebook login
+      final LoginResult loginResult = await FacebookAuth.instance.login();
+
+      if (loginResult.status == LoginStatus.success) {
+        // Get the Facebook access token
+        final AccessToken accessToken = loginResult.accessToken!;
+
+        // Create a credential using the access token
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(accessToken.token);
+
+        // Sign in to Firebase with Facebook credentials
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithCredential(facebookAuthCredential);
+
+        // Get the email from the Facebook account
+        final String facebookEmail = userCredential.user?.email ?? '';
+
+        // Check if the user exists in the users_table
+        bool userExistsInUsers = await userExists(facebookEmail);
+        bool userExistsInStaff = await staffExists(facebookEmail);
+
+        // If user exists in either users or staff table
+        if (userExistsInUsers || userExistsInStaff) {
+          // Sign in the user based on their role (user, staff, or admin)
+          await _handleFacebookAuth(userCredential.user!, facebookEmail);
+        } else {
+          // If user does not exist in both tables, navigate to Create Profile Page
+          isLoading.value = false; // Hide loader
+          Get.to(() =>
+              CreateProfilePage(email: facebookEmail, password: facebookEmail));
+        }
+      } else {
+        isLoading.value = false; // Hide loader
+        _showSnackBar('Facebook Sign-In was canceled.', true);
+      }
+    } catch (e) {
+      isLoading.value = false; // Hide loader
+      print("Error Facebook $e");
+      _showSnackBar('Facebook Sign-In failed. Please try again.', true);
+    }
+  }
+
+  Future<void> _handleFacebookAuth(User userDetails, String email) async {
+    try {
+      // Check if the user exists in users_table
+      if (await userExists(email)) {
+        // Save user details locally and navigate to UserMain
+        await saveUserDetailsLocally(email);
+        Get.offAll(() => const UserMain()); // Navigate to User Main Page
+        _showSnackBar('Logged in successfully', false);
+      } else if (await staffExists(email)) {
+        // Fetch staff data from Firestore using email
+        QuerySnapshot staffSnapshot = await _firestore
+            .collection('staff_table')
+            .where('email', isEqualTo: email)
+            .get();
+
+        if (staffSnapshot.docs.isNotEmpty) {
+          // Get the first document (since email is unique)
+          DocumentSnapshot staffDoc = staffSnapshot.docs.first;
+
+          Map<String, dynamic> staffData =
+              staffDoc.data() as Map<String, dynamic>;
+
+          // Check the role of the staff member
+          String role =
+              staffData['role']; // Assuming 'role' is stored in Firestore
+
+          // Save staff details locally (if needed)
+          await saveStaffDetailsLocally(email);
+
+          // Navigate based on the role
+          if (role == 'admin') {
+            Get.offAll(() => AdminMain()); // Navigate to Admin Page
+            _showSnackBar('Logged in as Admin', false);
+          } else if (role == 'staff') {
+            Get.offAll(() => const EmployeeHome()); // Navigate to Employee Home
+            _showSnackBar('Logged in as Staff', false);
+          } else {
+            _showSnackBar('Role not recognized.', true);
+          }
+        }
+      }
+    } catch (e) {
+      isLoading.value = false; // Hide loader
+      _showSnackBar('Authentication failed. Please try again.', true);
+    }
+  }
 
   void _showSnackBar(String message, bool isError) {
     ScaffoldMessenger.of(Get.context!).showSnackBar(
