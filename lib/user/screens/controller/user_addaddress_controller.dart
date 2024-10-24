@@ -66,11 +66,10 @@ class AddAddressController extends GetxController {
         return;
       }
 
+      // Get current position with correct parameters
       Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 100,
-        ),
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 5),
       );
 
       currentLocation.value = LatLng(position.latitude, position.longitude);
@@ -103,6 +102,18 @@ class AddAddressController extends GetxController {
       return;
     }
 
+    // Validate floor input
+    if (floorController.text.isEmpty || !isNumeric(floorController.text)) {
+      Get.snackbar(
+        "Error",
+        "Please enter a valid floor number",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     // Check user authentication
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -116,28 +127,23 @@ class AddAddressController extends GetxController {
       return;
     }
 
-    String userId = user.uid; // Get user ID
+    String userId = user.uid;
     print("User ID: $userId");
 
     try {
-      // Fetch user document based on the user ID
       DocumentReference userDocRef =
           FirebaseFirestore.instance.collection('users_table').doc(userId);
       DocumentSnapshot userDocSnapshot = await userDocRef.get();
 
       if (userDocSnapshot.exists) {
-        // Cast data() to Map<String, dynamic>
         Map<String, dynamic>? userData =
             userDocSnapshot.data() as Map<String, dynamic>?;
 
-        // Check if the addresses field already exists
         List<dynamic> existingAddresses = userData?['address'] ?? [];
 
-        // Create the new address object in the format of AddressModel
         Map<String, dynamic> newAddress = {
           'Building': buildingController.text,
-          'Floor':
-              int.parse(floorController.text), // Ensure floor is an integer
+          'Floor': int.parse(floorController.text),
           'Geolocation': [
             currentLocation.value!.latitude,
             currentLocation.value!.longitude
@@ -146,35 +152,26 @@ class AddAddressController extends GetxController {
           'Location': locationController.text,
         };
 
-        // Add the new address to the existing addresses list
         existingAddresses.add(newAddress);
-
-        // Update the user document with the new addresses array
         await userDocRef.update({'address': existingAddresses});
 
-        print("Address saved successfully: ${newAddress}");
+        print("Address saved successfully: $newAddress");
 
-        // Now update SharedPreferences
+        // Update SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? userDetails = prefs.getString('userDetails');
 
         if (userDetails != null) {
-          // Convert the stored data back to Map
           Map<String, dynamic> userMap = jsonDecode(userDetails);
-
-          // Update the 'address' field in the local user data
           List<dynamic> localAddresses = userMap['address'] ?? [];
           localAddresses.add(newAddress);
-
-          // Update the local user map
           userMap['address'] = localAddresses;
 
-          // Save the updated user details back to SharedPreferences
           String updatedUserJson = jsonEncode(userMap);
           await prefs.setString('userDetails', updatedUserJson);
 
           print('Updated user details in SharedPreferences: $updatedUserJson');
-          Get.to(UserSettings()); // Go back after updating
+          Get.to(() => UserSettings()); // Navigate using recommended approach
         }
 
         Get.snackbar(
@@ -184,6 +181,9 @@ class AddAddressController extends GetxController {
           backgroundColor: Colors.greenAccent,
           colorText: Colors.white,
         );
+
+        // Clear controllers after successful save
+        clearControllers();
       } else {
         Get.snackbar(
           "Error",
@@ -194,7 +194,7 @@ class AddAddressController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error saving address: $e'); // Log error
+      print('Error saving address: $e');
       Get.snackbar(
         "Error",
         "Failed to save address: ${e.toString()}",
@@ -203,5 +203,29 @@ class AddAddressController extends GetxController {
         colorText: Colors.white,
       );
     }
+  }
+
+  // Helper method to check if string is numeric
+  bool isNumeric(String str) {
+    if (str.isEmpty) return false;
+    return int.tryParse(str) != null;
+  }
+
+  // Clear all controllers
+  void clearControllers() {
+    locationController.clear();
+    buildingController.clear();
+    floorController.clear();
+    landmarkController.clear();
+    currentLocation.value = null;
+  }
+
+  @override
+  void onClose() {
+    locationController.dispose();
+    buildingController.dispose();
+    floorController.dispose();
+    landmarkController.dispose();
+    super.onClose();
   }
 }

@@ -814,7 +814,7 @@ class _ApartmentServiceDetailState extends State<ApartmentServiceDetail>
     });
 
     userProvider.setSelectedServices(bookedServices);
-    userProvider.fetchAddresses();
+    // userProvider.fetchAddresses();
   }
 }
 

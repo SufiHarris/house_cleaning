@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../auth/model/staff_model.dart';
 import '../../auth/model/usermodel.dart';
 import '../models/bookings_model.dart';
+import '../models/call_booking.dart';
 import '../models/category_model.dart';
 import '../models/product_model.dart';
 import '../models/service_model.dart';
@@ -164,7 +165,10 @@ class UserProvider extends GetxController {
   }
 
   Future<void> getUserAddresses() async {
+    addresses.clear();
     try {
+      isLoading.value = true;
+
       if (userId.value.isEmpty) {
         print('User ID is not available');
         return;
@@ -186,6 +190,7 @@ class UserProvider extends GetxController {
 
           print('Fetched ${addresses.length} addresses for user');
           print(addresses.value.first);
+          isLoading.value = false;
         } else {
           print('No addresses found for this user');
         }
@@ -228,6 +233,7 @@ class UserProvider extends GetxController {
   Future<void> fetchAddresses() async {
     try {
       isLoading.value = true;
+
       final prefs = await SharedPreferences.getInstance();
       final userId =
           prefs.getString('userDocId'); // Changed to getString and 'userDocId'
@@ -261,7 +267,6 @@ class UserProvider extends GetxController {
 
   Future<void> fetchBookings() async {
     try {
-      isLoading.value = true;
       if (userId.value.isEmpty) {
         print('User ID not found');
         return;
@@ -688,11 +693,11 @@ class UserProvider extends GetxController {
       'booking_time': DateFormat('h:mm a').format(bookingDate ?? now),
       'employee_ids': [],
       'shift_names': shifts ?? selectedShifts.toList(),
-      'end_image': '',
+      'end_image': [], // Changed to empty list
       'payment_status': 'unassigned',
-      'products': productsList, // Updated to use the correct list structure
-      'services': servicesList, // Updated to use the correct list structure
-      'start_image': '',
+      'products': productsList,
+      'services': servicesList,
+      'start_image': [], // Changed to empty list
       'status': 'unassigned',
       'total_price':
           calculateTotalPrice(services: services, products: products),
@@ -713,7 +718,95 @@ class UserProvider extends GetxController {
       ],
       'landmark': address?.landmark ?? selectedAddress.value?.landmark ?? '',
       'location': address?.location ?? selectedAddress.value?.location ?? '',
+      'time_taken': '', // New field initialized as empty
+      'traveling_time': '', // New field initialized as empty
     };
+  }
+// Add this function to your UserProvider class
+
+  Map<String, dynamic> createCallBookingDocument({
+    required DateTime bookingDate,
+    required TimeOfDay startTime,
+    required TimeOfDay endTime,
+    required AddressModel address,
+    required String categoryName,
+    required String categoryImage,
+    required String userPhoneNumber,
+    List<String>? shifts,
+  }) {
+    final now = DateTime.now();
+
+    // Format the times as strings
+    final startTimeStr =
+        '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}';
+    final endTimeStr =
+        '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}';
+
+    return {
+      'address': address.location ?? '',
+      'booking_date': bookingDate.toString(),
+      'booking_id': '',
+      'start_time': startTimeStr,
+      'end_time': endTimeStr,
+      'employee_ids': [],
+      'shift_names': shifts ?? [],
+      'end_image': [],
+      'payment_status': 'unassigned',
+      'start_image': [],
+      'status': 'unassigned',
+      'total_price': 0.0, // Initial price, can be updated later
+      'user_id': userId.value,
+      'user_phn_number': userPhoneNumber,
+      'category_name': categoryName,
+      'category_name_arabic': '',
+      'category_image': categoryImage,
+      'building': address.building ?? '',
+      'floor': address.floor ?? 0,
+      'Geolocation': [
+        address.geolocation.lat ?? '',
+        address.geolocation.lon ?? ''
+      ],
+      'landmark': address.landmark ?? '',
+      'location': address.location ?? '',
+      'time_taken': '',
+      'traveling_time': '',
+    };
+  }
+
+// Update the addCallBooking function to use createCallBookingDocument
+  Future<void> addCallBooking({
+    required String address,
+    required DateTime bookingDate,
+    required TimeOfDay startTime,
+    required TimeOfDay endTime,
+    required CategoryModel category,
+    required AddressModel addressModel,
+    required String userPhoneNumber,
+  }) async {
+    try {
+      final bookingsRef =
+          FirebaseFirestore.instance.collection('call_based_bookings');
+      final docRef = bookingsRef.doc();
+
+      final bookingData = createCallBookingDocument(
+        bookingDate: bookingDate,
+        startTime: startTime,
+        endTime: endTime,
+        address: addressModel,
+        categoryName: category.categoryName,
+        categoryImage: category.categoryImage,
+        userPhoneNumber: userPhoneNumber,
+      );
+
+      // Add the booking ID to the document
+      bookingData['booking_id'] = docRef.id;
+
+      // Add the document to Firestore using the generated ID
+      await bookingsRef.doc(docRef.id).set(bookingData);
+    } catch (e) {
+      print('Error adding call booking: $e');
+      rethrow;
+    }
   }
 
   void setSelectedCategory(CategoryModel category) {

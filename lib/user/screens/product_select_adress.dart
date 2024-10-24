@@ -25,7 +25,7 @@ class _ProductSelectAdressState extends State<ProductSelectAdress> {
   @override
   void initState() {
     super.initState();
-    userProvider.fetchAddresses();
+    //  userProvider.fetchAddresses();
     userProvider.getUserAddresses();
   }
 

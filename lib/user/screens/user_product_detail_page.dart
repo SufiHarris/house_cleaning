@@ -172,6 +172,7 @@ class _UserProductDetailPageState extends State<UserProductDetailPage> {
             const Spacer(),
             ElevatedButton(
               onPressed: () {
+                userProvider.fetchAddresses();
                 // Show bottom sheet with SelectAddressPage
                 showModalBottomSheet(
                   context: context,
