@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/user/models/product_model.dart';
-import 'package:house_cleaning/user/screens/product_recommend_screen.dart';
 import 'package:house_cleaning/user/screens/user_add_address.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
-import '../../auth/model/usermodel.dart';
 import '../../theme/custom_colors.dart';
 import '../providers/user_provider.dart';
 import '../widgets/custom_button_widget.dart';
@@ -27,6 +26,12 @@ class _ProductSelectAdressState extends State<ProductSelectAdress> {
     super.initState();
     //  userProvider.fetchAddresses();
     userProvider.getUserAddresses();
+
+    // Optionally, set a default selected address if there are existing addresses
+    if (userProvider.addresses.isNotEmpty) {
+      userProvider.setSelectedAddress(
+          userProvider.addresses.first); // Set the first address as selected
+    }
   }
 
   @override
@@ -55,10 +60,9 @@ class _ProductSelectAdressState extends State<ProductSelectAdress> {
                               value: address,
                               groupValue: userProvider.selectedAddress.value,
                               onChanged: (AddressModel? selectedAddress) {
-                                setState(() {
-                                  userProvider
-                                      .setSelectedAddress(selectedAddress!);
-                                });
+                                // Set the selected address
+                                userProvider
+                                    .setSelectedAddress(selectedAddress!);
                               },
                               activeColor: CustomColors.primaryColor,
                               title: Text(
@@ -68,7 +72,7 @@ class _ProductSelectAdressState extends State<ProductSelectAdress> {
                                 ),
                               ),
                               subtitle: Text(
-                                '${address.landmark}, ${address.building}, ${address.landmark}, ${address.floor}',
+                                '${address.landmark}, ${address.building}, ${address.floor}',
                                 style: const TextStyle(color: Colors.grey),
                               ),
                               secondary: Icon(Icons.location_on,
@@ -112,7 +116,7 @@ class _ProductSelectAdressState extends State<ProductSelectAdress> {
                             Get.snackbar('Error', 'Please select an address',
                                 snackPosition: SnackPosition.BOTTOM);
                           },
-                    // isDisabled: userProvider.selectedAddress.value == null,
+                    isDisabled: userProvider.selectedAddress.value == null,
                   );
                 }),
               ),
