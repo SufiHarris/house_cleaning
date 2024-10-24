@@ -96,21 +96,23 @@ class ClientDetailsPage extends StatelessWidget {
                   SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
-                      await cameracontroller.takePhoto();
+                      await cameracontroller.takestartPhoto(booking);
                       try {
                         String bookingId = booking.booking_id
                             .toString(); // Use actual booking ID
                         await cameracontroller.uploadPhotoWithStatus(
                             bookingId, 'start');
                         bookingController.updateBookingStatus(
-                            booking.booking_id.toString(), 'complete');
+                            booking.booking_id.toString(), 'completed');
 
                         Get.snackbar(
                             S.of(context).success,
                             S
                                 .of(context)
                                 .photoUploadedSuccessfully); // Localized success message
-                        Get.to(() => ReviewPhotoPage());
+                        Get.to(() => ReviewPhotoPage(
+                              booking: booking,
+                            ));
                       } catch (e) {
                         Get.snackbar(S.of(context).error,
                             '${S.of(context).failedToUploadPhoto}: $e'); // Localized error message

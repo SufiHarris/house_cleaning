@@ -119,7 +119,9 @@
   "selectLocationMessage": "Please select a location within Riyadh.",
   "error": "Error",
   "noLocationSelected": "No location selected. Please select a location within Riyadh.",
-  "failedToGetLocation": "Failed to get the current location."
+  "failedToGetLocation": "Failed to get the current location.",
+  "uploadAfterImages":"Upload After Images",
+  "serviceCompleted":"Service Completed"
  
 
  

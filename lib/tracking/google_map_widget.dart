@@ -197,7 +197,10 @@ class EmployeeTrackingMap extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: trackingController.hasReachedDestination.value
-                    ? () {
+                    ? () async {
+                        await trackingController
+                            .saveElapsedTime(booking.booking_id.toString());
+
                         bookingController.updateBookingStatus(
                             booking.booking_id.toString(), 'working');
                         Get.to(() => ClientDetailsPage(booking: booking));

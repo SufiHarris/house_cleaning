@@ -123,5 +123,7 @@
   "selectLocationMessage": "يرجى اختيار موقع داخل الرياض.",
   "error": "خطأ",
   "noLocationSelected": "لم يتم اختيار موقع. يرجى اختيار موقع داخل الرياض.",
-  "failedToGetLocation": "فشل في الحصول على الموقع الحالي."
+  "failedToGetLocation": "فشل في الحصول على الموقع الحالي.",
+  "uploadAfterImages":"تحميل بعد الصور",
+  "serviceCompleted":"اكتملت الخدمة"
 }
