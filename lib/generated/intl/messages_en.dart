@@ -141,6 +141,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "Please select a location within Riyadh."),
         "selectTime": MessageLookupByLibrary.simpleMessage("Select Time"),
         "service": MessageLookupByLibrary.simpleMessage("Service"),
+        "serviceCompleted":
+            MessageLookupByLibrary.simpleMessage("Service Completed"),
         "serviceCompletedSuccessfully": MessageLookupByLibrary.simpleMessage(
             "Service completed successfully."),
         "services": MessageLookupByLibrary.simpleMessage("Services"),
@@ -161,6 +163,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Time Availability"),
         "today": MessageLookupByLibrary.simpleMessage("Today"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("Tomorrow"),
+        "uploadAfterImages":
+            MessageLookupByLibrary.simpleMessage("Upload After Images"),
         "uploadAndComplete":
             MessageLookupByLibrary.simpleMessage("Upload & Complete"),
         "useCurrentLocation":

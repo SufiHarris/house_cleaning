@@ -295,6 +295,19 @@ class EmployeeTrackingController extends GetxController {
     }
   }
 
+  Future<void> saveElapsedTime(String bookingId) async {
+    try {
+      await firestore.collection('size_based_bookings').doc(bookingId).update({
+        'time_taken': elapsedTime.value,
+        'timestamp': FieldValue
+            .serverTimestamp(), // Optional: To track when it was saved
+      });
+      print("Elapsed time saved successfully: ${elapsedTime.value}");
+    } catch (e) {
+      print("Failed to save elapsed time: $e");
+    }
+  }
+
   @override
   void onClose() {
     positionStream?.cancel(); // Cancel position stream on close

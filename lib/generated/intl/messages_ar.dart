@@ -137,6 +137,8 @@ class MessageLookup extends MessageLookupByLibrary {
             "يرجى اختيار موقع داخل الرياض."),
         "selectTime": MessageLookupByLibrary.simpleMessage("حدد الوقت"),
         "service": MessageLookupByLibrary.simpleMessage("خدمة"),
+        "serviceCompleted":
+            MessageLookupByLibrary.simpleMessage("اكتملت الخدمة"),
         "serviceCompletedSuccessfully":
             MessageLookupByLibrary.simpleMessage("تم إكمال الخدمة بنجاح."),
         "services": MessageLookupByLibrary.simpleMessage("الخدمات"),
@@ -155,6 +157,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("الوقت المتاح"),
         "today": MessageLookupByLibrary.simpleMessage("اليوم"),
         "tomorrow": MessageLookupByLibrary.simpleMessage("غداً"),
+        "uploadAfterImages":
+            MessageLookupByLibrary.simpleMessage("تحميل بعد الصور"),
         "uploadAndComplete":
             MessageLookupByLibrary.simpleMessage("تحميل وإكمال"),
         "useCurrentLocation":

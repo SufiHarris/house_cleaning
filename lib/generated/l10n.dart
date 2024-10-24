@@ -1119,6 +1119,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Upload After Images`
+  String get uploadAfterImages {
+    return Intl.message(
+      'Upload After Images',
+      name: 'uploadAfterImages',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Service Completed`
+  String get serviceCompleted {
+    return Intl.message(
+      'Service Completed',
+      name: 'serviceCompleted',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

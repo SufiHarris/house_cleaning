@@ -2,18 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:house_cleaning/admin/screeens/admin_main.dart';
-
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
 import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:house_cleaning/notifications/notifications.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
-
 import 'admin/provider/admin_provider.dart';
 import 'employee/provider/employee_provider.dart';
 import 'firebase_options.dart';
 import 'generated/l10n.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'theme/custom_theme.dart';
 import 'tracking/tracking_controller.dart';

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/user/screens/shimmer_screens/user_products_shimmer.dart';
 import 'package:house_cleaning/user/screens/user_product_detail_page.dart';
-import 'package:shimmer/shimmer.dart';
-
 import '../../generated/l10n.dart';
 import '../providers/user_provider.dart';
 import '../widgets/product_card.dart';
@@ -35,29 +34,7 @@ class UserProductScreen extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 if (userProvider.isLoading.value) {
-                  return GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 0,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.8,
-                    ),
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
-                    },
-                  );
+                  return const ProductShimmerLoading(); // Use the extracted shimmer widget
                 }
 
                 if (userProvider.products.isEmpty) {

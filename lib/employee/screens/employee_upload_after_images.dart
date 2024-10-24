@@ -1,20 +1,21 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:house_cleaning/employee/controllers/camera_controller.dart';
-import 'package:house_cleaning/employee/screens/employee_order_overview.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:house_cleaning/user/models/bookings_model.dart';
+
 import '../../general_functions/booking_status.dart';
 import '../../generated/l10n.dart';
 import '../../theme/custom_colors.dart';
-import '../../user/models/bookings_model.dart';
-import 'employee_upload_after_images.dart';
+import '../controllers/camera_controller.dart';
+import 'employee_order_overview.dart';
 
-class ReviewPhotoPage extends StatelessWidget {
+class UploadAfterImages extends StatelessWidget {
   final BookingModel booking;
   final BookingController bookingController = Get.put(BookingController());
   final CameraController controller = Get.put(CameraController());
-
-  ReviewPhotoPage({super.key, required this.booking});
+  UploadAfterImages({super.key, required this.booking});
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +65,11 @@ class ReviewPhotoPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                await controller.takestartPhoto(booking);
+                await controller.takeafterPhoto(booking);
                 try {
                   String bookingId =
                       booking.booking_id.toString(); // Use actual booking ID
-                  await controller.uploadPhotoWithStatus(bookingId, 'start');
+                  await controller.uploadPhotoWithStatus(bookingId, 'end');
                   Get.snackbar(S.of(context).success, "PhotoAddedSuccessfully");
                   // S.of(context).photoAddedSuccessfully);
                 } catch (e) {
@@ -78,7 +79,7 @@ class ReviewPhotoPage extends StatelessWidget {
               },
               child: Text(
                 // S.of(context).addMorePhotos,
-                "AddMore Photos",
+                "upload After Photos",
                 //// Add a string for "Add More Photos"
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
@@ -93,29 +94,11 @@ class ReviewPhotoPage extends StatelessWidget {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                // await controller.takePhoto(booking);
-                // try {
-                //   String bookingId =
-                //       booking.booking_id.toString(); // Use actual booking ID
-                //   await controller.uploadPhotoWithStatus(bookingId, 'end');
-                //   bookingController.updateBookingStatus(
-                //       booking.booking_id.toString(), 'completed');
-
-                //   Get.snackbar(
-                //       S.of(context).success,
-                //       S
-                //           .of(context)
-                //           .photoUploadedSuccessfully); // Localized success message
-                Get.to(() => UploadAfterImages(booking: booking));
-                // } catch (e) {
-                //   Get.snackbar(S.of(context).error,
-                //       '${S.of(context).failedToUploadPhoto}: $e'); // Localized error message
-                // }
+                Get.offAll(() => OrderOverviewPage());
               },
               child: Text(
-                "Next",
                 // S.of(context).uploadAndComplete,
-                // S.of(context).uploadAfterImages,
+                S.of(context).serviceCompleted,
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(

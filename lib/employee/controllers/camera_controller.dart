@@ -3,28 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:house_cleaning/employee/screens/employee_upload_after_images.dart';
+import 'package:house_cleaning/user/models/bookings_model.dart';
 import 'package:image_picker/image_picker.dart';
 import '../screens/employee_review_photo.dart';
 
 class CameraController extends GetxController {
   final ImagePicker _picker = ImagePicker();
   var selectedImage = ''.obs; // Store selected image path
-  var startImageUrl = ''.obs;
-  var endImageUrl = ''.obs;
-  var isStartImage = true.obs; // Track whether it's start or end image
+  var startImageUrls = <String>[].obs; // Changed to List<String>
+  var endImageUrls = <String>[].obs; // Changed to List<String>
+  var isStartImage = true.obs;
+  // Track whether it's start or end image
 
   // Function to take or retake a photo
-  Future<void> takePhoto() async {
+  Future<void> takestartPhoto(BookingModel booking) async {
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo != null) {
       selectedImage.value = photo.path;
-      Get.to(() => ReviewPhotoPage());
+      Get.to(() => ReviewPhotoPage(booking: booking));
     }
   }
 
-  void retakePhoto() {
-    takePhoto();
+  Future<void> takeafterPhoto(BookingModel booking) async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      selectedImage.value = photo.path;
+      Get.to(() => UploadAfterImages(booking: booking));
+    }
   }
+
+  // void retakePhoto(BookingModel booking) {
+  //   takestartPhoto(booking);
+  // }
 
   Future<void> uploadPhotoWithStatus(String bookingId, String status) async {
     try {
@@ -46,17 +57,17 @@ class CameraController extends GetxController {
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
       if (status == 'start') {
-        startImageUrl.value = downloadUrl;
+        startImageUrls.add(downloadUrl); // Add to list
         await FirebaseFirestore.instance
             .collection('size_based_bookings')
             .doc(bookingId)
-            .update({'start_image': downloadUrl});
+            .update({'start_image': startImageUrls}); // Update with array
       } else if (status == 'end') {
-        endImageUrl.value = downloadUrl;
+        endImageUrls.add(downloadUrl); // Add to list
         await FirebaseFirestore.instance
             .collection('size_based_bookings')
             .doc(bookingId)
-            .update({'end_image': downloadUrl});
+            .update({'end_image': endImageUrls}); // Update with array
       }
 
       Get.snackbar('Success', 'Photo uploaded successfully');
