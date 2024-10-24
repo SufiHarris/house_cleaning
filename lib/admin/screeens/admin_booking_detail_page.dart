@@ -48,8 +48,8 @@ class AdminBookingDetailPage extends StatelessWidget {
               SizedBox(height: 8),
               OrderStatusTimeline(
                 status: booking.status,
-                beforeImage: booking.start_image,
-                afterImage: booking.endImage,
+                beforeImage: booking.start_image.first,
+                afterImage: booking.endImage.first,
               ),
               //    _buildLiveTrackingButton(),
             ],

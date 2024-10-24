@@ -8,7 +8,7 @@ import '../providers/user_provider.dart';
 import '../widgets/custom_button_widget.dart';
 
 class UserSelectAddress extends StatefulWidget {
-  const UserSelectAddress({Key? key}) : super(key: key);
+  const UserSelectAddress({super.key});
 
   @override
   State<UserSelectAddress> createState() => _UserSelectAddressState();

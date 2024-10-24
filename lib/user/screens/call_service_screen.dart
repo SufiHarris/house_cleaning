@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/auth/model/usermodel.dart';
 import 'package:house_cleaning/user/models/category_model.dart';
 import 'package:house_cleaning/theme/custom_colors.dart';
 import 'package:house_cleaning/user/models/service_model.dart';
@@ -10,6 +11,8 @@ import 'package:house_cleaning/user/widgets/review_tab.dart';
 import 'package:intl/intl.dart';
 
 import '../../generated/l10n.dart';
+import 'call_booking_address.dart';
+import 'user_select_address.dart';
 
 class CallServiceScreen extends StatefulWidget {
   final CategoryModel category;
@@ -29,14 +32,16 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
   TimeOfDay? selectedEndTime;
   bool isStartTimeAM = true;
   bool isEndTimeAM = true;
+  bool isLoading = false;
+
   bool get isTimeSelected =>
       selectedStartTime != null && selectedEndTime != null;
-  // List to hold fetched reviews
+  bool get canBookService => selectedDate != null && isTimeSelected;
+
   @override
   void initState() {
     super.initState();
-    userProvider.fetchReviewsByCategory(widget
-        .category.categoryName); // Fetch reviews when the screen initializes
+    userProvider.fetchReviewsByCategory(widget.category.categoryName);
   }
 
   @override
@@ -45,7 +50,7 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Top Image Section (Dynamic image from category)
+          // Top Image Section
           Container(
             height: 250,
             width: double.infinity,
@@ -69,8 +74,8 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child:
-                    Icon(Icons.arrow_back_ios, color: Colors.black, size: 18),
+                child: const Icon(Icons.arrow_back_ios,
+                    color: Colors.black, size: 18),
               ),
             ),
           ),
@@ -98,7 +103,6 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 16.0),
                         child: Text(
-                          // widget.category.categoryName,
                           widget.category
                               .getLocalizedCategoryName(currentLangCode),
                           style:
@@ -119,37 +123,30 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                         indicator: UnderlineTabIndicator(
                           borderSide: BorderSide(
                               width: 2.0, color: CustomColors.primaryColor),
-                          // insets: EdgeInsets.symmetric(horizontal: 40.0),
                         ),
                         tabs: [
                           Tab(
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .center, // Centering the content
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SvgPicture.asset(
                                   "assets/images/broom.svg",
-                                  height: 20, // Adjust icon size if necessary
+                                  height: 20,
                                 ),
-                                const SizedBox(
-                                    width:
-                                        8), // Adding space between icon and text
+                                const SizedBox(width: 8),
                                 Text(S.of(context).service),
                               ],
                             ),
                           ),
                           Tab(
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment
-                                  .center, // Centering the content
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SvgPicture.asset(
                                   "assets/images/star.svg",
-                                  height: 20, // Adjust icon size if necessary
+                                  height: 20,
                                 ),
-                                const SizedBox(
-                                    width:
-                                        8), // Adding space between icon and text
+                                const SizedBox(width: 8),
                                 Text(S.of(context).reviews),
                               ],
                             ),
@@ -168,6 +165,33 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                           ],
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: ElevatedButton(
+                          onPressed: canBookService
+                              ? () => _navigateToAddressSelection()
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: CustomColors.primaryColor,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            disabledBackgroundColor: Colors.grey,
+                          ),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : const Text(
+                                  'Book Now',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -177,6 +201,28 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
         ],
       ),
     );
+  }
+
+// In CallServiceScreen
+  void _navigateToAddressSelection() {
+    // Create a booking data model to pass
+    final bookingData = {
+      'date': selectedDate,
+      'startTime': selectedStartTime,
+      'endTime': selectedEndTime,
+      'isStartTimeAM': isStartTimeAM,
+      'isEndTimeAM': isEndTimeAM,
+      'category': widget.category,
+    };
+    userProvider.fetchAddresses();
+
+    Get.to(() => CallBookingAddress(
+        category: widget.category,
+        selectedDate: selectedDate!,
+        startTime: selectedStartTime!,
+        endTime: selectedEndTime!,
+        isStartTimeAM: isStartTimeAM,
+        isEndTimeAM: isEndTimeAM));
   }
 
   Widget _buildServiceDetails(BuildContext context) {
@@ -192,7 +238,6 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            // widget.category.description,
             widget.category.getLocalizedDescription(currentLangCode),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: CustomColors.textColorFour,
@@ -333,10 +378,6 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
   Widget _buildDateButton(String label, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(
-        label,
-        style: TextStyle(color: CustomColors.primaryColor),
-      ),
       style: ElevatedButton.styleFrom(
         side: BorderSide(color: CustomColors.primaryColor),
         shape: RoundedRectangleBorder(
@@ -344,79 +385,22 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
         ),
         backgroundColor: Colors.white,
       ),
+      child: Text(
+        label,
+        style: TextStyle(color: CustomColors.primaryColor),
+      ),
     );
   }
 
-  // void _showTimePicker(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //     ),
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (BuildContext context, StateSetter setState) {
-  //           return Container(
-  //             padding: EdgeInsets.only(
-  //               bottom: MediaQuery.of(context).viewInsets.bottom,
-  //             ),
-  //             decoration: BoxDecoration(color: Colors.white),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 Padding(
-  //                   padding: const EdgeInsets.all(16.0),
-  //                   child: Text(
-  //                     'Time Availability',
-  //                     style: TextStyle(
-  //                       fontSize: 18,
-  //                       fontWeight: FontWeight.bold,
-  //                       color: CustomColors.primaryColor,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 Padding(
-  //                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-  //                   child: Column(
-  //                     children: [
-  //                       _buildTimeSelection('Available From', true, setState),
-  //                       const SizedBox(height: 16),
-  //                       _buildTimeSelection('Available To', false, setState),
-  //                       const SizedBox(height: 16),
-  //                       ElevatedButton(
-  //                         onPressed: () {
-  //                           Navigator.pop(context);
-  //                           setState(() {}); // Update the main screen
-  //                         },
-  //                         child: Text('Confirm'),
-  //                         style: ElevatedButton.styleFrom(
-  //                             side: BorderSide(color: Colors.black, width: 0.4),
-  //                             // primary: CustomColors.primaryColor,
-  //                             shape: RoundedRectangleBorder(
-  //                               borderRadius: BorderRadius.circular(10),
-  //                             ),
-  //                             minimumSize: Size(double.infinity, 50),
-  //                             backgroundColor: Colors.white),
-  //                       ),
-  //                       SizedBox(height: 16),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
-
-  Widget _buildTimeSelection(
-      String label, bool isStartTime, StateSetter setState) {
-    TimeOfDay? selectedTime = isStartTime ? selectedStartTime : selectedEndTime;
-    bool isAM = isStartTime ? isStartTimeAM : isEndTimeAM;
-
+  Widget _buildTimeSelectionRow({
+    required String label,
+    required bool isStartTime,
+    required TimeOfDay? selectedTime,
+    required bool isAM,
+    required Function(TimeOfDay) onTimeSelected,
+    required Function(bool) onAMPMChanged,
+    required BuildContext context,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -434,69 +418,39 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                       return Theme(
                         data: ThemeData.light().copyWith(
                           colorScheme: ColorScheme.light(
-                              primary: CustomColors.primaryColor,
-                              onPrimary: Colors.white,
-                              surface: Colors.white,
-                              onSurface: Colors.black,
-                              outline: Colors.black,
-                              background: Colors.white),
+                            primary: CustomColors.primaryColor,
+                            onPrimary: Colors.white,
+                            surface: Colors.white,
+                            onSurface: Colors.black,
+                          ),
                         ),
                         child: child!,
                       );
                     },
                   );
                   if (picked != null) {
-                    setState(() {
-                      if (isStartTime) {
-                        selectedStartTime = picked;
-                      } else {
-                        selectedEndTime = picked;
-                      }
-                    });
+                    onTimeSelected(picked);
                   }
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
                   ),
                   child: Text(
                     selectedTime?.format(context) ?? S.of(context).selectTime,
-                    style: TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: CustomColors.primaryColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  _buildAMPMToggle(S.of(context).am, isAM, () {
-                    setState(() {
-                      if (isStartTime) {
-                        isStartTimeAM = true;
-                      } else {
-                        isEndTimeAM = true;
-                      }
-                    });
-                  }),
-                  _buildAMPMToggle(S.of(context).pm, !isAM, () {
-                    setState(() {
-                      if (isStartTime) {
-                        isStartTimeAM = false;
-                      } else {
-                        isEndTimeAM = false;
-                      }
-                    });
-                  }),
-                ],
-              ),
+            _buildAMPMToggle(
+              isAM: isAM,
+              onAMPMChanged: onAMPMChanged,
+              context: context,
             ),
           ],
         ),
@@ -504,11 +458,15 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
     );
   }
 
-  Widget _buildAMPMToggle(String text, bool isSelected, VoidCallback onTap) {
+  Widget _buildAMPMButton({
+    required String text,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? CustomColors.primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(6),
@@ -523,21 +481,48 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
     );
   }
 
+  Widget _buildAMPMToggle({
+    required bool isAM,
+    required Function(bool) onAMPMChanged,
+    required BuildContext context,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: CustomColors.primaryColor),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          _buildAMPMButton(
+            text: S.of(context).am,
+            isSelected: isAM,
+            onTap: () => onAMPMChanged(true),
+          ),
+          _buildAMPMButton(
+            text: S.of(context).pm,
+            isSelected: !isAM,
+            onTap: () => onAMPMChanged(false),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showTimePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+          builder: (BuildContext context, StateSetter setModalState) {
             return Container(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              decoration: BoxDecoration(color: Colors.white),
+              decoration: const BoxDecoration(color: Colors.white),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -556,25 +541,67 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       children: [
-                        _buildTimeSelection(
-                            S.of(context).availableFrom, true, setState),
+                        _buildTimeSelectionRow(
+                          label: S.of(context).availableFrom,
+                          isStartTime: true,
+                          selectedTime: selectedStartTime,
+                          isAM: isStartTimeAM,
+                          onTimeSelected: (TimeOfDay time) {
+                            setModalState(() {
+                              selectedStartTime = time;
+                            });
+                            setState(() {
+                              selectedStartTime = time;
+                            });
+                          },
+                          onAMPMChanged: (bool isAM) {
+                            setModalState(() {
+                              isStartTimeAM = isAM;
+                            });
+                            setState(() {
+                              isStartTimeAM = isAM;
+                            });
+                          },
+                          context: context,
+                        ),
                         const SizedBox(height: 16),
-                        _buildTimeSelection(
-                            S.of(context).availableTo, false, setState),
+                        _buildTimeSelectionRow(
+                          label: S.of(context).availableTo,
+                          isStartTime: false,
+                          selectedTime: selectedEndTime,
+                          isAM: isEndTimeAM,
+                          onTimeSelected: (TimeOfDay time) {
+                            setModalState(() {
+                              selectedEndTime = time;
+                            });
+                            setState(() {
+                              selectedEndTime = time;
+                            });
+                          },
+                          onAMPMChanged: (bool isAM) {
+                            setModalState(() {
+                              isEndTimeAM = isAM;
+                            });
+                            setState(() {
+                              isEndTimeAM = isAM;
+                            });
+                          },
+                          context: context,
+                        ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: isTimeSelected
                               ? () {
                                   Navigator.pop(context);
-                                  setState(() {}); // Update the main screen
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            side: BorderSide(color: Colors.black, width: 0.4),
+                            side: const BorderSide(
+                                color: Colors.black, width: 0.4),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            minimumSize: Size(double.infinity, 50),
+                            minimumSize: const Size(double.infinity, 50),
                             backgroundColor: isTimeSelected
                                 ? CustomColors.primaryColor
                                 : Colors.grey,
@@ -582,12 +609,13 @@ class _CallServiceScreenState extends State<CallServiceScreen> {
                           child: Text(
                             S.of(context).confirm,
                             style: TextStyle(
-                                color: isTimeSelected
-                                    ? Colors.white
-                                    : Colors.grey),
+                              color: isTimeSelected
+                                  ? Colors.white
+                                  : Colors.grey[600],
+                            ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
