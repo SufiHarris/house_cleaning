@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:house_cleaning/admin/screeens/admin_main.dart';
 
 import 'package:house_cleaning/auth/provider/auth_provider.dart';
 import 'package:house_cleaning/auth/screens/auth_screen.dart';
+import 'package:house_cleaning/employee/screens/employee_home.dart';
 import 'package:house_cleaning/notifications/notifications.dart';
 import 'package:house_cleaning/user/screens/user_main.dart';
 
@@ -48,21 +50,42 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: CustomTheme.themeData,
         localizationsDelegates: const [
-          S.delegate, // Ensure this matches the generated localization delegate
+          S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [
-          Locale('en', ''), // English
-          Locale('ar', ''), // Arabic
+          Locale('en', ''),
+          Locale('ar', ''),
         ],
-        // locale: _currentLocale, // T
         home: Obx(() {
           final authProvider = Get.find<AuthProvider>();
-          return authProvider.user.value != null
-              ? const UserMain()
-              : AuthScreen();
+
+          // Check both authentication and user type
+          if (authProvider.isUserAuthenticated()) {
+            // If user type is known, use it for navigation
+            if (authProvider.userType.value.isNotEmpty) {
+              switch (authProvider.userType.value) {
+                case 'admin':
+                  return AdminMain();
+                case 'staff':
+                  return const EmployeeHome();
+                case 'user':
+                  return const UserMain();
+                default:
+                  return const AuthScreen();
+              }
+            }
+            // If no user type is stored but user is authenticated,
+            // show loading or return to auth screen
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          return const AuthScreen();
         }),
       ),
     );

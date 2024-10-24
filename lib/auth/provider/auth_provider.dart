@@ -33,60 +33,99 @@ class AuthProvider extends GetxController {
   Rx<User?> user = Rx<User?>(null);
   RxBool isLoading = false.obs;
 
+  bool isGuest = false; // Flag to track guest session
+
   String? get user_id => null; // Loader variable
+
+  final RxString userType = ''.obs; // Can be 'user', 'staff', 'admin'
+
+// Add method to save user type
+  Future<void> saveUserType(String type) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userType', type);
+    userType.value = type;
+  }
+
+  // Add method to load user type
+  Future<void> loadUserType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? type = prefs.getString('userType');
+    if (type != null) {
+      userType.value = type;
+    }
+  }
 
   @override
   void onInit() {
     super.onInit();
     user.bindStream(_auth.authStateChanges());
+    resetGuestStatus();
+    loadUserType(); // Load saved user type
 
     ever(user, (User? currentUser) async {
       if (currentUser != null) {
-        // Check if the user exists in users_table
+        // Check if we already know the user type
+        if (userType.value.isNotEmpty) {
+          _navigateBasedOnUserType(userType.value);
+          return;
+        }
+
+        // If not, determine user type
         bool userexists = await userExists(currentUser.email!);
         if (userexists) {
-          // Navigate to UserMain if the user is a regular user
+          await saveUserType('user');
           Get.offAll(() => const UserMain());
         } else {
-          // Check if the user exists in staff_table using email
           bool staffexists = await staffExists(currentUser.email!);
           if (staffexists) {
-            // Fetch staff data from Firestore using email
             QuerySnapshot staffSnapshot = await _firestore
                 .collection('staff_table')
-                .where('email', isEqualTo: currentUser.email) // Query by email
+                .where('email', isEqualTo: currentUser.email)
                 .get();
 
             if (staffSnapshot.docs.isNotEmpty) {
-              // Get the first document (since email is unique)
               DocumentSnapshot staffDoc = staffSnapshot.docs.first;
-
               Map<String, dynamic> staffData =
                   staffDoc.data() as Map<String, dynamic>;
+              String role = staffData['role'];
 
-              // Check the role of the staff member
-              String role =
-                  staffData['role']; // Assuming 'role' is a field in Firestore
+              await saveUserType(role); // Save as 'admin' or 'staff'
 
-              // Navigate based on role
               if (role == 'admin') {
-                Get.offAll(() => AdminMain()); // Navigate to Admin Page
-                _showSnackBar('Logged in as Admin', false);
+                Get.offAll(() => AdminMain());
               } else if (role == 'staff') {
-                Get.offAll(
-                    () => const EmployeeHome()); // Navigate to Employee Home
-              } else {
-                _showSnackBar(
-                    'Role not recognized.', true); // Handle unrecognized roles
+                Get.offAll(() => const EmployeeHome());
               }
             }
-          } else {
-            // Handle case when the user is not found in either table
-            Get.offAll(() => AuthScreen());
           }
         }
       }
     });
+  }
+
+  // Add this helper method
+  void _navigateBasedOnUserType(String type) {
+    switch (type) {
+      case 'user':
+        Get.offAll(() => const UserMain());
+        break;
+      case 'admin':
+        Get.offAll(() => AdminMain());
+        break;
+      case 'staff':
+        Get.offAll(() => const EmployeeHome());
+        break;
+    }
+  }
+
+  // Method to reset guest session status
+  void resetGuestStatus() {
+    isGuest = false; // Reset the guest flag on app restart
+  }
+
+  // Method to check if user is logged in or is a guest
+  bool isUserAuthenticated() {
+    return user.value != null || isGuest;
   }
 
   Future<bool> staffExists(String email) async {
@@ -464,6 +503,7 @@ class AuthProvider extends GetxController {
     );
   }
 
+  // Modify signOut to also clear userType
   Future<void> signOut() async {
     try {
       await _auth.signOut();
@@ -471,6 +511,7 @@ class AuthProvider extends GetxController {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.clear();
+      userType.value = ''; // Clear user type
 
       user.value = null;
       Get.offAll(() => AuthScreen());
